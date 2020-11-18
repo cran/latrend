@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Niek Den Teuling" />
+
+<meta name="date" content="2020-11-12" />
+
+<title>Implementing new models</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Implementing new models</h1>
+<h4 class="author">Niek Den Teuling</h4>
+<h4 class="date">2020-11-12</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#case-study-data">Case study data</a></li>
+<li><a href="#stratification">Stratification</a></li>
+<li><a href="#two-step-clustering">Two-step clustering</a><ul>
+<li><a href="#general-approach">General approach</a></li>
+</ul></li>
+<li><a href="#implementing-a-new-method">Implementing a new method</a><ul>
+<li><a href="#extending-the-lcmethod-class">Extending the <code>lcMethod</code> class</a></li>
+<li><a href="#extending-the-lcmodel-class">Extending the <code>lcModel</code> class</a></li>
+<li><a href="#applying-the-new-method">Applying the new method</a></li>
+</ul></li>
+</ul>
+</div>
+
+<p>In this vignette we demonstrate how to define new methods, with varying degrees of completeness.</p>
+<div id="case-study-data" class="section level1">
+<h1>Case study data</h1>
+<p>We will generate a dataset comprising two clusters with a different intercept and slope. Firstly, we configure the default id, time, and response variable, so that these do not need to be provided to the other function calls.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(latrend)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">options</span>(<span class="dt">latrend.id =</span> <span class="st">&quot;Traj&quot;</span>, </span>
+<span id="cb1-3"><a href="#cb1-3"></a>        <span class="dt">latrend.time =</span> <span class="st">&quot;Time&quot;</span>,</span>
+<span id="cb1-4"><a href="#cb1-4"></a>        <span class="dt">latrend.verbose =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<p>Next, we generate the dataset, with 40 trajectories for cluster A and 60 trajectories for cluster B. Cluster A involves trajectories with a downward slope, whereas cluster B has an upward slope. We define a fixed mean of 1, such that all the cluster trajectories are shifted, placing cluster A at intercept 2, and cluster B at intercept 1.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>casedata &lt;-<span class="st"> </span><span class="kw">generateLongData</span>(<span class="dt">sizes =</span> <span class="kw">c</span>(<span class="dv">40</span>, <span class="dv">60</span>), </span>
+<span id="cb2-3"><a href="#cb2-3"></a>                        <span class="dt">data =</span> <span class="kw">data.frame</span>(<span class="dt">Time =</span> <span class="dv">0</span><span class="op">:</span><span class="dv">10</span>),</span>
+<span id="cb2-4"><a href="#cb2-4"></a>                        <span class="dt">fixed =</span> Y <span class="op">~</span><span class="st"> </span><span class="dv">1</span>,</span>
+<span id="cb2-5"><a href="#cb2-5"></a>                        <span class="dt">fixedCoefs =</span> <span class="dv">1</span>,</span>
+<span id="cb2-6"><a href="#cb2-6"></a>                        <span class="dt">cluster =</span> <span class="op">~</span><span class="st"> </span>Time, </span>
+<span id="cb2-7"><a href="#cb2-7"></a>                        <span class="dt">clusterCoefs =</span> <span class="kw">cbind</span>(<span class="kw">c</span>(<span class="dv">2</span>, <span class="fl">-.1</span>), <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">.05</span>)),</span>
+<span id="cb2-8"><a href="#cb2-8"></a>                        <span class="dt">random =</span> <span class="op">~</span><span class="st"> </span>Time,</span>
+<span id="cb2-9"><a href="#cb2-9"></a>                        <span class="dt">randomScales =</span> <span class="kw">cbind</span>(<span class="kw">c</span>(.<span class="dv">2</span>, <span class="fl">.02</span>), <span class="kw">c</span>(.<span class="dv">2</span>, <span class="fl">.02</span>)),</span>
+<span id="cb2-10"><a href="#cb2-10"></a>                        <span class="dt">noiseScales =</span> <span class="fl">.05</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>                        )</span></code></pre></div>
+<p>We plot the data to get a sense of different trajectories that have been generated. Visually, there is little group separation.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">plotTrajectories</span>(casedata, <span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAA9lBMVEUAAAAAACsAAFUAKysAK1UAK4AAVaorAAArACsrKwArK1UrVVUrVYArVaorgKorgNQzMzNNTU1NTWtNTYhNa6ZNiMRVAABVKwBVK1VVK4BVgIBVgNRVqtRVqv9rTU1rTWtrTYhra6ZrpuGAKwCAVQCAVSuAVVWAgKqAqoCAqtSA1P+ITU2ITWuITYiIxP+ma02ma2uma4imxKam4f+qVQCqgCuqqoCqqtSq1NSq1P+q///EiE3E///UgCvUqlXUqoDU1KrU1NTU/6rU/9TU///hpmvh///r6+v/qlX/xIj/1ID/1Kr/4ab//6r//8T//9T//+H///+1SSg3AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAXUklEQVR4nO2dDZvctnHHYTnWuW1S9ZxY7pucVOpb5NRua7WNZctJW9mQrmed8P2/TJckZuY/gwFB3nK5PInz6Lkjidf5YTAY4LirkHYZlXDuDmxddkAN2QE1ZAfUkB1QQ3ZADdkBNWQH1JCpgH56GLLce16m3XfLXP1lkTXdPPno5awOnltOCehFmfXdBdTJXOU8QHdObgPo5sn9F+HeN+n7Pwnhg78hC/q/z0L402+69O8vws+eHnIdzO3B8Pxn31Cp3/d1cN6bfzhU8bcn0GsxuR2gDy/CRy9fDFPu0QDo6qK7+eBpSq+GiwzoFT0fSv1vV8eVPMtVbFduB6izjJsnByM66Hq/B3TzpDOEP1z0V0/T912Obood8h6evzjwpFLdFeW9uvjFy76K7crtAGXn8t//+Y8XYQB0dfGge3Jgkq+GG9L+WWdRXamuDsz74V//fjFdTiK3A9T/HiZKBvQqr3EfPL26oBkzAOrvXnWAulLdT8mbnnW/f/7NwkotKbcHdFj4/+yf/ut/Hh4FKP3hMzdy2I7cHtCgOvkgwVKfYgRI8vbyx7/fspc+BtD9l916/dHL7KR/e1i+D36md9JXDw9ZXgzrFDtpAiR5X4U/f5lu/qMzpa3K7QHlJToDojn2gK4edVj0Mk+AJG+uY8vB9RFOuo8Af/vs3vMhULw63H7Yx3yHQLEP/n76LByM7IoDRQYkeftA8Rcb5rPIbr62F3snZAlA2470jpQFAPWu5p2V4wHdPAs/37ITOVL2E8WG7IAasgNqyA6oITughuyAGjIVUBTBayMjSesWO77GHVAjaQfUSNoBNZJ2QI2kHVAjaQfUSNoBNZJ2QI2kHVAj6QhAIZywXwsVO68FhSqiHVCuJVQY7YA66dH4iHZAfdFQRbQDyrUIolBrYF11lq/xOECCSK9pO6BOMhFAFJwG1lVn+RqPsaBgEAWeazugTsLwD4Vc9g6ok4DOmSda/3wH1MnAJ8htfsg/z6DO8jUebUHAIl8dfqVqjP0+AUoFIUBkZuBa6ixf41EWRCFiYUUpI/Im2/sESAs/liDbc0jvE6CCUfbbIQfZAWOkVdRZvsYjACUBoqaasSYJJ5sx0jsGCCJDtJ6OR2JIiIgKVUOAdxBQbzHiq2NmlICEddXpVgvcXQWUibA5RbAZecr+WjU+a4HbMqDXl5e//M4BlCiWFtdDV4nBwfNQbmRPfoy0BqDr33yXfvjUBcQHQUJA2Qw7KWFk+3XiY6S1plgHyZ9i4onYRdtVX3L3YvsFhO4uoMGC/uIg8FBzSP2/MUnws7uQekbb3oiMdfL680++pmuFuWBABpXMHOvzSy4vXFpmvGckLWpBb35HhKCWcXsp0NlSww09XUidGUnLLvPffukByr/UlqP324P/hkeACBc/OU5yYR5PYQ1Ar3/1o29B8qdnnlyRiXBCYUnJTcjHSLnUYhRWsaAfLi8rPgj8COGJziQan3mhcEVqZTuOwtkjaV/psQew1Qjwe+iMPZw8msJ5d/PdD7GVCFPNhteAQ+dWqb17otqXOWc7uwVF3GIgHCShdhsqCX2XOkCKzuQ8UtNbFjsOkDfN/AXJnolQosFmyqs+VxFtGFABx12fKLs3qyK+RZNMMbtPWzQCWMcHZTUDWoK7uEfSrzA0iKfgeWFHSaq4S4Bg11Du3D3zwh2K3n1olGhEJeU7BIjmgSCoBD78NFlLEwByUhsRXm4tiKndDUA8pvRLzMTsYzEYKGwKfitbKglDkwrRVgHxmLLqMWptvEioEkUW52uRUAReAaVSjWirgGCjALbU36eSwExRu5iopp+xpu0CojcUAqxEWYGEe30Fq4kLDBG9Dv2hhJjxWGwaEHVeuo6DDEAwUOSjEKFFF+K/FUi+i/AqpCyfGwdU8MhJhAVULYynRKSyqVgo6Qg8mgHYNiCEEGVMS5VRQSig92I1IaPRcVSUub5pQKJy91sDyqmj7mdwXYF9Cz9zEFn/BnN924AkFkIwamU21oTuGB4CIgRBiAK4IvBnHqStAcJYSD8WSSroIaj9fZKiBTF1nKsRJTUiqvEN7OZLRIGNxaKLESyD1QU/pEQqC0MchBEjInImNF1swIK0RpwUQrCHgoH8kyASSv5kg2oTmF3ItVsKwDNy9HRuQJoAdNmzr2FKoRVRICUVUDJeY5UwATOSwqwxWnKM/GyABAIYV5GaaCni3JwxKTPCm2IeoaEFrF4Ln5tvCJAs89aZig5RzQR+yuo4S3wCOtptoVfjRqJaMCzHMwNCBx3Up4ByMQEguXVGrZhSUCOiGWoB5DpT8WwbgFKBSDQEM7GI1IGZCX8gySDijb5m5DzSt+cFVFqRNngEh+rUD8zsHg3mEEMzILO5VhCdPg5qNeAag9qGRLMBAeOgPEjN1MV+qGiDZyOZq4dojUCx0YCbAXQItMAXBoaGoMJIU4lyZrriIR/nNz1YA1CqI4LQrZqmQWhsBlCRO5rYGxDrcDGp/Kq6KqCgfPtcQEa6frRyNMsHzsnVdb8G3VVWfJTLaaNLQUrmrJV3/cqe6+qLno6ryVKYQrGMKwtyrMgMnLUKM9HY+yTlr6hkOS9VQe20/ZmGU9Pp49GAIhh0HUI9DXXgNUfTAZ0NosjOJMBzXUh3Di6TQ+YUgKJspKoQsJPl1OelyKw5QiVGOApB3fvCCbIHJOy4LkCUTKdPBwhfNKxBEAW8c7ZsK7BDMYWiinvQpvQ5PtIoTUp3c2SpXTxQxKCwYrVW5WJjgKpGM+JiEBWnQ3m5AUEhKJWFjS61pzi01w2UfS+KqcTAiMrIxaCJ0Y+2sRTfJ2tEYHvuAJ8MUN0RW07+CpcPwFA5Geve0QQ+Uex/86ewDCSxnezVkJ61phqi0+zFQj0J9S6XeSIUUlSqoGvnJ+rasyTlamRnrOrJPsgvHo4KFEcAwShUz9LcAJbWbDhFRShSJWsHLJhjRVepydRLf+L1FDjZbr6+lGPvvId94YRWo43JruXZhoAYFaqaBUIDfKpDpZUvC8hpoBD/76C9vjlaNgMeg51sCpWClj26mqQVgxqTU54HBbWCuoCoj2VJWcp0clDvUIOeg+ty9bbe28OiJq1q7HSAfOXdYh6iKAGRsSKMkyDOoUVNYp4Y2ejaiAysXO0qR641SDoEsEmiOmOBNNDBLEvwnDCTITos+mdqC6dllSNXu3b4xYrwg8uAlWAxpoFzQhsCtJxGom/KQxnYTE8+xcwuxEAy/Sviy8C6lxEN30H5zgeJvSAprhGU1yUtU0pfE5BlEuwUA35seIxIUdHlIoTLGIETADUO7NRg+jmBA0XqawMaScurskmCUZY0H1Gks7RoliIYDZxOynpMboa0IUAxr0FOUlBaFHGvIOqTpIxThVrfrIFh3lhY+fkBgVbOYSMr5JzeKFfFk1IxCkbkmbUmRrRCHDQXULFSqRRUAUiw/gxYbTYEjw6agmSBzWo0KDcHaCwAz92HPzI50wh9GSJNuCpq12Ym2tYB2fBDJ0VRBR5JjTlJAWRN0dlzJSGoT22rfmwTUIzucTVrgOuRYpX9d1SPqJRkVNOOmcFTrH6bgIxd2CT0QhjZcTTIKaoUPFUUonx/hmlgw4BGPpeqD8zUNOIFjvXE0BPXJ1nxspmYJSCQS98uIOOA/WJ6ksHQQyqUKrIjab7lqk1jWwPkuJJqsVBK/9hJiXicG3hLoUJpcEtbBoTh77RiDicuL2cApL0qYxCxk9s2IK305GKiM041mFo8nbCJqCYXZdg+oIhKhGoQaYsZrAKHJxoE2iNfmDUP0PXnl5f09UErA6ooPlaMOAgaVQvQSvgxESkbGxb001+Z/9G6++6g61973x90C02PKlZ4GL8YzLVg10VJoc1JgOyR/PQooIfhkQL0uvuCN+8bqFYHhDricu7MzDpN8EWKC4ShLSf9Itx7bmbZ8A1U5lvwzinZVVTf8Bu+lU9l5nv9kh7UJBdejXB98yQ8UIlvv3pMlwuawvHFsgn4hwAxBmt3boREcw7NremkX/UZyZDefMF8tgWoExXM2AQ3cJggDUAHN4QWdP35l2m7gEYRwTtrAVzT8CTBfp88kd7d9e2WgJ5pH6T4bBEQvTrkCMMoztJ0RKlOQRoWVKxiP1x2sp1VzE2qIUIQ/X1+CGYTnek3Kw7ScmpNb13MR1R8GqDch+gpFjd+HnRMMUakg2fLDU/FHP+z9fOgo4rxRgu9S1QHbTHiy5C1te1dBWQ2YTJ7tGU5O1jh2l/dQUDGW9SK6Vc78TyoxGZMTVjdhfMgLWZQPf+aE0DbEFWQrXJDAC5rOxwR3S1AlR0pFLOo1BXVERhF/hAMWhdtOSYFipsCxKo2i8EWX5auxNahjwHQuuRlG5a7Agj9TaOYWtrlVzLTR7ljaiNouHcFkPHGjUjaK6W3E4zJOSuyTm3bgCConVjMehwSNbn0Z6ViSUWeb9sHhVLRRjEdFcrjkLca6LqRFJsTjMnwaMuApNcTiiktbUosjETfJ6wACm0ZkLH0RrH6VsFMHB8Tf2OaSrJB13YADR00AOrFAoUu5pNxavL47jgWSaqkbmwjgIJ4gfKxU0xsoawxeKs6GlSUqVVEQPzXIm73/IC43+7puxMo6vlQE9HU4BH7kvoiPwrbAgSDGmuv4CkzwSlC61cyWZ1NacTHOjPsUznLRgBB12NUf6SxEvC/42A8URtXCGYBVy3IXJOOQFZddgOAsKfEp3XcwWNuYsnyLQQqAhvSiCaTO1KbnecGVMDJfJrFSG/vbEfYkHeSGilA5MZack5ADhziMwqIZoIiUVyDo2VAYlMFnuF2zb0Ytuyn+sXqNTpKqUYCvfCMriQqVHGCzawBCMA437zAl15IXKkRS+oa9WIVxcnYSKegOipUbnFA2DOrqebkUagEg0jA1zWzS8G2YafRWS3IsHE1xTxlml8MRxT1R0r2XmOM6m9fRXVFzVz/clsND46nKUKyGwOvmKOA+N6Knqqxcg9R1ulVkJ8vA6gCR0PQmUqtgi3mDzEiwIBxCLLBNqidsiYfO/3S+Y8ANEf6pvhKCWQxBfTXuuX3xILKQ++VwRfCce78PW90QRXq/94Vf7viKTNRaddMPAvi0bSWxvvHGGm2wPgX0RyOb4R7mHSTpTCryD/1OnPyQLFKJ2pHgygiHC5zOCx49OcDDcBQ1jhksIEioxiX0wLiBnBMasXUUFo8YGQZhYl7bWvGVFSArZILtrqCEwLKpjDiwpUD11RkBaLZNjbMRSxYKpq/X1hxY97JlIPCJwNU2HodEChptbJDHmWKtdxOPT23inFT1EaEXE8CKLABlP9l+mSJ9o70Siptdr1YN6MuNyS52tNsNaAZ62dcWGM64mg3tOaI1Rb3H0jcqr8VHJkvtIq59MtHjeGGrov1+3lpRVM+1uuEOJ2SHRWMCo+UsWO/hAWZljjJJ+KpAsPIGcwMoNcxK/ScceCO2GZzO3BSq3oSFt+sRt0SsCvmkckPXmYYb5/kGGk3o27Y9K5cAmIuQw8W24vZZjU7bBwGSiJpox7pVl+IZpCLEijOIZyzLmVBnvEQINEZ51HNvVQ0LJVzjWCOVOfoKSxIKaIAjWiQCGho0ZJZSC5pMhUFtsAs3TcppNlyPkhXXIXCs8qxCJvVLV/JPDy0nrjSA+3wKlmGq0UBKZtlEq3eelOnWc6tJ5pbMA+TW8c6Y02dIg4Cn4M3wdwUYGq61/pugzp+6PTK/DVtuiy3ilWaVn/VNVn0Th+0vq3wn32gKm3lwrRPC7iA4Hhzd05jQdzhitLcZ3U7b3xH1kHFXQMy4xQlBKA06nbuzpJn0kX/nQeIRNMq8YBZeQQcmq24XSUCRZsG/Vl2qyHgqx0zqdGYNok5tFeR8Yj6ykxq4HUZaq0yGgv6oGDM11HPG/SGEs7KZP5QgnXId2351ZWrBlOQRk4CyNJRetXxTBY0h+IUtxYt8ELXqrfotNSwmAX5bVd6NJ2K0oMBFY/q1YPNGCPxe4Kxg4zGsYCcvXeV2xiPOXkLNibR/FURCmFx3bals+QqVnYxtN6tlLxGEZVq16zmX10NJyxVM2l8T9potSigyoDOE+moq3D0zlVDlW89JKhktVUuDKjRgSk9LOx+pOYIM0MpiT680gokGyqqtsWnWGuwcEIl0cWjM+KLsSFJsv7bb97Ye7ZJW0ZqXAJQ9ZTBjb0ifRzby5qfJxliR1lmM29VdDmFYE8bVZOLvh9U6YtqNWoLzhYerZnX9RJnHcbwWL9Igwi98MzGToZFp5gMKzgBh1VQI1hZ6kgvTUNrb31P1aAGTUNA43AMM4SgrPY2gK5/850LKCIdxcDpR8FUUjxUqmQwExpDF3gRqKCn6Zhc46/vzAH0+vKXHqBk6dhOGltrSjsf2BfvJyL8737KUASC7o3jpI8D9O0n/16xoKoedoEoco9MG3psHIN6HSzyVMRgQ+loTBa7U1I4DhBPMfMlb9Bhuh/57kYj9fffqGbThJSSt+lU8/g+H3ZJv3E3puao3MoH5VGaseJqU5q3VEflU8A4lb1Kt0I2ZT+6OoUFlYCw+VA4Eemvk1hoH5xPKRTVjqujBoGS/DIrAfLUlEgUHoEkec4VxcIUqDz90q0U6mAC5kgVpqsASma6QNcqJyGUB/HQvZ0EgiXaRF1l3bLiiPmsAcixoJGQjWkkjQeXH/pYuGcrjjqUp6rpaKyzJCAQ2z/sqmISKFSp7yGCXZ35pZDCKHzeDU3H2K0EyB1rUT3IDU2/EJRbwOjOZ+CYic3qa+p5tdUBsZUYSeVT7nTNlKRfrncZmUeOUUVd4xkBjYuXVU4Z3H4FZXdT1Snsrl1q5ON7pzqTruAJNLnyzolu3K45aJqq6jhI1T4RUMWU+8tjANUhcYxIbYo/Lr4cs8mmpapOao5bfSi9GhezIHkU1XodKYiRLFU0x3sMW/02fBCEbs7IzBjBY9UpbeHcgKIoqOzI/y4ED9i0Ljt5i2JuhnMDqkTOqq82ZbIzgbLRXaqgWA3f2QEZHCFblWp7+jySpNK+iqVKNTBB0zlpy02xQni4UR1laGP98meeow7O21k2OS1tsT/7jDeQ7cmkFQxqHqmtjsy+OaUmpJ3QgriBwNuxSuMOlQWW+elJq1hQbdSrdE6tzvI1HgeoE89netHyKuosX+PxgDpRnjj6W61V1Fm+xmUA9UKUxteV9xWQwFnmnGqhYhsBVDicHZDU4i5kO6ChlmpstwPqZGSp2gGdvF8LFdsBnbzGHVAjaQfUSNoBNZJ2QI2kuYDeW9ktqJK0A2okzQUEcsv/1njVYss1tgNqFNsBNYrtgBrF9mW+ITughuyAGrIDasgOqCEzAL354vJXP5qrCXL9Of2n7N1/0C4f0WuIZJ7RGvwX8HMa6z9RUFFvOqC3X32ZfvhUX02QN7/7Ol3/+uvu8tsvW5lBOPOs1g7yelBuRmP9Jytr6k0H9OZfvssf3pCrKa1/Sr19+69fT24MMs9qbRiQeY0Nn6ysqTcd0PXf/Zhbl6tZnT5YLk22CUU488zW8tjPaqzDUVNvOqDOdIdycjVN3n71uO/GYaJNHljJPK81yjmvsQOgmnorWNCbLx7LzXw/NK+11+jPpza2jAXd0gcdVjHs5nxA81r79jHezAB0vA/qJgq5+cfT1xXh0w3u23+b6ts586zWeFbNaqzDUVNvdhzU054RB+XQpCt2uPxkurPtM89tLU+SmY1BHFQ0uEfSDdkBNWQH1JAdUEN2QA3ZATVkY4BunuTPKdy/+vjpuTvTy8YAdbIVNIPsgBqyWUCHn1cf//NFCA+uDj8eDbPv3vPVe7NpQBcfvUwvQvfj3vObJ/dTenG4Xlm2DehgOMOPj5++6qznp4eP1u7NpgF1F/TjxbC6PVi7N3cH0Pqzq5c7A+jVB+dZ2+4MoJsnBxM6A6U7A6hf5s9gRRsEtC3ZATVkB9SQHVBDdkAN2QE1ZAfUkB1QQ3ZADdkBNeT/AbR1n8J9vB6mAAAAAElFTkSuQmCC" /><!-- --></p>
+<p>Since we generated the data, we have the luxury of looking at reference cluster trajectories, as stored in the <code>Mu.cluster</code> column. Note that <code>Mu.fixed</code> must be added to obtain the correct values.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">plotClusterTrajectories</span>(casedata, <span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>, <span class="dt">cluster =</span> <span class="st">&quot;Class&quot;</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="stratification" class="section level1">
+<h1>Stratification</h1>
+<p>Rather than starting with clustering, in some case studies there may be prior knowledge on how to sensibly stratify the trajectories. Either by an observed independent variable (e.g., age or gender), or a certain aspect of the observed trajectory (e.g., the intercept, slope, variability).</p>
+<p>Let’s presume in this example that domain knowledge suggests that stratifying by the intercept may provide a sensible grouping of the trajectories. This approach is further supported by the density plot of the trajectory intercepts, which shows a bimodal distribution.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">ggplot</span>(casedata[Time <span class="op">==</span><span class="st"> </span><span class="dv">0</span>], <span class="kw">aes</span>(<span class="dt">x =</span> Mu)) <span class="op">+</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="st">  </span><span class="kw">geom_density</span>(<span class="dt">fill =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">adjust =</span> <span class="fl">.3</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>Based on the density plot, we will assign trajectories with an intercept above 1.6 to cluster A, and the remainder to cluster B.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>method &lt;-<span class="st"> </span><span class="kw">lcMethodStratify</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>, Y[<span class="dv">1</span>] <span class="op">&gt;</span><span class="st"> </span><span class="fl">1.6</span>)</span>
+<span id="cb6-2"><a href="#cb6-2"></a>model &lt;-<span class="st"> </span><span class="kw">latrend</span>(method, casedata)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">clusterProportions</span>(model)</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="co">#&gt;   A   B </span></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="co">#&gt; 0.6 0.4</span></span></code></pre></div>
+<p>The approach we specified requires the first observation to be available, and is sensitive to noise. A more robust alternative would be to fit a linear model per trajectory, and to use the estimated intercept to stratify the trajectories on.</p>
+<p>We can specify this stratification model by defining a function which takes the data of separate trajectories as input. This function should return a single cluster assignment for the respective trajectory. By returning a factor, we can pre-specify the cluster names.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>stratfun &lt;-<span class="st"> </span><span class="cf">function</span>(data) {</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  int &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">lm</span>(Y <span class="op">~</span><span class="st"> </span>Time, data))[<span class="dv">1</span>]</span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="kw">factor</span>(int <span class="op">&gt;</span><span class="st"> </span><span class="fl">1.7</span>, </span>
+<span id="cb8-4"><a href="#cb8-4"></a>         <span class="dt">levels =</span> <span class="kw">c</span>(<span class="ot">FALSE</span>, <span class="ot">TRUE</span>), </span>
+<span id="cb8-5"><a href="#cb8-5"></a>         <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;Low&quot;</span>, <span class="st">&quot;High&quot;</span>))</span>
+<span id="cb8-6"><a href="#cb8-6"></a>}</span>
+<span id="cb8-7"><a href="#cb8-7"></a>m2 &lt;-<span class="st"> </span><span class="kw">lcMethodStratify</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>, <span class="dt">stratify =</span> stratfun, <span class="dt">center =</span> mean)</span>
+<span id="cb8-8"><a href="#cb8-8"></a>model2 &lt;-<span class="st"> </span><span class="kw">latrend</span>(m2, casedata)</span>
+<span id="cb8-9"><a href="#cb8-9"></a></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="kw">clusterProportions</span>(model2)</span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="co">#&gt;  Low High </span></span>
+<span id="cb8-12"><a href="#cb8-12"></a><span class="co">#&gt;  0.6  0.4</span></span></code></pre></div>
+<p>In case the linear regression step is time-intensive, a more efficient approach is to save the pre-computed trajectory intercepts as a column in the original data. This column can then be referred to in the expression of the stratification model.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>casedata[, Intercept <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">coef</span>(<span class="kw">lm</span>(Y <span class="op">~</span><span class="st"> </span>Time, .SD))[<span class="dv">1</span>], by =<span class="st"> </span>Traj]</span>
+<span id="cb9-2"><a href="#cb9-2"></a></span>
+<span id="cb9-3"><a href="#cb9-3"></a>m3 &lt;-<span class="st"> </span><span class="kw">lcMethodStratify</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>, <span class="dt">stratify =</span> Intercept[<span class="dv">1</span>] <span class="op">&gt;</span><span class="st"> </span><span class="fl">1.7</span>, </span>
+<span id="cb9-4"><a href="#cb9-4"></a>  <span class="dt">clusterNames =</span> <span class="kw">c</span>(<span class="st">&quot;Low&quot;</span>, <span class="st">&quot;High&quot;</span>))</span>
+<span id="cb9-5"><a href="#cb9-5"></a>model3 &lt;-<span class="st"> </span><span class="kw">latrend</span>(m3, casedata)</span></code></pre></div>
+</div>
+<div id="two-step-clustering" class="section level1">
+<h1>Two-step clustering</h1>
+<p>We can take the approach involving the estimation of a linear model per trajectory one step further. Instead of using a pre-defined threshold on the intercept, we use a cluster algorithm on both the intercept and slope to automatically find clusters.</p>
+<p>We first define the representation step, which estimates the model coefficients per trajectory, and outputs a <code>matrix</code> with the coefficients per trajectory per row.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>repStep &lt;-<span class="st"> </span><span class="cf">function</span>(method, data, verbose) {</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  coefdata &lt;-<span class="st"> </span>data[, <span class="kw">lm</span>(Y <span class="op">~</span><span class="st"> </span>Time, .SD) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">coef</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.list</span>(), keyby =<span class="st"> </span>Traj]</span>
+<span id="cb10-3"><a href="#cb10-3"></a>  coefmat &lt;-<span class="st"> </span><span class="kw">subset</span>(coefdata, <span class="dt">select =</span> <span class="dv">-1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.matrix</span>()</span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="kw">rownames</span>(coefmat) &lt;-<span class="st"> </span>coefdata<span class="op">$</span>Traj</span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="kw">return</span>(coefmat)</span>
+<span id="cb10-6"><a href="#cb10-6"></a>}</span></code></pre></div>
+<p>The cluster step takes the coefficient matrix as input. A cross-sectional cluster algorithm can then be applied to the matrix. In this example, we apply <span class="math inline">\(k\)</span>-means. The cluster step should output a <code>lcModel</code> object.</p>
+<p>The <code>lcModelCustom</code> function creates a <code>lcModel</code> object for a given vector of cluster assignments.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>clusStep &lt;-<span class="st"> </span><span class="cf">function</span>(method, data, repMat, envir, verbose) {</span>
+<span id="cb11-2"><a href="#cb11-2"></a>  km &lt;-<span class="st"> </span><span class="kw">kmeans</span>(repMat, <span class="dt">centers =</span> <span class="dv">3</span>)</span>
+<span id="cb11-3"><a href="#cb11-3"></a></span>
+<span id="cb11-4"><a href="#cb11-4"></a>  <span class="kw">lcModelCustom</span>(<span class="dt">response =</span> method<span class="op">$</span>response, </span>
+<span id="cb11-5"><a href="#cb11-5"></a>                <span class="dt">method =</span> method,</span>
+<span id="cb11-6"><a href="#cb11-6"></a>                <span class="dt">data =</span> data, </span>
+<span id="cb11-7"><a href="#cb11-7"></a>                <span class="dt">trajectoryAssignments =</span> km<span class="op">$</span>cluster,</span>
+<span id="cb11-8"><a href="#cb11-8"></a>                <span class="dt">clusterTrajectories =</span> method<span class="op">$</span>center,</span>
+<span id="cb11-9"><a href="#cb11-9"></a>                <span class="dt">model =</span> km)</span>
+<span id="cb11-10"><a href="#cb11-10"></a>}</span></code></pre></div>
+<p>We are now ready to create the <code>lcMethodTwoStep</code> method.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>m.twostep &lt;-<span class="st"> </span><span class="kw">lcMethodTwoStep</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>, <span class="dt">representationStep =</span> repStep, <span class="dt">clusterStep =</span> clusStep)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>model.twostep &lt;-<span class="st"> </span><span class="kw">latrend</span>(m.twostep, <span class="dt">data =</span> casedata)</span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="kw">summary</span>(model.twostep)</span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="co">#&gt; Longitudinal cluster model using two-step clustering</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="co">#&gt;  id:             &quot;Traj&quot;</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="co">#&gt;  time:           &quot;Time&quot;</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="co">#&gt;  center:         function (x) {    mean(x, na.rm = TRUE)}</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="co">#&gt;  standardize:    `scale`</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="co">#&gt;  clusterStep:    `clusStep`</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="co">#&gt;  representationStep:`repStep`</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="co">#&gt;  response:       &quot;Y&quot;</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a><span class="co">#&gt; </span></span>
+<span id="cb13-12"><a href="#cb13-12"></a><span class="co">#&gt; Cluster sizes (K=3):</span></span>
+<span id="cb13-13"><a href="#cb13-13"></a><span class="co">#&gt;        A        B        C </span></span>
+<span id="cb13-14"><a href="#cb13-14"></a><span class="co">#&gt; 35 (35%) 25 (25%) 40 (40%) </span></span>
+<span id="cb13-15"><a href="#cb13-15"></a><span class="co">#&gt; </span></span>
+<span id="cb13-16"><a href="#cb13-16"></a><span class="co">#&gt; Number of obs: 1100, strata (Traj): 100</span></span>
+<span id="cb13-17"><a href="#cb13-17"></a><span class="co">#&gt; </span></span>
+<span id="cb13-18"><a href="#cb13-18"></a><span class="co">#&gt; Scaled residuals:</span></span>
+<span id="cb13-19"><a href="#cb13-19"></a><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s </span></span>
+<span id="cb13-20"><a href="#cb13-20"></a><span class="co">#&gt;      NA      NA      NA     NaN      NA      NA       1</span></span></code></pre></div>
+<div id="general-approach" class="section level2">
+<h2>General approach</h2>
+<p>The two-step model defined above is hard-coded for a given formula and a fixed number of clusters. In an exploratory setting, it is convenient to define a parameterized method. Here, we change the two functions to take arguments through the <code>lcMethod</code> object in the <code>method</code> variable.</p>
+<p>Note that we can introduce new arguments which are not originally part of <code>lcMethodTwoStep</code> (e.g., <code>nClusters</code>) to enable the specification of the number of clusters in our method.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>repStep.gen &lt;-<span class="st"> </span><span class="cf">function</span>(method, data, verbose) {</span>
+<span id="cb14-2"><a href="#cb14-2"></a>  coefdata &lt;-<span class="st"> </span>data[, <span class="kw">lm</span>(method<span class="op">$</span>formula, .SD) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">coef</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.list</span>(), keyby =<span class="st"> </span><span class="kw">c</span>(method<span class="op">$</span>id)]</span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="co"># exclude the id column</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a>  coefmat &lt;-<span class="st"> </span><span class="kw">subset</span>(coefdata, <span class="dt">select =</span> <span class="dv">-1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.matrix</span>()</span>
+<span id="cb14-5"><a href="#cb14-5"></a>  <span class="kw">rownames</span>(coefmat) &lt;-<span class="st"> </span>coefdata[[method<span class="op">$</span>id]]</span>
+<span id="cb14-6"><a href="#cb14-6"></a>  <span class="kw">return</span>(coefmat)</span>
+<span id="cb14-7"><a href="#cb14-7"></a>}</span>
+<span id="cb14-8"><a href="#cb14-8"></a></span>
+<span id="cb14-9"><a href="#cb14-9"></a>clusStep.gen &lt;-<span class="st"> </span><span class="cf">function</span>(method, data, repMat, envir, verbose) {</span>
+<span id="cb14-10"><a href="#cb14-10"></a>  km &lt;-<span class="st"> </span><span class="kw">kmeans</span>(repMat, <span class="dt">centers =</span> method<span class="op">$</span>nClusters)</span>
+<span id="cb14-11"><a href="#cb14-11"></a></span>
+<span id="cb14-12"><a href="#cb14-12"></a>  <span class="kw">lcModelCustom</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>,</span>
+<span id="cb14-13"><a href="#cb14-13"></a>    <span class="dt">method =</span> method,</span>
+<span id="cb14-14"><a href="#cb14-14"></a>    <span class="dt">data =</span> data, </span>
+<span id="cb14-15"><a href="#cb14-15"></a>    <span class="dt">trajectoryAssignments =</span> km<span class="op">$</span>cluster,</span>
+<span id="cb14-16"><a href="#cb14-16"></a>    <span class="dt">clusterTrajectories =</span> method<span class="op">$</span>center,</span>
+<span id="cb14-17"><a href="#cb14-17"></a>    <span class="dt">model =</span> km)</span>
+<span id="cb14-18"><a href="#cb14-18"></a>}</span></code></pre></div>
+<p>We create a new <code>lcMethodTwoStep</code> instance with the more generic functions. Defining values for <code>formula</code> and <code>nClusters</code> here makes these arguments values act as default values in a call of <code>latrend</code>.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>m.twostepgen &lt;-<span class="st"> </span><span class="kw">lcMethodTwoStep</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>,</span>
+<span id="cb15-2"><a href="#cb15-2"></a>  <span class="dt">representationStep =</span> repStep.gen, </span>
+<span id="cb15-3"><a href="#cb15-3"></a>  <span class="dt">clusterStep =</span> clusStep.gen)</span></code></pre></div>
+<p>However, because we omitted the specification of <code>formula</code> and <code>nClusters</code>, these need to be provided in the <code>latrend</code> call.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>model.twostepgen &lt;-<span class="st"> </span><span class="kw">latrend</span>(m.twostepgen, <span class="dt">formula =</span> Y <span class="op">~</span><span class="st"> </span>Time, <span class="dt">nClusters =</span> <span class="dv">2</span>, casedata)</span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="kw">summary</span>(model.twostepgen)</span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="co">#&gt; Longitudinal cluster model using two-step clustering</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a><span class="co">#&gt;  nClusters:      2</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a><span class="co">#&gt;  formula:        Y ~ Time</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a><span class="co">#&gt;  id:             &quot;Traj&quot;</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a><span class="co">#&gt;  time:           &quot;Time&quot;</span></span>
+<span id="cb16-8"><a href="#cb16-8"></a><span class="co">#&gt;  center:         function (x) {    mean(x, na.rm = TRUE)}</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a><span class="co">#&gt;  standardize:    `scale`</span></span>
+<span id="cb16-10"><a href="#cb16-10"></a><span class="co">#&gt;  clusterStep:    `clusStep.gen`</span></span>
+<span id="cb16-11"><a href="#cb16-11"></a><span class="co">#&gt;  representationStep:`repStep.gen`</span></span>
+<span id="cb16-12"><a href="#cb16-12"></a><span class="co">#&gt;  response:       &quot;Y&quot;</span></span>
+<span id="cb16-13"><a href="#cb16-13"></a><span class="co">#&gt; </span></span>
+<span id="cb16-14"><a href="#cb16-14"></a><span class="co">#&gt; Cluster sizes (K=2):</span></span>
+<span id="cb16-15"><a href="#cb16-15"></a><span class="co">#&gt;        A        B </span></span>
+<span id="cb16-16"><a href="#cb16-16"></a><span class="co">#&gt; 40 (40%) 60 (60%) </span></span>
+<span id="cb16-17"><a href="#cb16-17"></a><span class="co">#&gt; </span></span>
+<span id="cb16-18"><a href="#cb16-18"></a><span class="co">#&gt; Number of obs: 1100, strata (Traj): 100</span></span>
+<span id="cb16-19"><a href="#cb16-19"></a><span class="co">#&gt; </span></span>
+<span id="cb16-20"><a href="#cb16-20"></a><span class="co">#&gt; Scaled residuals:</span></span>
+<span id="cb16-21"><a href="#cb16-21"></a><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s </span></span>
+<span id="cb16-22"><a href="#cb16-22"></a><span class="co">#&gt;      NA      NA      NA     NaN      NA      NA       1</span></span></code></pre></div>
+</div>
+</div>
+<div id="implementing-a-new-method" class="section level1">
+<h1>Implementing a new method</h1>
+<p>The use of <code>lcMethodStratify</code> and <code>lcMethodTwostep</code> enables rapid prototyping. Once the desired model has been identified, it may be worthwhile to implement it as a standalone method in the framework. This way the model can be extended to output more representative cluster trajectories, or to extend the model with predictive capabilities such that it can be validated on external data.</p>
+<p>To illustrate this, we will implement a basic group-based trajectory model (GBTM), also known as latent-class growth analysis. We make use of the implementation available in the <code>lcmm</code> package through the <code>lcmm()</code> function, which allows for a relatively concise illustration.</p>
+<div id="extending-the-lcmethod-class" class="section level2">
+<h2>Extending the <code>lcMethod</code> class</h2>
+<p>Firstly, we create a new method class named <code>lcMethodSimpleGBTM</code>, which extends the <code>lcMethod</code> class.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">setClass</span>(<span class="st">&quot;lcMethodSimpleGBTM&quot;</span>, <span class="dt">contains =</span> <span class="st">&quot;lcMethod&quot;</span>)</span></code></pre></div>
+<p>Note that a <code>lcMethod</code> class has a single slot <code>call</code>, which stores all the arguments to the method. The other relevant aspects of a <code>lcMethod</code> implementation are the <code>prepareData()</code> and <code>fit()</code> functions, which are called when passing a <code>lcMethod</code> object to the <code>latrend()</code> function or any other model estimation function.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>lcMethodSimpleGBTM &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">formula =</span> Value <span class="op">~</span><span class="st"> </span>Time,</span>
+<span id="cb18-2"><a href="#cb18-2"></a>                              <span class="dt">time =</span> <span class="kw">getOption</span>(<span class="st">&quot;latrend.time&quot;</span>),</span>
+<span id="cb18-3"><a href="#cb18-3"></a>                              <span class="dt">id =</span> <span class="kw">getOption</span>(<span class="st">&quot;latrend.id&quot;</span>),</span>
+<span id="cb18-4"><a href="#cb18-4"></a>                              <span class="dt">nClusters =</span> <span class="dv">2</span>,</span>
+<span id="cb18-5"><a href="#cb18-5"></a>                              <span class="dt">nwg =</span> <span class="ot">FALSE</span>) {</span>
+<span id="cb18-6"><a href="#cb18-6"></a>  <span class="kw">lcMethod.call</span>(<span class="st">&quot;lcMethodSimpleGBTM&quot;</span>, <span class="dt">call =</span> stackoverflow<span class="op">::</span><span class="kw">match.call.defaults</span>())</span>
+<span id="cb18-7"><a href="#cb18-7"></a>}</span></code></pre></div>
+<p>Next, we override the <code>getName()</code> and <code>getShortName()</code> functions in our method class to ensure that the model is easily distinguishable from other methods in the summary output. While we return a simple constant character sequence, the naming functions could be improved by generating a more detailed description of the model based on the arguments of the method object.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">setMethod</span>(<span class="st">&quot;getName&quot;</span>, </span>
+<span id="cb19-2"><a href="#cb19-2"></a>  <span class="kw">signature</span>(<span class="st">&quot;lcMethodSimpleGBTM&quot;</span>), <span class="cf">function</span>(object, ...) <span class="st">&quot;simple group-based trajectory model&quot;</span>)</span>
+<span id="cb19-3"><a href="#cb19-3"></a></span>
+<span id="cb19-4"><a href="#cb19-4"></a><span class="kw">setMethod</span>(<span class="st">&quot;getShortName&quot;</span>, <span class="kw">signature</span>(<span class="st">&quot;lcMethodSimpleGBTM&quot;</span>), <span class="cf">function</span>(object, ...) <span class="st">&quot;sgbtm&quot;</span>)</span></code></pre></div>
+<p>Implementing the <code>prepareData()</code> function enables the <code>lcMethod</code> to do data processing or transforming the data or other arguments in a structure which is suitable for the model fitting procedure. The prepare function takes a <code>lcMethod</code>, the data as a <code>data.frame</code>, and the verbosity level as inputs. The processing is passed onto the <code>fit</code> function by returning an <code>environment</code> with the relevant variables.</p>
+<p>In this example, we need to ensure that the <code>Id</code> column is an integer.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw">setMethod</span>(<span class="st">&quot;prepareData&quot;</span>, <span class="kw">signature</span>(<span class="st">&quot;lcMethodSimpleGBTM&quot;</span>), <span class="cf">function</span>(method, data, verbose, ...) {</span>
+<span id="cb20-2"><a href="#cb20-2"></a>  envir &lt;-<span class="st"> </span><span class="kw">new.env</span>()</span>
+<span id="cb20-3"><a href="#cb20-3"></a>  envir<span class="op">$</span>data &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(data)</span>
+<span id="cb20-4"><a href="#cb20-4"></a>  envir<span class="op">$</span>data[[method<span class="op">$</span>id]] &lt;-<span class="st"> </span><span class="kw">factor</span>(data[[method<span class="op">$</span>id]]) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.integer</span>()</span>
+<span id="cb20-5"><a href="#cb20-5"></a>  <span class="kw">return</span>(envir)</span>
+<span id="cb20-6"><a href="#cb20-6"></a>})</span></code></pre></div>
+<p>The <code>fit()</code> function estimates the model and should return an object that extends the <code>lcModel</code> class. In our implementation, we call the <code>lcmm()</code> with the appropriate arguments, and we construct a <code>lcModelSimpleGBTM</code> instance. The class is defined in the subsection below. The <code>envir</code> argument contains the return value of the <code>prepare()</code> function, which would be <code>NULL</code> here.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">setMethod</span>(<span class="st">&quot;fit&quot;</span>, <span class="kw">signature</span>(<span class="st">&quot;lcMethodSimpleGBTM&quot;</span>), <span class="cf">function</span>(method, data, envir, verbose, ...) {</span>
+<span id="cb21-2"><a href="#cb21-2"></a>  args &lt;-<span class="st"> </span><span class="kw">as.list</span>(method, <span class="dt">args =</span> lcmm<span class="op">::</span>lcmm)</span>
+<span id="cb21-3"><a href="#cb21-3"></a>  args<span class="op">$</span>data &lt;-<span class="st"> </span>envir<span class="op">$</span>data</span>
+<span id="cb21-4"><a href="#cb21-4"></a>  args<span class="op">$</span>fixed &lt;-<span class="st"> </span>method<span class="op">$</span>formula</span>
+<span id="cb21-5"><a href="#cb21-5"></a>  <span class="cf">if</span> (method<span class="op">$</span>nClusters <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>) {</span>
+<span id="cb21-6"><a href="#cb21-6"></a>    args<span class="op">$</span>mixture &lt;-<span class="st"> </span><span class="kw">update</span>(method<span class="op">$</span>formula, <span class="ot">NULL</span> <span class="op">~</span><span class="st"> </span>.)</span>
+<span id="cb21-7"><a href="#cb21-7"></a>  } <span class="cf">else</span> {</span>
+<span id="cb21-8"><a href="#cb21-8"></a>    args<span class="op">$</span>mixture &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb21-9"><a href="#cb21-9"></a>  }</span>
+<span id="cb21-10"><a href="#cb21-10"></a>  args<span class="op">$</span>subject &lt;-<span class="st"> </span>method<span class="op">$</span>id</span>
+<span id="cb21-11"><a href="#cb21-11"></a>  args<span class="op">$</span>ng &lt;-<span class="st"> </span>method<span class="op">$</span>nClusters</span>
+<span id="cb21-12"><a href="#cb21-12"></a>  args<span class="op">$</span>returndata &lt;-<span class="st"> </span><span class="ot">TRUE</span></span>
+<span id="cb21-13"><a href="#cb21-13"></a>  </span>
+<span id="cb21-14"><a href="#cb21-14"></a>  model &lt;-<span class="st"> </span><span class="kw">do.call</span>(lcmm<span class="op">::</span>lcmm, args)</span>
+<span id="cb21-15"><a href="#cb21-15"></a>  </span>
+<span id="cb21-16"><a href="#cb21-16"></a>  <span class="kw">new</span>(<span class="st">&quot;lcModelSimpleGBTM&quot;</span>, </span>
+<span id="cb21-17"><a href="#cb21-17"></a>      <span class="dt">method =</span> method,</span>
+<span id="cb21-18"><a href="#cb21-18"></a>      <span class="dt">data =</span> data,</span>
+<span id="cb21-19"><a href="#cb21-19"></a>      <span class="dt">model =</span> model,</span>
+<span id="cb21-20"><a href="#cb21-20"></a>      <span class="dt">clusterNames =</span> LETTERS[<span class="kw">seq_len</span>(method<span class="op">$</span>nClusters)])</span>
+<span id="cb21-21"><a href="#cb21-21"></a>})</span></code></pre></div>
+</div>
+<div id="extending-the-lcmodel-class" class="section level2">
+<h2>Extending the <code>lcModel</code> class</h2>
+<p>We start off by defining the <code>lcModelSimpleGBTM</code> as an extension of the <code>lcModel</code> class. Extending the base class also enables the addition of new fields to the class, although there is no need for this in the present model.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">setClass</span>(<span class="st">&quot;lcModelSimpleGBTM&quot;</span>, <span class="dt">contains =</span> <span class="st">&quot;lcModel&quot;</span>)</span></code></pre></div>
+<p>Our model inherits a couple of slots from the <code>lcModel</code> class, namely:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw">slotNames</span>(<span class="st">&quot;lcModelSimpleGBTM&quot;</span>)</span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="co">#&gt;  [1] &quot;model&quot;          &quot;method&quot;         &quot;call&quot;           &quot;data&quot;          </span></span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="co">#&gt;  [5] &quot;id&quot;             &quot;time&quot;           &quot;response&quot;       &quot;label&quot;         </span></span>
+<span id="cb23-4"><a href="#cb23-4"></a><span class="co">#&gt;  [9] &quot;ids&quot;            &quot;clusterNames&quot;   &quot;date&quot;           &quot;estimationTime&quot;</span></span>
+<span id="cb23-5"><a href="#cb23-5"></a><span class="co">#&gt; [13] &quot;tag&quot;</span></span></code></pre></div>
+<p>The <code>&quot;model&quot;</code> slot is free to be used to assign an arbitrary data structure that represents the internal model representation(s). In our implementation, this slot contains the <code>lcmm</code> model. The other slots are assigned in the constructor of the <code>lcModel</code> class, or by the <code>latrend()</code> estimation function. It is best practice to use the relevant getter functions for obtaining these values (via e.g., <code>idVariable()</code>, <code>getLcMethod()</code>, <code>clusterNames()</code>).</p>
+<p>Typically, most effort of implementing the model interface goes to the <code>predict()</code> function. While implementing the function is optional, it is used for obtaining the fitted values, fitted trajectories, residuals, and cluster trajectories. Without this function, there is little functionality from a model except for the partitioning of the fitted trajectories.</p>
+<p>The default <code>fitted.lcModel()</code> function returns the output from <code>predict(model, newdata=NULL)</code>. As such, it is advisable to implement this special case. Here, we move the logic to the custom <code>fitted.lcModelSimpleGBTM</code> function, as defined below.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>predict.lcModelSimpleGBTM &lt;-<span class="st"> </span><span class="cf">function</span>(object, <span class="dt">newdata =</span> <span class="ot">NULL</span>, <span class="dt">what =</span> <span class="st">&quot;mu&quot;</span>, ...) {</span>
+<span id="cb24-2"><a href="#cb24-2"></a>  <span class="cf">if</span>(<span class="kw">is.null</span>(newdata)) {</span>
+<span id="cb24-3"><a href="#cb24-3"></a>    predMat &lt;-<span class="st"> </span><span class="kw">fitted</span>(object, <span class="dt">clusters =</span> <span class="ot">NULL</span>)</span>
+<span id="cb24-4"><a href="#cb24-4"></a>  } <span class="cf">else</span> {</span>
+<span id="cb24-5"><a href="#cb24-5"></a>    predMat &lt;-<span class="st"> </span>lcmm<span class="op">::</span><span class="kw">predictY</span>(object<span class="op">@</span>model, <span class="dt">newdata =</span> newdata)<span class="op">$</span>pred <span class="op">%&gt;%</span></span>
+<span id="cb24-6"><a href="#cb24-6"></a><span class="st">      </span><span class="kw">set_colnames</span>(<span class="kw">clusterNames</span>(object))</span>
+<span id="cb24-7"><a href="#cb24-7"></a>  }</span>
+<span id="cb24-8"><a href="#cb24-8"></a></span>
+<span id="cb24-9"><a href="#cb24-9"></a>  <span class="kw">transformPredict</span>(<span class="dt">pred =</span> predMat, <span class="dt">model =</span> object, <span class="dt">newdata =</span> newdata)</span>
+<span id="cb24-10"><a href="#cb24-10"></a>}</span></code></pre></div>
+<p>The <code>fitted()</code> function should return the fitted values per trajectory per (requested) cluster. If not clusters are provided, the function is expected to return a matrix with the fitted values for each cluster. This logic is handled in the <code>transformFitted()</code> function, which is available in the package.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>fitted.lcModelSimpleGBTM &lt;-<span class="st"> </span><span class="cf">function</span>(object, <span class="dt">clusters =</span> <span class="kw">trajectoryAssignments</span>(object)) {</span>
+<span id="cb25-2"><a href="#cb25-2"></a>  predNames &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;pred_m&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="kw">nClusters</span>(object))</span>
+<span id="cb25-3"><a href="#cb25-3"></a>  predMat &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(object<span class="op">@</span>model<span class="op">$</span>pred[predNames])</span>
+<span id="cb25-4"><a href="#cb25-4"></a>  <span class="kw">colnames</span>(predMat) &lt;-<span class="st"> </span><span class="kw">clusterNames</span>(object)</span>
+<span id="cb25-5"><a href="#cb25-5"></a>  <span class="kw">transformFitted</span>(<span class="dt">pred =</span> predMat, <span class="dt">model =</span> object, <span class="dt">clusters =</span> clusters)</span>
+<span id="cb25-6"><a href="#cb25-6"></a>}</span></code></pre></div>
+<p>In order for the model implementation to return cluster assignments through the <code>trajectoryAssignments()</code> function, we need to implement the <code>postprob()</code> function to return the posterior probability matrix for the fitted data.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="kw">setMethod</span>(<span class="st">&quot;postprob&quot;</span>, <span class="kw">signature</span>(<span class="st">&quot;lcModelSimpleGBTM&quot;</span>), <span class="cf">function</span>(object) {</span>
+<span id="cb26-2"><a href="#cb26-2"></a>  <span class="kw">as.matrix</span>(object<span class="op">@</span>model<span class="op">$</span>pprob)[, <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">-2</span>), drop =<span class="st"> </span><span class="ot">FALSE</span>]</span>
+<span id="cb26-3"><a href="#cb26-3"></a>})</span></code></pre></div>
+<p>Lastly, we override the <code>converged()</code> function to return the convergence code of the internal model.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">setMethod</span>(<span class="st">&quot;converged&quot;</span>, <span class="kw">signature</span>(<span class="st">&quot;lcModelSimpleGBTM&quot;</span>), <span class="cf">function</span>(object, ...) {</span>
+<span id="cb27-2"><a href="#cb27-2"></a>  object<span class="op">@</span>model<span class="op">$</span>conv</span>
+<span id="cb27-3"><a href="#cb27-3"></a>})</span></code></pre></div>
+</div>
+<div id="applying-the-new-method" class="section level2">
+<h2>Applying the new method</h2>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>m &lt;-<span class="st"> </span><span class="kw">lcMethodSimpleGBTM</span>(<span class="dt">formula =</span> Y <span class="op">~</span><span class="st"> </span>Time)</span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="kw">show</span>(m)</span>
+<span id="cb28-3"><a href="#cb28-3"></a><span class="co">#&gt; lcMethodSimpleGBTM as &quot;simple group-based trajectory model&quot;</span></span>
+<span id="cb28-4"><a href="#cb28-4"></a><span class="co">#&gt;  formula:        Y ~ Time</span></span>
+<span id="cb28-5"><a href="#cb28-5"></a><span class="co">#&gt;  time:           getOption(&quot;latrend.time&quot;)</span></span>
+<span id="cb28-6"><a href="#cb28-6"></a><span class="co">#&gt;  id:             getOption(&quot;latrend.id&quot;)</span></span>
+<span id="cb28-7"><a href="#cb28-7"></a><span class="co">#&gt;  nClusters:      2</span></span>
+<span id="cb28-8"><a href="#cb28-8"></a><span class="co">#&gt;  nwg:            FALSE</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>sgbtm &lt;-<span class="st"> </span><span class="kw">latrend</span>(m, casedata)</span>
+<span id="cb29-2"><a href="#cb29-2"></a><span class="co">#&gt; Be patient, lcmm is running ... </span></span>
+<span id="cb29-3"><a href="#cb29-3"></a><span class="co">#&gt; The program took 0.17 seconds</span></span>
+<span id="cb29-4"><a href="#cb29-4"></a><span class="kw">summary</span>(sgbtm)</span>
+<span id="cb29-5"><a href="#cb29-5"></a><span class="co">#&gt; Longitudinal cluster model using simple group-based trajectory model</span></span>
+<span id="cb29-6"><a href="#cb29-6"></a><span class="co">#&gt;  nwg:            FALSE</span></span>
+<span id="cb29-7"><a href="#cb29-7"></a><span class="co">#&gt;  nClusters:      2</span></span>
+<span id="cb29-8"><a href="#cb29-8"></a><span class="co">#&gt;  id:             &quot;Traj&quot;</span></span>
+<span id="cb29-9"><a href="#cb29-9"></a><span class="co">#&gt;  time:           &quot;Time&quot;</span></span>
+<span id="cb29-10"><a href="#cb29-10"></a><span class="co">#&gt;  formula:        Y ~ Time</span></span>
+<span id="cb29-11"><a href="#cb29-11"></a><span class="co">#&gt; </span></span>
+<span id="cb29-12"><a href="#cb29-12"></a><span class="co">#&gt; Cluster sizes (K=2):</span></span>
+<span id="cb29-13"><a href="#cb29-13"></a><span class="co">#&gt;        A        B </span></span>
+<span id="cb29-14"><a href="#cb29-14"></a><span class="co">#&gt; 40 (40%) 60 (60%) </span></span>
+<span id="cb29-15"><a href="#cb29-15"></a><span class="co">#&gt; </span></span>
+<span id="cb29-16"><a href="#cb29-16"></a><span class="co">#&gt; Number of obs: 1100, strata (Traj): 100</span></span>
+<span id="cb29-17"><a href="#cb29-17"></a><span class="co">#&gt; </span></span>
+<span id="cb29-18"><a href="#cb29-18"></a><span class="co">#&gt; Scaled residuals:</span></span>
+<span id="cb29-19"><a href="#cb29-19"></a><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span id="cb29-20"><a href="#cb29-20"></a><span class="co">#&gt; -2.1126 -0.9295  0.4772  0.0000  0.8352  1.3507</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw">plot</span>(sgbtm)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

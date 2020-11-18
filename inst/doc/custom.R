@@ -1,0 +1,224 @@
+## ---- include = FALSE---------------------------------------------------------
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = TRUE
+)
+
+## ----setup, include = FALSE---------------------------------------------------
+library(ggplot2)
+library(magrittr)
+library(latrend)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  collapse = TRUE,
+  comment = "#>"
+)
+
+## -----------------------------------------------------------------------------
+library(latrend)
+options(latrend.id = "Traj", 
+        latrend.time = "Time",
+        latrend.verbose = TRUE)
+
+## -----------------------------------------------------------------------------
+set.seed(1)
+casedata <- generateLongData(sizes = c(40, 60), 
+                        data = data.frame(Time = 0:10),
+                        fixed = Y ~ 1,
+                        fixedCoefs = 1,
+                        cluster = ~ Time, 
+                        clusterCoefs = cbind(c(2, -.1), c(0, .05)),
+                        random = ~ Time,
+                        randomScales = cbind(c(.2, .02), c(.2, .02)),
+                        noiseScales = .05
+                        )
+
+## -----------------------------------------------------------------------------
+plotTrajectories(casedata, response = "Y")
+
+## -----------------------------------------------------------------------------
+plotClusterTrajectories(casedata, response = "Y", cluster = "Class")
+
+## -----------------------------------------------------------------------------
+ggplot(casedata[Time == 0], aes(x = Mu)) +
+  geom_density(fill = "gray", adjust = .3)
+
+## ----message=TRUE-------------------------------------------------------------
+method <- lcMethodStratify(response = "Y", Y[1] > 1.6)
+model <- latrend(method, casedata)
+
+## -----------------------------------------------------------------------------
+clusterProportions(model)
+
+## ----message=TRUE-------------------------------------------------------------
+stratfun <- function(data) {
+  int <- coef(lm(Y ~ Time, data))[1]
+  factor(int > 1.7, 
+         levels = c(FALSE, TRUE), 
+         labels = c("Low", "High"))
+}
+m2 <- lcMethodStratify(response = "Y", stratify = stratfun, center = mean)
+model2 <- latrend(m2, casedata)
+
+clusterProportions(model2)
+
+## ----message=TRUE-------------------------------------------------------------
+casedata[, Intercept := coef(lm(Y ~ Time, .SD))[1], by = Traj]
+
+m3 <- lcMethodStratify(response = "Y", stratify = Intercept[1] > 1.7, 
+  clusterNames = c("Low", "High"))
+model3 <- latrend(m3, casedata)
+
+## -----------------------------------------------------------------------------
+repStep <- function(method, data, verbose) {
+  coefdata <- data[, lm(Y ~ Time, .SD) %>% coef() %>% as.list(), keyby = Traj]
+  coefmat <- subset(coefdata, select = -1) %>% as.matrix()
+  rownames(coefmat) <- coefdata$Traj
+  return(coefmat)
+}
+
+## -----------------------------------------------------------------------------
+clusStep <- function(method, data, repMat, envir, verbose) {
+  km <- kmeans(repMat, centers = 3)
+
+  lcModelCustom(response = method$response, 
+                method = method,
+                data = data, 
+                trajectoryAssignments = km$cluster,
+                clusterTrajectories = method$center,
+                model = km)
+}
+
+## -----------------------------------------------------------------------------
+m.twostep <- lcMethodTwoStep(response = "Y", representationStep = repStep, clusterStep = clusStep)
+
+## ----message=TRUE-------------------------------------------------------------
+model.twostep <- latrend(m.twostep, data = casedata)
+summary(model.twostep)
+
+## -----------------------------------------------------------------------------
+repStep.gen <- function(method, data, verbose) {
+  coefdata <- data[, lm(method$formula, .SD) %>% coef() %>% as.list(), keyby = c(method$id)]
+  # exclude the id column
+  coefmat <- subset(coefdata, select = -1) %>% as.matrix()
+  rownames(coefmat) <- coefdata[[method$id]]
+  return(coefmat)
+}
+
+clusStep.gen <- function(method, data, repMat, envir, verbose) {
+  km <- kmeans(repMat, centers = method$nClusters)
+
+  lcModelCustom(response = "Y",
+    method = method,
+    data = data, 
+    trajectoryAssignments = km$cluster,
+    clusterTrajectories = method$center,
+    model = km)
+}
+
+## -----------------------------------------------------------------------------
+m.twostepgen <- lcMethodTwoStep(response = "Y",
+  representationStep = repStep.gen, 
+  clusterStep = clusStep.gen)
+
+## ----message=TRUE-------------------------------------------------------------
+model.twostepgen <- latrend(m.twostepgen, formula = Y ~ Time, nClusters = 2, casedata)
+summary(model.twostepgen)
+
+## -----------------------------------------------------------------------------
+setClass("lcMethodSimpleGBTM", contains = "lcMethod")
+
+## -----------------------------------------------------------------------------
+lcMethodSimpleGBTM <- function(formula = Value ~ Time,
+                              time = getOption("latrend.time"),
+                              id = getOption("latrend.id"),
+                              nClusters = 2,
+                              nwg = FALSE) {
+  lcMethod.call("lcMethodSimpleGBTM", call = stackoverflow::match.call.defaults())
+}
+
+## -----------------------------------------------------------------------------
+setMethod("getName", 
+  signature("lcMethodSimpleGBTM"), function(object, ...) "simple group-based trajectory model")
+
+setMethod("getShortName", signature("lcMethodSimpleGBTM"), function(object, ...) "sgbtm")
+
+## -----------------------------------------------------------------------------
+setMethod("prepareData", signature("lcMethodSimpleGBTM"), function(method, data, verbose, ...) {
+  envir <- new.env()
+  envir$data <- as.data.frame(data)
+  envir$data[[method$id]] <- factor(data[[method$id]]) %>% as.integer()
+  return(envir)
+})
+
+## -----------------------------------------------------------------------------
+setMethod("fit", signature("lcMethodSimpleGBTM"), function(method, data, envir, verbose, ...) {
+  args <- as.list(method, args = lcmm::lcmm)
+  args$data <- envir$data
+  args$fixed <- method$formula
+  if (method$nClusters > 1) {
+    args$mixture <- update(method$formula, NULL ~ .)
+  } else {
+    args$mixture <- NULL
+  }
+  args$subject <- method$id
+  args$ng <- method$nClusters
+  args$returndata <- TRUE
+  
+  model <- do.call(lcmm::lcmm, args)
+  
+  new("lcModelSimpleGBTM", 
+      method = method,
+      data = data,
+      model = model,
+      clusterNames = LETTERS[seq_len(method$nClusters)])
+})
+
+## -----------------------------------------------------------------------------
+setClass("lcModelSimpleGBTM", contains = "lcModel")
+
+## -----------------------------------------------------------------------------
+slotNames("lcModelSimpleGBTM")
+
+## -----------------------------------------------------------------------------
+predict.lcModelSimpleGBTM <- function(object, newdata = NULL, what = "mu", ...) {
+  if(is.null(newdata)) {
+    predMat <- fitted(object, clusters = NULL)
+  } else {
+    predMat <- lcmm::predictY(object@model, newdata = newdata)$pred %>%
+      set_colnames(clusterNames(object))
+  }
+
+  transformPredict(pred = predMat, model = object, newdata = newdata)
+}
+
+## -----------------------------------------------------------------------------
+fitted.lcModelSimpleGBTM <- function(object, clusters = trajectoryAssignments(object)) {
+  predNames <- paste0("pred_m", 1:nClusters(object))
+  predMat <- as.matrix(object@model$pred[predNames])
+  colnames(predMat) <- clusterNames(object)
+  transformFitted(pred = predMat, model = object, clusters = clusters)
+}
+
+## -----------------------------------------------------------------------------
+setMethod("postprob", signature("lcModelSimpleGBTM"), function(object) {
+  as.matrix(object@model$pprob)[, c(-1, -2), drop = FALSE]
+})
+
+## -----------------------------------------------------------------------------
+setMethod("converged", signature("lcModelSimpleGBTM"), function(object, ...) {
+  object@model$conv
+})
+
+## -----------------------------------------------------------------------------
+m <- lcMethodSimpleGBTM(formula = Y ~ Time)
+show(m)
+
+## -----------------------------------------------------------------------------
+sgbtm <- latrend(m, casedata)
+summary(sgbtm)
+
+## -----------------------------------------------------------------------------
+plot(sgbtm)
+
