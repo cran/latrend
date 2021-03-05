@@ -6,13 +6,15 @@
 \alias{getShortName,lcMethodLcmmGMM-method}
 \alias{preFit,lcMethodLcmmGMM-method}
 \alias{fit,lcMethodLcmmGMM-method}
+\alias{responseVariable,lcMethodLcmmGMM-method}
 \alias{interface-lcmm}
 \alias{getName,lcMethodLcmmGBTM-method}
 \alias{getShortName,lcMethodLcmmGBTM-method}
 \alias{preFit,lcMethodLcmmGBTM-method}
 \alias{fit,lcMethodLcmmGBTM-method}
+\alias{responseVariable,lcMethodLcmmGBTM-method}
 \alias{fitted.lcModelLcmmGMM}
-\alias{predict.lcModelLcmmGMM}
+\alias{predictForCluster,lcModelLcmmGMM-method}
 \alias{model.matrix.lcModelLcmmGMM}
 \alias{logLik.lcModelLcmmGMM}
 \alias{sigma.lcModelLcmmGMM}
@@ -28,6 +30,8 @@
 
 \S4method{fit}{lcMethodLcmmGMM}(method, data, envir, verbose, ...)
 
+\S4method{responseVariable}{lcMethodLcmmGMM}(object, ...)
+
 \S4method{getName}{lcMethodLcmmGBTM}(object)
 
 \S4method{getShortName}{lcMethodLcmmGBTM}(object)
@@ -36,9 +40,11 @@
 
 \S4method{fit}{lcMethodLcmmGBTM}(method, data, envir, verbose, ...)
 
+\S4method{responseVariable}{lcMethodLcmmGBTM}(object, ...)
+
 \method{fitted}{lcModelLcmmGMM}(object, ..., clusters = trajectoryAssignments(object))
 
-\method{predict}{lcModelLcmmGMM}(object, ..., newdata = NULL, what = "mu")
+\S4method{predictForCluster}{lcModelLcmmGMM}(object, newdata, cluster, what = "mu", ...)
 
 \method{model.matrix}{lcModelLcmmGMM}(object, ..., what = "mu")
 
@@ -65,10 +71,12 @@
 
 \item{clusters}{Optional cluster assignments per id. If unspecified, a \code{matrix} is returned containing the cluster-specific predictions per column.}
 
-\item{newdata}{Optional data frame for which to compute the model predictions. If omitted, the model training data is used.
-Cluster trajectory predictions are made when ids are not specified. If the clusters are specified under the Cluster column, output is given only for the specified cluster. Otherwise, a matrix is returned with predictions for all clusters.}
+\item{newdata}{Optional \code{data.frame} for which to compute the model predictions. If omitted, the model training data is used.
+Cluster trajectory predictions are made when ids are not specified.}
 
-\item{what}{The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying what='mb'.}
+\item{cluster}{The cluster name (as \code{character}) to predict for.}
+
+\item{what}{The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying \code{what = 'mb'}.}
 }
 \description{
 lcmm interface

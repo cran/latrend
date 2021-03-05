@@ -12,7 +12,7 @@
 
 <meta name="author" content="Niek Den Teuling" />
 
-<meta name="date" content="2020-11-12" />
+<meta name="date" content="2021-03-05" />
 
 <title>Implementing new models</title>
 
@@ -367,7 +367,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Implementing new models</h1>
 <h4 class="author">Niek Den Teuling</h4>
-<h4 class="date">2020-11-12</h4>
+<h4 class="date">2021-03-05</h4>
 
 
 <div id="TOC">
@@ -468,8 +468,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb11-8"><a href="#cb11-8"></a>                <span class="dt">clusterTrajectories =</span> method<span class="op">$</span>center,</span>
 <span id="cb11-9"><a href="#cb11-9"></a>                <span class="dt">model =</span> km)</span>
 <span id="cb11-10"><a href="#cb11-10"></a>}</span></code></pre></div>
-<p>We are now ready to create the <code>lcMethodTwoStep</code> method.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>m.twostep &lt;-<span class="st"> </span><span class="kw">lcMethodTwoStep</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>, <span class="dt">representationStep =</span> repStep, <span class="dt">clusterStep =</span> clusStep)</span></code></pre></div>
+<p>We are now ready to create the <code>lcMethodFeature</code> method.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>m.twostep &lt;-<span class="st"> </span><span class="kw">lcMethodFeature</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>, <span class="dt">representationStep =</span> repStep, <span class="dt">clusterStep =</span> clusStep)</span></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>model.twostep &lt;-<span class="st"> </span><span class="kw">latrend</span>(m.twostep, <span class="dt">data =</span> casedata)</span>
 <span id="cb13-2"><a href="#cb13-2"></a><span class="kw">summary</span>(model.twostep)</span>
 <span id="cb13-3"><a href="#cb13-3"></a><span class="co">#&gt; Longitudinal cluster model using two-step clustering</span></span>
@@ -493,7 +493,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="general-approach" class="section level2">
 <h2>General approach</h2>
 <p>The two-step model defined above is hard-coded for a given formula and a fixed number of clusters. In an exploratory setting, it is convenient to define a parameterized method. Here, we change the two functions to take arguments through the <code>lcMethod</code> object in the <code>method</code> variable.</p>
-<p>Note that we can introduce new arguments which are not originally part of <code>lcMethodTwoStep</code> (e.g., <code>nClusters</code>) to enable the specification of the number of clusters in our method.</p>
+<p>Note that we can introduce new arguments which are not originally part of <code>lcMethodFeature</code> (e.g., <code>nClusters</code>) to enable the specification of the number of clusters in our method.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>repStep.gen &lt;-<span class="st"> </span><span class="cf">function</span>(method, data, verbose) {</span>
 <span id="cb14-2"><a href="#cb14-2"></a>  coefdata &lt;-<span class="st"> </span>data[, <span class="kw">lm</span>(method<span class="op">$</span>formula, .SD) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">coef</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.list</span>(), keyby =<span class="st"> </span><span class="kw">c</span>(method<span class="op">$</span>id)]</span>
 <span id="cb14-3"><a href="#cb14-3"></a>  <span class="co"># exclude the id column</span></span>
@@ -512,8 +512,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb14-16"><a href="#cb14-16"></a>    <span class="dt">clusterTrajectories =</span> method<span class="op">$</span>center,</span>
 <span id="cb14-17"><a href="#cb14-17"></a>    <span class="dt">model =</span> km)</span>
 <span id="cb14-18"><a href="#cb14-18"></a>}</span></code></pre></div>
-<p>We create a new <code>lcMethodTwoStep</code> instance with the more generic functions. Defining values for <code>formula</code> and <code>nClusters</code> here makes these arguments values act as default values in a call of <code>latrend</code>.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>m.twostepgen &lt;-<span class="st"> </span><span class="kw">lcMethodTwoStep</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>,</span>
+<p>We create a new <code>lcMethodFeature</code> instance with the more generic functions. Defining values for <code>formula</code> and <code>nClusters</code> here makes these arguments values act as default values in a call of <code>latrend</code>.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>m.twostepgen &lt;-<span class="st"> </span><span class="kw">lcMethodFeature</span>(<span class="dt">response =</span> <span class="st">&quot;Y&quot;</span>,</span>
 <span id="cb15-2"><a href="#cb15-2"></a>  <span class="dt">representationStep =</span> repStep.gen, </span>
 <span id="cb15-3"><a href="#cb15-3"></a>  <span class="dt">clusterStep =</span> clusStep.gen)</span></code></pre></div>
 <p>However, because we omitted the specification of <code>formula</code> and <code>nClusters</code>, these need to be provided in the <code>latrend</code> call.</p>
@@ -543,7 +543,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="implementing-a-new-method" class="section level1">
 <h1>Implementing a new method</h1>
-<p>The use of <code>lcMethodStratify</code> and <code>lcMethodTwostep</code> enables rapid prototyping. Once the desired model has been identified, it may be worthwhile to implement it as a standalone method in the framework. This way the model can be extended to output more representative cluster trajectories, or to extend the model with predictive capabilities such that it can be validated on external data.</p>
+<p>The use of <code>lcMethodStratify</code> and <code>lcMethodFeature</code> enables rapid prototyping. Once the desired model has been identified, it may be worthwhile to implement it as a standalone method in the framework. This way the model can be extended to output more representative cluster trajectories, or to extend the model with predictive capabilities such that it can be validated on external data.</p>
 <p>To illustrate this, we will implement a basic group-based trajectory model (GBTM), also known as latent-class growth analysis. We make use of the implementation available in the <code>lcmm</code> package through the <code>lcmm()</code> function, which allows for a relatively concise illustration.</p>
 <div id="extending-the-lcmethod-class" class="section level2">
 <h2>Extending the <code>lcMethod</code> class</h2>
@@ -604,25 +604,24 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb23-4"><a href="#cb23-4"></a><span class="co">#&gt;  [9] &quot;ids&quot;            &quot;clusterNames&quot;   &quot;date&quot;           &quot;estimationTime&quot;</span></span>
 <span id="cb23-5"><a href="#cb23-5"></a><span class="co">#&gt; [13] &quot;tag&quot;</span></span></code></pre></div>
 <p>The <code>&quot;model&quot;</code> slot is free to be used to assign an arbitrary data structure that represents the internal model representation(s). In our implementation, this slot contains the <code>lcmm</code> model. The other slots are assigned in the constructor of the <code>lcModel</code> class, or by the <code>latrend()</code> estimation function. It is best practice to use the relevant getter functions for obtaining these values (via e.g., <code>idVariable()</code>, <code>getLcMethod()</code>, <code>clusterNames()</code>).</p>
-<p>Typically, most effort of implementing the model interface goes to the <code>predict()</code> function. While implementing the function is optional, it is used for obtaining the fitted values, fitted trajectories, residuals, and cluster trajectories. Without this function, there is little functionality from a model except for the partitioning of the fitted trajectories.</p>
-<p>The default <code>fitted.lcModel()</code> function returns the output from <code>predict(model, newdata=NULL)</code>. As such, it is advisable to implement this special case. Here, we move the logic to the custom <code>fitted.lcModelSimpleGBTM</code> function, as defined below.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>predict.lcModelSimpleGBTM &lt;-<span class="st"> </span><span class="cf">function</span>(object, <span class="dt">newdata =</span> <span class="ot">NULL</span>, <span class="dt">what =</span> <span class="st">&quot;mu&quot;</span>, ...) {</span>
-<span id="cb24-2"><a href="#cb24-2"></a>  <span class="cf">if</span>(<span class="kw">is.null</span>(newdata)) {</span>
-<span id="cb24-3"><a href="#cb24-3"></a>    predMat &lt;-<span class="st"> </span><span class="kw">fitted</span>(object, <span class="dt">clusters =</span> <span class="ot">NULL</span>)</span>
-<span id="cb24-4"><a href="#cb24-4"></a>  } <span class="cf">else</span> {</span>
-<span id="cb24-5"><a href="#cb24-5"></a>    predMat &lt;-<span class="st"> </span>lcmm<span class="op">::</span><span class="kw">predictY</span>(object<span class="op">@</span>model, <span class="dt">newdata =</span> newdata)<span class="op">$</span>pred <span class="op">%&gt;%</span></span>
-<span id="cb24-6"><a href="#cb24-6"></a><span class="st">      </span><span class="kw">set_colnames</span>(<span class="kw">clusterNames</span>(object))</span>
-<span id="cb24-7"><a href="#cb24-7"></a>  }</span>
-<span id="cb24-8"><a href="#cb24-8"></a></span>
-<span id="cb24-9"><a href="#cb24-9"></a>  <span class="kw">transformPredict</span>(<span class="dt">pred =</span> predMat, <span class="dt">model =</span> object, <span class="dt">newdata =</span> newdata)</span>
-<span id="cb24-10"><a href="#cb24-10"></a>}</span></code></pre></div>
-<p>The <code>fitted()</code> function should return the fitted values per trajectory per (requested) cluster. If not clusters are provided, the function is expected to return a matrix with the fitted values for each cluster. This logic is handled in the <code>transformFitted()</code> function, which is available in the package.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>fitted.lcModelSimpleGBTM &lt;-<span class="st"> </span><span class="cf">function</span>(object, <span class="dt">clusters =</span> <span class="kw">trajectoryAssignments</span>(object)) {</span>
-<span id="cb25-2"><a href="#cb25-2"></a>  predNames &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;pred_m&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="kw">nClusters</span>(object))</span>
-<span id="cb25-3"><a href="#cb25-3"></a>  predMat &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(object<span class="op">@</span>model<span class="op">$</span>pred[predNames])</span>
-<span id="cb25-4"><a href="#cb25-4"></a>  <span class="kw">colnames</span>(predMat) &lt;-<span class="st"> </span><span class="kw">clusterNames</span>(object)</span>
-<span id="cb25-5"><a href="#cb25-5"></a>  <span class="kw">transformFitted</span>(<span class="dt">pred =</span> predMat, <span class="dt">model =</span> object, <span class="dt">clusters =</span> clusters)</span>
-<span id="cb25-6"><a href="#cb25-6"></a>}</span></code></pre></div>
+<p>Typically, most effort of implementing the model interface goes to the <code>predictForCluster()</code> function. While implementing the function is optional, it is used for obtaining the fitted values, fitted trajectories, residuals, and cluster trajectories. Without this function, there is little functionality from a model except for the partitioning of the fitted trajectories.</p>
+<p>The <code>fitted()</code> function returns the fitted values per trajectory per cluster. If the clusters are not provided, the function is expected to return a matrix with the fitted values for each cluster. This logic is handled in the <code>transformFitted()</code> function, which is available in the package.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>fitted.lcModelSimpleGBTM &lt;-<span class="st"> </span><span class="cf">function</span>(object, <span class="dt">clusters =</span> <span class="kw">trajectoryAssignments</span>(object)) {</span>
+<span id="cb24-2"><a href="#cb24-2"></a>  predNames &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;pred_m&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="kw">nClusters</span>(object))</span>
+<span id="cb24-3"><a href="#cb24-3"></a>  predMat &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(object<span class="op">@</span>model<span class="op">$</span>pred[predNames])</span>
+<span id="cb24-4"><a href="#cb24-4"></a>  <span class="kw">colnames</span>(predMat) &lt;-<span class="st"> </span><span class="kw">clusterNames</span>(object)</span>
+<span id="cb24-5"><a href="#cb24-5"></a>  <span class="kw">transformFitted</span>(<span class="dt">pred =</span> predMat, <span class="dt">model =</span> object, <span class="dt">clusters =</span> clusters)</span>
+<span id="cb24-6"><a href="#cb24-6"></a>}</span></code></pre></div>
+<p>The easiest way to add predictive capability to a model is by implementing the function <code>predictForCluster()</code>. This function returns the predicted values of a specific cluster, for the respective observations. This function is used by <code>predict.lcModel(model, newdata)</code> function, which also reduces the output of <code>fitted(model)</code> in case of <code>newdata = NULL</code>.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">setMethod</span>(<span class="st">&#39;predictForCluster&#39;</span>, <span class="kw">signature</span>(<span class="st">&#39;lcModelSimpleGBTM&#39;</span>), <span class="cf">function</span>(</span>
+<span id="cb25-2"><a href="#cb25-2"></a>    object, newdata, cluster, <span class="dt">what =</span> <span class="st">&#39;mu&#39;</span>, ...)</span>
+<span id="cb25-3"><a href="#cb25-3"></a>{</span>
+<span id="cb25-4"><a href="#cb25-4"></a>  predMat =<span class="st"> </span>lcmm<span class="op">::</span><span class="kw">predictY</span>(object<span class="op">@</span>model, <span class="dt">newdata =</span> newdata)<span class="op">$</span>pred <span class="op">%&gt;%</span></span>
+<span id="cb25-5"><a href="#cb25-5"></a><span class="st">    </span><span class="kw">set_colnames</span>(<span class="kw">clusterNames</span>(object))</span>
+<span id="cb25-6"><a href="#cb25-6"></a></span>
+<span id="cb25-7"><a href="#cb25-7"></a>  clusIdx =<span class="st"> </span><span class="kw">match</span>(cluster, <span class="kw">clusterNames</span>(object))</span>
+<span id="cb25-8"><a href="#cb25-8"></a>  predMat[, clusIdx]</span>
+<span id="cb25-9"><a href="#cb25-9"></a>})</span></code></pre></div>
 <p>In order for the model implementation to return cluster assignments through the <code>trajectoryAssignments()</code> function, we need to implement the <code>postprob()</code> function to return the posterior probability matrix for the fitted data.</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="kw">setMethod</span>(<span class="st">&quot;postprob&quot;</span>, <span class="kw">signature</span>(<span class="st">&quot;lcModelSimpleGBTM&quot;</span>), <span class="cf">function</span>(object) {</span>
 <span id="cb26-2"><a href="#cb26-2"></a>  <span class="kw">as.matrix</span>(object<span class="op">@</span>model<span class="op">$</span>pprob)[, <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">-2</span>), drop =<span class="st"> </span><span class="ot">FALSE</span>]</span>
@@ -644,7 +643,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb28-8"><a href="#cb28-8"></a><span class="co">#&gt;  nwg:            FALSE</span></span></code></pre></div>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>sgbtm &lt;-<span class="st"> </span><span class="kw">latrend</span>(m, casedata)</span>
 <span id="cb29-2"><a href="#cb29-2"></a><span class="co">#&gt; Be patient, lcmm is running ... </span></span>
-<span id="cb29-3"><a href="#cb29-3"></a><span class="co">#&gt; The program took 0.17 seconds</span></span>
+<span id="cb29-3"><a href="#cb29-3"></a><span class="co">#&gt; The program took 0.2 seconds</span></span>
 <span id="cb29-4"><a href="#cb29-4"></a><span class="kw">summary</span>(sgbtm)</span>
 <span id="cb29-5"><a href="#cb29-5"></a><span class="co">#&gt; Longitudinal cluster model using simple group-based trajectory model</span></span>
 <span id="cb29-6"><a href="#cb29-6"></a><span class="co">#&gt;  nwg:            FALSE</span></span>

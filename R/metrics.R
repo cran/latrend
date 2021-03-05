@@ -18,6 +18,18 @@ NULL
 #' @inheritParams metric
 #' @param object2 The other `lcModel` to compare with.
 #' @return A named `numeric` vector containing the computed model metrics.
+#' @references
+#' \insertRef{desgraupes2018clustercrit}{latrend}
+#'
+#' \insertRef{you2018mclustcomp}{latrend}
+#'
+#' \insertRef{csardi2006igraph}{latrend}
+#'
+#' \insertRef{hubert1985comparing}{latrend}
+#'
+#' \insertRef{revelle2019psych}{latrend}
+#'
+#' \insertRef{scrucca2016mclust}{latrend}
 #' @seealso [metric]
 NULL
 
@@ -109,6 +121,11 @@ intMetricsEnv$APPA = function(m) {
 
 #' @importFrom stats BIC
 intMetricsEnv$BIC = BIC
+
+intMetricsEnv$converged = function(m) {
+  converged(m) > 0
+}
+
 #' @importFrom stats deviance
 intMetricsEnv$deviance = deviance
 

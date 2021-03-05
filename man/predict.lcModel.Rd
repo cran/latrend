@@ -4,30 +4,32 @@
 \alias{predict.lcModel}
 \title{lcModel predictions}
 \usage{
-\method{predict}{lcModel}(object, ..., newdata = NULL, what = "mu")
+\method{predict}{lcModel}(object, newdata = NULL, what = "mu", ...)
 }
 \arguments{
 \item{object}{The \code{lcModel} object.}
 
+\item{newdata}{Optional \code{data.frame} for which to compute the model predictions. If omitted, the model training data is used.
+Cluster trajectory predictions are made when ids are not specified.}
+
+\item{what}{The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying \code{what = 'mb'}.}
+
 \item{...}{Additional arguments.}
-
-\item{newdata}{Optional data frame for which to compute the model predictions. If omitted, the model training data is used.
-Cluster trajectory predictions are made when ids are not specified. If the clusters are specified under the Cluster column, output is given only for the specified cluster. Otherwise, a matrix is returned with predictions for all clusters.}
-
-\item{what}{The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying what='mb'.}
 }
 \value{
-If newdata specifies the cluster membership; a vector of cluster-specific predictions. Otherwise, a matrix of predictions is returned corresponding to each cluster.
+If \code{newdata} specifies the cluster membership; a \code{data.frame} of cluster-specific predictions. Otherwise, a \code{list} of \code{data.frame} of cluster-specific predictions is returned.
 }
 \description{
-Predicts the expected trajectory observations at the given time for each cluster, unless specified.
+Predicts the expected trajectory observations at the given time for each cluster.
 }
 \details{
-The default \code{predict.lcModel} implementation.
+Subclasses of \code{lcModel} should preferably implement \code{predictForCluster} instead of overriding \code{predict.lcModel} in order to benefit from standardized error checking and output handling.
 }
 \examples{
 data(latrendData)
-model <- latrend(lcMethodLcmmGMM(Y ~ Time + (1 | Id), id = "Id", time = "Time"), latrendData)
+model <- latrend(lcMethodLcmmGMM(
+   fixed = Y ~ Time, mixture = ~ Time,
+   id = "Id", time = "Time"), latrendData)
 predFitted <- predict(model) # same result as fitted(model)
 
 # Cluster trajectory of cluster A

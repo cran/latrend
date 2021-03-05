@@ -10,7 +10,8 @@ setOldClass('lcModels')
 #' @examples
 #' data(latrendData)
 #' kml <- latrend(lcMethodKML("Y", id = "Id", time = "Time"), latrendData)
-#' gmm <- latrend(lcMethodLcmmGMM(Y ~ Time + (1 | Id), id = "Id", time = "Time"), latrendData)
+#' gmm <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
+#'    id = "Id", time = "Time"), latrendData)
 #' lcModels(kml, gmm)
 #'
 #' lcModels(defaults = c(kml, gmm))
@@ -110,6 +111,7 @@ as.data.frame.lcModels = function(x, ...,
   as.data.frame(dt)
 }
 
+# externalMetric ####
 .externalMetric.lcModels = function(object, object2, name, drop = TRUE) {
   assert_that(is.character(name),
     is.flag(drop))
@@ -119,7 +121,8 @@ as.data.frame.lcModels = function(x, ...,
       numeric()
     } else {
       matrix(nrow=0, ncol=length(name)) %>%
-        set_colnames(name)
+        set_colnames(name) %>%
+        as.data.frame()
     }
   }
   else {
@@ -130,20 +133,16 @@ as.data.frame.lcModels = function(x, ...,
     if(drop && ncol(metMat) == 1) {
       as.numeric(metMat)
     } else {
-      metMat
+      as.data.frame(metMat)
     }
   }
 }
 
-#' @export
-#' @importFrom stats as.dist
-#' @rdname externalMetric
-#' @aliases externalMetric,lcModels,missing-method
-#' @return For `externalMetric(lcModels)`: A distance matrix of class [dist] representing
-#' the pairwise comparisons.
-setMethod('externalMetric',
-  signature('lcModels', 'missing'), function(object, object2, name = 'adjustedRand') {
-  assert_that(is.character(name), length(name) == 1)
+.externalMetricDist.lcModels = function(object, name) {
+  assert_that(
+    is.character(name),
+    length(name) == 1
+  )
 
   pairs = combn(seq_along(object), m = 2, simplify = FALSE)
 
@@ -153,13 +152,35 @@ setMethod('externalMetric',
   m = matrix(NaN, nrow = length(object), ncol = length(object))
   m[do.call(rbind, pairs)] = unlist(result)
   as.dist(t(m), diag = FALSE, upper = FALSE)
+}
+
+#' @export
+#' @importFrom stats as.dist
+#' @rdname externalMetric
+#' @aliases externalMetric,lcModels,missing-method
+#' @return For `externalMetric(lcModels)`: A distance matrix of class [dist] representing
+#' the pairwise comparisons.
+setMethod('externalMetric', signature('lcModels', 'missing'),
+  function(object, object2, name = 'adjustedRand') {
+    .externalMetricDist.lcModels(object, name = name)
+})
+
+#' @export
+#' @importFrom stats as.dist
+#' @rdname externalMetric
+#' @aliases externalMetric,lcModels,character-method
+#' @return For `externalMetric(lcModels, name)`: A distance matrix of class [dist] representing
+#' the pairwise comparisons.
+setMethod('externalMetric', signature('lcModels', 'character'),
+  function(object, object2 = 'adjustedRand') {
+    .externalMetricDist.lcModels(object, name = object2)
 })
 
 
 #' @export
 #' @rdname externalMetric
 #' @aliases externalMetric,lcModels,lcModels-method
-#' @return For `externalMetric(lcModels, lcModel)`: A named `numeric` vector or `matrix`
+#' @return For `externalMetric(lcModels, lcModel)`: A named `numeric` vector or `data.frame`
 #' containing the computed model metrics.
 setMethod('externalMetric', signature('lcModels', 'lcModel'), .externalMetric.lcModels)
 
@@ -168,26 +189,28 @@ setMethod('externalMetric', signature('lcModels', 'lcModel'), .externalMetric.lc
 #' @rdname externalMetric
 #' @aliases externalMetric,list,lcModel-method
 #' @inheritParams metric
-#' @return For `externalMetric(list, lcModel)`: A named `numeric` vector or `matrix`
+#' @return For `externalMetric(list, lcModel)`: A named `numeric` vector or `data.frame`
 #' containing the computed model metrics.
-setMethod('externalMetric',
-  signature('list', 'lcModel'), function(object, object2, name, drop = TRUE) {
-  assert_that(is.lcModels(object))
-  .externalMetric.lcModels(object, object2, name, drop = drop)
+setMethod('externalMetric', signature('list', 'lcModel'),
+  function(object, object2, name, drop = TRUE) {
+    models = as.lcModels(object)
+    .externalMetric.lcModels(models, object2, name, drop = drop)
 })
 
 
+# metric ####
 .metric.lcModels = function(object, name, drop = TRUE) {
   assert_that(is.lcModels(object),
-              is.character(name),
-              is.flag(drop))
+    is.character(name),
+    is.flag(drop))
 
   if (length(object) == 0) {
     if (drop) {
       numeric()
     } else {
-      matrix(nrow=0, ncol=length(name)) %>%
-        set_colnames(name)
+      matrix(nrow = 0, ncol = length(name)) %>%
+        set_colnames(name) %>%
+        as.data.frame()
     }
   }
   else {
@@ -198,14 +221,15 @@ setMethod('externalMetric',
     if(drop && ncol(metMat) == 1) {
       as.numeric(metMat)
     } else {
-      metMat
+      as.data.frame(metMat)
     }
   }
 }
 
 #' @export
 #' @rdname metric
-#' @param drop Whether to drop the matrix dimensions in case of a single model output.
+#' @param drop Whether to return a `numeric vector` instead of a `data.frame`
+#' in case of a single metric.
 #' @return For `metric(list)`: A `data.frame` with a metric per column.
 setMethod('metric', signature('list'), function(object, name, drop = TRUE) {
   .metric.lcModels(as.lcModels(object), name, drop = drop)
@@ -364,7 +388,8 @@ plotMetric = function(models,
 #' kml1 <- latrend(mKML, nClusters = 1, latrendData)
 #' kml2 <- latrend(mKML, nClusters = 2, latrendData)
 #' kml3 <- latrend(mKML, nClusters = 3, latrendData)
-#' gmm <- latrend(lcMethodLcmmGMM(Y ~ Time + (1 | Id), id = "Id", time = "Time"), latrendData)
+#' gmm <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
+#'    id = "Id", time = "Time"), latrendData)
 #' models <- lcModels(kml1, kml2, kml3, gmm)
 #'
 #' subset(models, nClusters > 1 & .method == 'kml')

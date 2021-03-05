@@ -10,36 +10,25 @@ fitted.lcModelFunFEM = function(object, ..., clusters = trajectoryAssignments(ob
                        Time = times) %>%
     setnames('Id', idVariable(object)) %>%
     setnames('Time', timeVariable(object))
+
   predict(object, newdata = newdata) %>%
     transformFitted(model = object, clusters)
 }
 
 
-#' @export
+#. predictForCluster ####
 #' @rdname interface-funFEM
-#' @inheritParams predict.lcApproxModel
-predict.lcModelFunFEM = function(object, ...,
-                                 newdata = NULL,
-                                 what = 'mu',
-                                 approxFun = approx) {
-  assert_that(is.newdata(newdata))
-  assert_that(what == 'mu', msg = 'only what="mu" is supported')
-  assert_that(is.function(approxFun))
+#' @inheritParams predictForCluster
+setMethod('predictForCluster', signature('lcModelFunFEM'),
+  function(object, newdata, cluster, what = 'mu', approxFun = approx, ...) {
+  clusIdx = match(cluster, clusterNames(object))
+  fdmeans = object@model$fd
+  fdmeans$coefs = t(object@model$prms$my)
 
-  if (is.null(newdata)) {
-    predMat = fitted(object, clusters = NULL)
-  } else {
-    assert_that(has_name(newdata, timeVariable(object)))
-    fdmeans = object@model$fd
-    fdmeans$coefs = t(object@model$prms$my)
-    predMat = fda::eval.fd(evalarg = newdata[[timeVariable(object)]], fdobj =
-                        fdmeans)
-  }
+  predMat = fda::eval.fd(evalarg = newdata[[timeVariable(object)]], fdobj = fdmeans)
+  predMat[, clusIdx]
+})
 
-  transformPredict(pred = predMat,
-                   model = object,
-                   newdata = newdata)
-}
 
 #' @rdname interface-funFEM
 setMethod('postprob', signature('lcModelFunFEM'), function(object, ...) {

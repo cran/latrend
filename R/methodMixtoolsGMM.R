@@ -25,6 +25,8 @@ setClass('lcMethodMixtoolsGMM', contains = 'lcMethod')
 #'    arb.R = FALSE)
 #' }
 #' @family lcMethod implementations
+#' @references
+#' \insertRef{benaglia2009mixtools}{latrend}
 lcMethodMixtoolsGMM = function(formula,
                                time = getOption('latrend.time'),
                                id = getOption('latrend.id'),
@@ -53,7 +55,6 @@ setMethod('preFit', signature('lcMethodMixtoolsGMM'), function(method, data, env
   f = formula(method)
   valueColumn = responseVariable(method)
   id = idVariable(method)
-  assert_that(!hasCLUSTER(f), msg = 'CLUSTER-specific fixed effects are not supported for this method')
   e$fixed = dropRE(f)
   reTerms = getREterms(f)
   if (length(reTerms) > 0) {

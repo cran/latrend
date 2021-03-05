@@ -44,13 +44,17 @@ method <- lcMethodRandom(alpha = 1e3, nClusters = 3, response = "Y", id = "Id", 
 method <- lcMethodRandom(alpha = c(100, 1, 1, 1), nClusters = 4,
   response = "Y", id = "Id", time = "Time")
 }
+\references{
+\insertRef{frigyik2010introduction}{latrend}
+}
 \seealso{
 Other lcMethod implementations: 
 \code{\link{lcMethod-class}},
-\code{\link{lcMethodAKMedoids}},
+\code{\link{lcMethodAkmedoids}},
 \code{\link{lcMethodCrimCV}},
 \code{\link{lcMethodCustom}},
 \code{\link{lcMethodDtwclust}},
+\code{\link{lcMethodFeature}},
 \code{\link{lcMethodFunFEM}},
 \code{\link{lcMethodGCKM}},
 \code{\link{lcMethodKML}},
@@ -62,7 +66,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodMixAK_GLMM}},
 \code{\link{lcMethodMixtoolsGMM}},
 \code{\link{lcMethodMixtoolsNPRM}},
-\code{\link{lcMethodStratify}},
-\code{\link{lcMethodTwoStep}}
+\code{\link{lcMethodStratify}}
 }
 \concept{lcMethod implementations}

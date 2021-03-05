@@ -12,7 +12,7 @@
 
 <meta name="author" content="Niek Den Teuling" />
 
-<meta name="date" content="2020-11-12" />
+<meta name="date" content="2021-03-05" />
 
 <title>Validating cluster models</title>
 
@@ -367,7 +367,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Validating cluster models</h1>
 <h4 class="author">Niek Den Teuling</h4>
-<h4 class="date">2020-11-12</h4>
+<h4 class="date">2021-03-05</h4>
 
 
 <div id="TOC">
@@ -466,13 +466,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>A convenient way to assess the stability across repeated runs is to compare the models on one or more internal model metrics. Similar solutions should yield similar metric scores.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>repSelfMetrics &lt;-<span class="st"> </span><span class="kw">metric</span>(repModels, <span class="dt">name =</span> <span class="kw">c</span>(<span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;WMAE&quot;</span>, <span class="st">&quot;APPA&quot;</span>))</span>
 <span id="cb6-2"><a href="#cb6-2"></a><span class="kw">head</span>(repSelfMetrics)</span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="co">#&gt;           BIC       WMAE      APPA</span></span>
-<span id="cb6-4"><a href="#cb6-4"></a><span class="co">#&gt; [1,] 655.5420 0.06418772 0.9865047</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; [2,] 655.5420 0.06418772 0.9865047</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; [3,] 655.5420 0.06418772 0.9865047</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt; [4,] 655.0419 0.06416027 0.9865672</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt; [5,] 655.5420 0.06418772 0.9865047</span></span>
-<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; [6,] 655.0419 0.06416027 0.9865672</span></span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="co">#&gt;        BIC       WMAE      APPA</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="co">#&gt; 1 655.5420 0.06418772 0.9865047</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; 2 655.5420 0.06418772 0.9865047</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; 3 655.5420 0.06418772 0.9865047</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt; 4 655.0419 0.06416027 0.9865672</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt; 5 655.5420 0.06418772 0.9865047</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; 6 655.0419 0.06416027 0.9865672</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">summary</span>(repSelfMetrics[, <span class="st">&quot;WMAE&quot;</span>])</span>
 <span id="cb7-2"><a href="#cb7-2"></a><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
 <span id="cb7-3"><a href="#cb7-3"></a><span class="co">#&gt; 0.06416 0.06416 0.06416 0.06417 0.06419 0.06419</span></span></code></pre></div>
@@ -520,17 +520,17 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb11-14"><a href="#cb11-14"></a><span class="co">#&gt; 10    10     kml  bootSample(latrendData, &quot;Id&quot;, 882537923L)</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>bootMetrics &lt;-<span class="st"> </span><span class="kw">metric</span>(bootModels, <span class="dt">name =</span> <span class="kw">c</span>(<span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;WMAE&quot;</span>, <span class="st">&quot;APPA&quot;</span>))</span>
 <span id="cb12-2"><a href="#cb12-2"></a>bootMetrics</span>
-<span id="cb12-3"><a href="#cb12-3"></a><span class="co">#&gt;            BIC       WMAE      APPA</span></span>
-<span id="cb12-4"><a href="#cb12-4"></a><span class="co">#&gt;  [1,] 386.5510 0.06249879 0.9918266</span></span>
-<span id="cb12-5"><a href="#cb12-5"></a><span class="co">#&gt;  [2,] 430.5063 0.06337630 0.9904221</span></span>
-<span id="cb12-6"><a href="#cb12-6"></a><span class="co">#&gt;  [3,] 389.1990 0.06258588 0.9847272</span></span>
-<span id="cb12-7"><a href="#cb12-7"></a><span class="co">#&gt;  [4,] 544.3614 0.06614531 0.9891894</span></span>
-<span id="cb12-8"><a href="#cb12-8"></a><span class="co">#&gt;  [5,] 480.6107 0.06621823 0.9952108</span></span>
-<span id="cb12-9"><a href="#cb12-9"></a><span class="co">#&gt;  [6,] 461.5246 0.06367826 0.9888881</span></span>
-<span id="cb12-10"><a href="#cb12-10"></a><span class="co">#&gt;  [7,] 410.5406 0.06151990 0.9874232</span></span>
-<span id="cb12-11"><a href="#cb12-11"></a><span class="co">#&gt;  [8,] 372.2148 0.06216186 0.9888215</span></span>
-<span id="cb12-12"><a href="#cb12-12"></a><span class="co">#&gt;  [9,] 466.8833 0.06500594 0.9884566</span></span>
-<span id="cb12-13"><a href="#cb12-13"></a><span class="co">#&gt; [10,] 410.7789 0.06232585 0.9897330</span></span></code></pre></div>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="co">#&gt;         BIC       WMAE      APPA</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="co">#&gt; 1  386.5510 0.06249879 0.9918266</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="co">#&gt; 2  430.5063 0.06337630 0.9904221</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="co">#&gt; 3  389.1990 0.06258588 0.9847272</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="co">#&gt; 4  544.3614 0.06614531 0.9891894</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="co">#&gt; 5  480.6107 0.06621823 0.9952108</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a><span class="co">#&gt; 6  461.5246 0.06367826 0.9888881</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a><span class="co">#&gt; 7  410.5406 0.06151990 0.9874232</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a><span class="co">#&gt; 8  372.2148 0.06216186 0.9888215</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a><span class="co">#&gt; 9  466.8833 0.06500594 0.9884566</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a><span class="co">#&gt; 10 410.7789 0.06232585 0.9897330</span></span></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">colMeans</span>(bootMetrics)</span>
 <span id="cb13-2"><a href="#cb13-2"></a><span class="co">#&gt;          BIC         WMAE         APPA </span></span>
 <span id="cb13-3"><a href="#cb13-3"></a><span class="co">#&gt; 435.31706882   0.06355163   0.98946986</span></span></code></pre></div>

@@ -101,11 +101,12 @@ setValidity('lcModel', function(object) {
 #' @title Extract the cluster trajectories
 #' @description Extracts a data frame of all cluster trajectories.
 #' @inheritParams predict.lcModel
+#' @inheritParams predictForCluster
 #' @param at An optional vector, list or data frame of covariates at which to compute the cluster trajectory predictions.
 #' If a vector is specified, this is assumed to be the time covariate. Otherwise, a named list or data frame must be provided.
-#' @return A data.frame of the estimated values at the given times
+#' @return A data.frame of the estimated values at the given times. The first column should be named "Cluster". The second column should be time, with the name matching the `timeVariable(object)`. The third column should be the expected value of the observations, named after the `responseVariable(object)`.
 #' @examples
-#' model <- latrend(method = lcMethodLcmmGMM(Y ~ Time + (1 | Id)),
+#' model <- latrend(method = lcMethodLcmmGMM(fixed = Y ~ Time, mixture = fixed),
 #'   id = "Id", time = "Time", data = latrendData)
 #' clusterTrajectories(model)
 #'
@@ -262,7 +263,9 @@ coef.lcModel = function(object, ...) {
 #' @param scale Whether to express the confusion in probabilities (`scale = TRUE`), or in the number of trajectories.
 #' @examples
 #' data(latrendData)
-#' model = latrend(method=lcMethodLcmmGMM(Y ~ CLUSTER * Time + (1 | Id), id = "Id", time = "Time"),
+#' model = latrend(lcMethodLcmmGMM(
+#'   fixed = Y ~ Time, mixture = ~ Time, random = ~ 1,
+#'   id = "Id", time = "Time"),
 #'   data=latrendData)
 #' confusionMatrix(model)
 confusionMatrix = function(object, strategy = which.max, scale = TRUE) {
@@ -357,7 +360,8 @@ df.residual.lcModel = function(object, ...) {
 #' @examples
 #' data(latrendData)
 #' model1 <- latrend(lcMethodKML("Y", id = "Id", time = "Time"), latrendData)
-#' model2 <- latrend(lcMethodLcmmGMM(Y ~ Time + (1 | Id), id = "Id", time = "Time"), latrendData)
+#' model2 <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
+#'    id = "Id", time = "Time"), latrendData)
 #' ari <- externalMetric(model1, model2, 'adjustedRand')
 #' @return For `externalMetric(lcModel, lcModel)`: A `numeric` vector of the computed metrics.
 #' @family metric functions
@@ -547,7 +551,8 @@ logLik.lcModel = function(object, ...) {
 #' @aliases metric,lcModel-method
 #' @examples
 #' data(latrendData)
-#' model <- latrend(lcMethodLcmmGMM(Y ~ Time + (1 | Id), id = "Id", time = "Time"), latrendData)
+#' model <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
+#'    id = "Id", time = "Time"), latrendData)
 #' bic <- metric(model, "BIC")
 #'
 #' ic <- metric(model, c("AIC", "BIC"))
@@ -681,17 +686,19 @@ nobs.lcModel = function(object, ...) {
 #' @rdname predict.lcModel
 #' @importFrom stats predict
 #' @title lcModel predictions
-#' @description Predicts the expected trajectory observations at the given time for each cluster, unless specified.
-#' @details The default `predict.lcModel` implementation.
+#' @description Predicts the expected trajectory observations at the given time for each cluster.
+#' @details Subclasses of `lcModel` should preferably implement `predictForCluster` instead of overriding `predict.lcModel` in order to benefit from standardized error checking and output handling.
 #' @param object The `lcModel` object.
-#' @param newdata Optional data frame for which to compute the model predictions. If omitted, the model training data is used.
-#' Cluster trajectory predictions are made when ids are not specified. If the clusters are specified under the Cluster column, output is given only for the specified cluster. Otherwise, a matrix is returned with predictions for all clusters.
-#' @param what The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying what='mb'.
-#' @return If newdata specifies the cluster membership; a vector of cluster-specific predictions. Otherwise, a matrix of predictions is returned corresponding to each cluster.
+#' @param newdata Optional `data.frame` for which to compute the model predictions. If omitted, the model training data is used.
+#' Cluster trajectory predictions are made when ids are not specified.
+#' @param what The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying `what = 'mb'`.
+#' @return If `newdata` specifies the cluster membership; a `data.frame` of cluster-specific predictions. Otherwise, a `list` of `data.frame` of cluster-specific predictions is returned.
 #' @param ... Additional arguments.
 #' @examples
 #' data(latrendData)
-#' model <- latrend(lcMethodLcmmGMM(Y ~ Time + (1 | Id), id = "Id", time = "Time"), latrendData)
+#' model <- latrend(lcMethodLcmmGMM(
+#'    fixed = Y ~ Time, mixture = ~ Time,
+#'    id = "Id", time = "Time"), latrendData)
 #' predFitted <- predict(model) # same result as fitted(model)
 #'
 #' # Cluster trajectory of cluster A
@@ -703,9 +710,7 @@ nobs.lcModel = function(object, ...) {
 #' # Prediction matrix for id S1 for all clusters
 #' predIdAll <- predict(model, newdata = data.frame(Id = "S1", Time = time(model)))
 #' @family model-specific methods
-predict.lcModel = function(object, ...,
-                           newdata = NULL,
-                           what = 'mu') {
+predict.lcModel = function(object, newdata = NULL, what = 'mu', ...) {
   # special case for when no newdata is provided
   if (is.null(newdata)) {
     newdata = model.data(object)
@@ -713,16 +718,32 @@ predict.lcModel = function(object, ...,
       newdata[['Cluster']] = NULL # allowing the Cluster column to remain would break the fitted() output.
     }
   }
+  else {
+    if (nrow(newdata) == 0) {
+      warning('called predict() with empty newdata data.frame (nrow = 0)')
+    }
+  }
+
+  newdata = as.data.table(newdata)
 
   if (hasName(newdata, 'Cluster')) {
+    # enforce cluster ordering
+    newdata[, Cluster := factor(Cluster, levels = clusterNames(object))]
+
+    assert_that(noNA(newdata$Cluster) &
+        all(unique(newdata$Cluster) %in% clusterNames(object)),
+      msg = paste0('The provided newdata "Cluster" column must be complete and only contain cluster names associated with the model (',
+        paste0(shQuote(clusterNames(object)), collapse = ', '), ').'))
+
     # predictForCluster with newdata subsets
     clusdataList = as.data.table(newdata) %>%
-      split(by = 'Cluster', sorted = TRUE) %>%
+      split(by = 'Cluster', sorted = TRUE, drop = TRUE) %>%
       lapply(function(cdata) cdata[, Cluster := NULL])
   }
   else {
     # predictForCluster with newdata for each cluster
     clusdataList = replicate(nClusters(object), newdata, simplify = FALSE)
+    names(clusdataList) = clusterNames(object)
   }
 
   predList = mapply(function(cname, cdata) {
@@ -731,30 +752,39 @@ predict.lcModel = function(object, ...,
                       newdata = cdata,
                       what = what,
                       ...)
-  }, clusterNames(object), clusdataList, SIMPLIFY = FALSE)
+  }, names(clusdataList), clusdataList, SIMPLIFY = FALSE)
 
-  assert_that(uniqueN(vapply(predList, class, FUN.VALUE = '')) == 1, msg =
-                'output from predictForCluster() must be same class for all clusters. Check the model implementation.')
+  assert_that(
+    length(predList) == length(clusdataList),
+    msg = 'unexpected internal state. please report')
+  assert_that(
+    all(vapply(predList, function(x) is(x, class(predList[[1]])), FUN.VALUE = TRUE)),
+    msg = 'output from predictForCluster() must be same class for all clusters. Check the model implementation.')
+
 
   if (is.data.frame(predList[[1]])) {
     pred = rbindlist(predList, idcol = 'Cluster')
+    pred[, Cluster := factor(Cluster,
+      levels = seq_len(nClusters(object)),
+      labels = clusterNames(object))]
   }
   else if (is.numeric(predList[[1]])) {
-    clusDataRows = vapply(clusdataList, nrow, FUN.VALUE=0)
-    clusPredRows = vapply(predList, length, FUN.VALUE=0)
-    assert_that(all(clusDataRows == clusPredRows), msg='Numeric output length from predictForCluster() does not match the number of input newdata rows for one or more clusters')
-    pred = data.table(Cluster = rep(seq_len(nClusters(object)), clusDataRows),
-                      Fit = do.call(c, predList))
+    clusDataRows = vapply(clusdataList, nrow, FUN.VALUE = 0)
+    clusPredRows = vapply(predList, length, FUN.VALUE = 0)
+    assert_that(all(clusDataRows == clusPredRows),
+      msg = 'Numeric output length from predictForCluster() does not match the number of input newdata rows for one or more clusters')
+
+    pred = data.table(
+      Cluster = rep(
+        factor(names(clusDataRows), levels = clusterNames(object)),
+        clusDataRows),
+      Fit = do.call(c, predList))
   }
   else {
     stop(
       'unsupported output from predictForCluster(): must be data.frame or numeric. Check the model implementation.'
     )
   }
-
-  pred[, Cluster := factor(Cluster,
-                           levels = seq_len(nClusters(object)),
-                           labels = clusterNames(object))]
 
   transformPredict(pred = pred,
                    model = object,
@@ -868,7 +898,12 @@ setMethod('predictAssignments', signature('lcModel'), function(object, newdata =
 #' @param ... Arguments passed to [plotClusterTrajectories].
 #' @return A `ggplot` object.
 setMethod('plot', signature('lcModel'), function(x, y, ...) {
-  plotClusterTrajectories(x, ..., trajectories = TRUE)
+  args = list(...)
+  if(!has_name(args, 'trajectories')) {
+    args$trajectories = TRUE
+  }
+
+  do.call(plotClusterTrajectories, c(x, args))
 })
 
 
@@ -901,7 +936,7 @@ setMethod('plotTrajectories', signature('lcModel'), function(object, ...) {
 #' @inheritParams clusterTrajectories
 #' @param clusterLabels Cluster display names. By default it's the cluster name with its proportion enclosed in parentheses.
 #' @param trajAssignments The cluster assignments for the fitted trajectories. Only used when `trajectories = TRUE` and `facet = TRUE`. See [trajectoryAssignments].
-#' @param ... Arguments passed to [clusterTrajectories].
+#' @param ... Arguments passed to [clusterTrajectories], or [ggplot2::geom_line] for plotting the cluster trajectory lines.
 #' @return A `ggplot` object.
 setMethod('plotClusterTrajectories', signature('lcModel'),
   function(object,
@@ -911,7 +946,7 @@ setMethod('plotClusterTrajectories', signature('lcModel'),
       clusterNames(object),
       percent(clusterProportions(object))),
     trajectories = FALSE,
-    facet = trajectories,
+    facet = isTRUE(trajectories),
     trajAssignments = trajectoryAssignments(object),
     ...
   ) {
@@ -937,7 +972,8 @@ setMethod('plotClusterTrajectories', signature('lcModel'),
     id = idVariable(object),
     trajectories = trajectories,
     facet = facet,
-    rawdata = rawdata)
+    rawdata = rawdata,
+    ...)
 })
 
 
@@ -951,7 +987,8 @@ setMethod('plotClusterTrajectories', signature('lcModel'),
 #' @param ... Additional arguments.
 #' @examples
 #' data(latrendData)
-#' model <- latrend(lcMethodLcmmGMM(Y ~ Time + (1 | Id), id = "Id", time = "Time"), data = latrendData)
+#' model <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
+#'    id = "Id", time = "Time"), data = latrendData)
 #' postprob(model)
 #' @family model-specific methods
 setMethod('postprob', signature('lcModel'), function(object, ...) {

@@ -32,18 +32,25 @@ Specify a GLMM iwht a normal mixture in the random effects
 }
 \examples{
 data(latrendData)
-method <- lcMethodMixAK_GLMM(fixed = Y ~ 1, random = ~ Time,
+# this example only runs when the mixAK package is installed
+try({
+ method <- lcMethodMixAK_GLMM(fixed = Y ~ 1, random = ~ Time,
   id = "Id", time = "Time", nClusters = 3)
-model <- latrend(method, latrendData)
-summary(model)
+ model <- latrend(method, latrendData)
+ summary(model)
+})
+}
+\references{
+\insertRef{komarek2009new}{latrend}
 }
 \seealso{
 Other lcMethod implementations: 
 \code{\link{lcMethod-class}},
-\code{\link{lcMethodAKMedoids}},
+\code{\link{lcMethodAkmedoids}},
 \code{\link{lcMethodCrimCV}},
 \code{\link{lcMethodCustom}},
 \code{\link{lcMethodDtwclust}},
+\code{\link{lcMethodFeature}},
 \code{\link{lcMethodFunFEM}},
 \code{\link{lcMethodGCKM}},
 \code{\link{lcMethodKML}},
@@ -55,7 +62,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodMixtoolsGMM}},
 \code{\link{lcMethodMixtoolsNPRM}},
 \code{\link{lcMethodRandom}},
-\code{\link{lcMethodStratify}},
-\code{\link{lcMethodTwoStep}}
+\code{\link{lcMethodStratify}}
 }
 \concept{lcMethod implementations}

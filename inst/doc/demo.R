@@ -73,7 +73,7 @@ qqPlot(kmlModel4, byCluster = TRUE, detrend = TRUE)
 
 ## -----------------------------------------------------------------------------
 library(splines)
-gbtmMethod <- lcMethodLcmmGBTM(Y ~ bs(Time) * CLUSTER + (1 | Id))
+gbtmMethod <- lcMethodLcmmGBTM(fixed = Y ~ bs(Time), mixture = fixed)
 
 gbtmMethod
 
@@ -90,7 +90,7 @@ bestGbtmModel <- subset(gbtmModels, nClusters == 3, drop=TRUE)
 plot(bestGbtmModel)
 
 ## -----------------------------------------------------------------------------
-gmmMethod <- lcMethodLcmmGMM(Y ~ poly(Time, 2, raw = TRUE) * CLUSTER + (1 | Id), idiag = TRUE)
+gmmMethod <- lcMethodLcmmGMM(fixed = Y ~ poly(Time, 2, raw = TRUE), mixture = fixed, idiag = TRUE)
 
 gmmMethod
 

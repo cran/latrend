@@ -4,6 +4,7 @@
 \alias{externalMetric,lcModel,lcModel-method}
 \alias{externalMetric}
 \alias{externalMetric,lcModels,missing-method}
+\alias{externalMetric,lcModels,character-method}
 \alias{externalMetric,lcModels,lcModel-method}
 \alias{externalMetric,lcModels,lcModels-method}
 \alias{externalMetric,list,lcModel-method}
@@ -12,6 +13,8 @@
 \S4method{externalMetric}{lcModel,lcModel}(object, object2, name, ...)
 
 \S4method{externalMetric}{lcModels,missing}(object, object2, name = "adjustedRand")
+
+\S4method{externalMetric}{lcModels,character}(object, object2 = "adjustedRand")
 
 \S4method{externalMetric}{lcModels,lcModel}(object, object2, name, drop = TRUE)
 
@@ -26,7 +29,8 @@
 
 \item{...}{Additional arguments.}
 
-\item{drop}{Whether to drop the matrix dimensions in case of a single model output.}
+\item{drop}{Whether to return a \verb{numeric vector} instead of a \code{data.frame}
+in case of a single metric.}
 }
 \value{
 For \code{externalMetric(lcModel, lcModel)}: A \code{numeric} vector of the computed metrics.
@@ -36,10 +40,13 @@ A named \code{numeric} vector containing the computed model metrics.
 For \code{externalMetric(lcModels)}: A distance matrix of class \link{dist} representing
 the pairwise comparisons.
 
-For \code{externalMetric(lcModels, lcModel)}: A named \code{numeric} vector or \code{matrix}
+For \code{externalMetric(lcModels, name)}: A distance matrix of class \link{dist} representing
+the pairwise comparisons.
+
+For \code{externalMetric(lcModels, lcModel)}: A named \code{numeric} vector or \code{data.frame}
 containing the computed model metrics.
 
-For \code{externalMetric(list, lcModel)}: A named \code{numeric} vector or \code{matrix}
+For \code{externalMetric(list, lcModel)}: A named \code{numeric} vector or \code{data.frame}
 containing the computed model metrics.
 }
 \description{
@@ -48,8 +55,22 @@ Compute external model metric(s)
 \examples{
 data(latrendData)
 model1 <- latrend(lcMethodKML("Y", id = "Id", time = "Time"), latrendData)
-model2 <- latrend(lcMethodLcmmGMM(Y ~ Time + (1 | Id), id = "Id", time = "Time"), latrendData)
+model2 <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
+   id = "Id", time = "Time"), latrendData)
 ari <- externalMetric(model1, model2, 'adjustedRand')
+}
+\references{
+\insertRef{desgraupes2018clustercrit}{latrend}
+
+\insertRef{you2018mclustcomp}{latrend}
+
+\insertRef{csardi2006igraph}{latrend}
+
+\insertRef{hubert1985comparing}{latrend}
+
+\insertRef{revelle2019psych}{latrend}
+
+\insertRef{scrucca2016mclust}{latrend}
 }
 \seealso{
 \link{metric}

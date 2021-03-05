@@ -20,7 +20,8 @@
 
 \item{...}{Additional arguments.}
 
-\item{drop}{Whether to drop the matrix dimensions in case of a single model output.}
+\item{drop}{Whether to return a \verb{numeric vector} instead of a \code{data.frame}
+in case of a single metric.}
 }
 \value{
 For \code{metric(lcModel)}: A named \code{numeric} vector with the computed model metrics.
@@ -34,7 +35,8 @@ Compute internal model metric(s)
 }
 \examples{
 data(latrendData)
-model <- latrend(lcMethodLcmmGMM(Y ~ Time + (1 | Id), id = "Id", time = "Time"), latrendData)
+model <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
+   id = "Id", time = "Time"), latrendData)
 bic <- metric(model, "BIC")
 
 ic <- metric(model, c("AIC", "BIC"))

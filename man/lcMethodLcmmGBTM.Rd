@@ -5,8 +5,9 @@
 \title{Specify GBTM method}
 \usage{
 lcMethodLcmmGBTM(
-  formula,
-  formula.mb = ~1,
+  fixed,
+  mixture = ~1,
+  classmb = ~1,
   time = getOption("latrend.time"),
   id = getOption("latrend.id"),
   nClusters = 2,
@@ -14,11 +15,11 @@ lcMethodLcmmGBTM(
 )
 }
 \arguments{
-\item{formula}{A \code{formula} of the form \code{Response ~ Var1 + CLUSTER * Var2 + .}
-Variables specified in the model are included as fixed effects.
-If an interaction is specified with the \code{CLUSTER} term then these covariates are included as fixed and mixture effects.}
+\item{fixed}{The fixed effects formula.}
 
-\item{formula.mb}{A \code{formula} specifying the class membership model. By default, an intercept-only model is used. This is a replacement of the internal \code{classmb} argument in \link[lcmm:hlme]{lcmm::hlme}.}
+\item{mixture}{The mixture-specific effects formula. See \link[lcmm:hlme]{lcmm::hlme} for details.}
+
+\item{classmb}{The cluster membership formula for the multinomial logistic model. See \link[lcmm:hlme]{lcmm::hlme} for details.}
 
 \item{time}{The name of the time variable.}
 
@@ -34,19 +35,27 @@ Group-based trajectory modeling through fixed-effects modeling.
 }
 \examples{
 data(latrendData)
-method <- lcMethodLcmmGBTM(Y ~ CLUSTER, id = "Id", time = "Time", nClusters = 3)
+method <- lcMethodLcmmGBTM(fixed = Y ~ Time, mixture = ~ 1,
+   id = "Id", time = "Time", nClusters = 3)
 gbtm <- latrend(method, data = latrendData)
 summary(gbtm)
 
-method <- lcMethodLcmmGBTM(Y ~ CLUSTER * Time, id = "Id", time = "Time", nClusters = 3)
+method <- lcMethodLcmmGBTM(fixed = Y ~ Time, mixture = ~ Time,
+    id = "Id", time = "Time", nClusters = 3)
+}
+\references{
+\insertRef{proustlima2017estimation}{latrend}
+
+\insertRef{proustlima2019lcmm}{latrend}
 }
 \seealso{
 Other lcMethod implementations: 
 \code{\link{lcMethod-class}},
-\code{\link{lcMethodAKMedoids}},
+\code{\link{lcMethodAkmedoids}},
 \code{\link{lcMethodCrimCV}},
 \code{\link{lcMethodCustom}},
 \code{\link{lcMethodDtwclust}},
+\code{\link{lcMethodFeature}},
 \code{\link{lcMethodFunFEM}},
 \code{\link{lcMethodGCKM}},
 \code{\link{lcMethodKML}},
@@ -58,7 +67,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodMixtoolsGMM}},
 \code{\link{lcMethodMixtoolsNPRM}},
 \code{\link{lcMethodRandom}},
-\code{\link{lcMethodStratify}},
-\code{\link{lcMethodTwoStep}}
+\code{\link{lcMethodStratify}}
 }
 \concept{lcMethod implementations}

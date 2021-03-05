@@ -13,18 +13,18 @@
 \item{at}{An optional vector, list or data frame of covariates at which to compute the cluster trajectory predictions.
 If a vector is specified, this is assumed to be the time covariate. Otherwise, a named list or data frame must be provided.}
 
-\item{what}{The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying what='mb'.}
+\item{what}{The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying \code{what = 'mb'}.}
 
 \item{...}{Additional arguments.}
 }
 \value{
-A data.frame of the estimated values at the given times
+A data.frame of the estimated values at the given times. The first column should be named "Cluster". The second column should be time, with the name matching the \code{timeVariable(object)}. The third column should be the expected value of the observations, named after the \code{responseVariable(object)}.
 }
 \description{
 Extracts a data frame of all cluster trajectories.
 }
 \examples{
-model <- latrend(method = lcMethodLcmmGMM(Y ~ Time + (1 | Id)),
+model <- latrend(method = lcMethodLcmmGMM(fixed = Y ~ Time, mixture = fixed),
   id = "Id", time = "Time", data = latrendData)
 clusterTrajectories(model)
 

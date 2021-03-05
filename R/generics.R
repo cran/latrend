@@ -37,7 +37,8 @@ setGeneric('clusterProportions', function(object, ...) {
     length(props) == nClusters(object),
     noNA(props),
     all(is.finite(props)),
-    min(props) >= 0
+    min(props) >= 0,
+    max(props) <= 1
   )
 
   names(props) = clusterNames(object)
@@ -46,7 +47,17 @@ setGeneric('clusterProportions', function(object, ...) {
 
 #' @export
 #' @name latrend-generics
-setGeneric('clusterTrajectories', function(object, ...) standardGeneric('clusterTrajectories'))
+setGeneric('clusterTrajectories', function(object, ...) {
+  dfclus <- standardGeneric('clusterTrajectories')
+  assert_that(
+    is.data.frame(dfclus),
+    names(dfclus)[1] == 'Cluster',
+    names(dfclus)[2] == timeVariable(object),
+    names(dfclus)[3] == responseVariable(object),
+    msg = paste0('Invalid output format for data.frame from clusterTrajectories() implementation of lcModel ', class(object)))
+
+  dfclus
+})
 
 #' @export
 #' @name latrend-generics
@@ -84,9 +95,10 @@ setGeneric('externalMetric', function(object, object2, name, ...) standardGeneri
 #' @export
 #' @name latrend-generics
 setGeneric('fit', function(method, data, envir, verbose, ...) {
-  start = Sys.time()
+  dateStart = Sys.time()
+  start = proc.time()
   model <- standardGeneric('fit')
-  estimationTime = Sys.time() - start
+  estimationTime = proc.time()['elapsed'] - start['elapsed']
 
   assert_that(is.lcModel(model),
     msg = 'fit(lcMethod, ...) returned an unexpected object. Should be of type lcModel.')
@@ -96,6 +108,7 @@ setGeneric('fit', function(method, data, envir, verbose, ...) {
   model@time = timeVariable(method)
   model@response = responseVariable(method)
   model@label = getLabel(method)
+  model@date = dateStart
   model@estimationTime = as.numeric(estimationTime, 'secs')
 
   return(model)
@@ -190,23 +203,45 @@ setGeneric('postprob', function(object, ...) {
 #' @export
 #' @name latrend-generics
 setGeneric('predictAssignments', function(object, newdata = NULL, ...) {
-    assignments <- standardGeneric('predictAssignments')
+  assert_that(is.newdata(newdata))
 
-    assert_that(
-      is.null(newdata) || length(assignments) == nrow(newdata)
-    )
+  assignments <- standardGeneric('predictAssignments')
 
-    make.trajectoryAssignments(object, assignments)
+  assert_that(
+    is.null(newdata) || length(assignments) == nrow(newdata)
+  )
+
+  make.trajectoryAssignments(object, assignments)
 })
 
 #' @export
 #' @name latrend-generics
-setGeneric('predictForCluster',
-  function(object, newdata = NULL, cluster, ...) standardGeneric('predictForCluster'))
+setGeneric('predictForCluster', function(object, newdata = NULL, cluster, ...) {
+  assert_that(
+    is.newdata(newdata),
+    cluster %in% clusterNames(object)
+  )
+
+  out <- standardGeneric('predictForCluster')
+
+  assert_that(is.numeric(out) || is.data.frame(out))
+
+  if (!is.null(newdata)) {
+    if (is.numeric(out)) {
+      assert_that(length(out) == nrow(newdata))
+    } else if (is.data.frame(out)) {
+      assert_that(nrow(out) == nrow(newdata))
+    }
+  }
+
+  out
+})
 
 #' @export
 #' @name latrend-generics
 setGeneric('predictPostprob', function(object, newdata = NULL, ...) {
+  assert_that(is.newdata(newdata))
+
   pp <- standardGeneric('predictPostprob')
 
   assert_that(
@@ -254,11 +289,13 @@ setGeneric('prepareData', function(method, data, verbose, ...) {
 #' @name latrend-generics
 setGeneric('responseVariable', function(object, ...) {
   response <- standardGeneric('responseVariable')
+
   assert_that(
     is.character(response),
     length(response) == 1,
     nchar(response) > 0
   )
+
   response
 })
 
@@ -275,11 +312,13 @@ setGeneric('strip', function(object, ...) standardGeneric('strip'))
 #' @name latrend-generics
 setGeneric('timeVariable', function(object, ...) {
   time <- standardGeneric('timeVariable')
+
   assert_that(
     is.character(time),
     length(time) == 1,
     nchar(time) > 0
   )
+
   time
 })
 
@@ -287,6 +326,7 @@ setGeneric('timeVariable', function(object, ...) {
 #' @name latrend-generics
 setGeneric('validate', function(method, data, envir, ...) {
   validationResult <- standardGeneric('validate')
+
   if (!isTRUE(validationResult)) {
     stop('method validation failed: ', validationResult)
   }

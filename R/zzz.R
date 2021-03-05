@@ -3,6 +3,7 @@
 #' @import methods
 #' @import magrittr
 #' @import stats
+#' @importFrom Rdpack reprompt
 #' @importFrom scales percent
 #' @importFrom foreach foreach %do%
 #' @import ggplot2
@@ -47,7 +48,7 @@ NULL
   }
 }
 
-globalVariables(c('.', '.name', '.group', '.method', '.ROW_INDEX', '.Mean',
+globalVariables(c('.', '.name', '.group', '.method', '.ROW_INDEX', '.Mean', '.Block',
   'i', 'iseed', 'N', 'i.N', 'g', 'fun', 'method', 'plotTrajs',
   'Prob', 'Cluster', 'Class', 'Value', 'Id', 'Time',
   'Mu', 'Mu.cluster', 'Mu.class', 'Mu.fixed', 'Mu.random',

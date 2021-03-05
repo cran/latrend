@@ -49,7 +49,11 @@ getREGroupName = function(term) {
 }
 
 getCovariates = function(f) {
-  dropResponse(f) %>% all.vars
+  if(is.null(f)) {
+    character()
+  } else {
+    dropResponse(f) %>% all.vars()
+  }
 }
 
 hasCovariates = function(f) {
@@ -63,7 +67,7 @@ hasRE = function(f) {
 addInteraction = function(f, var) {
   assert_that(is.formula(f))
   assert_that(is.character(var))
-  vars = terms(f) %>% labels
+  vars = terms(f) %>% labels()
 
   if (length(vars) == 0) {
     if (hasIntercept(f)) {
@@ -90,8 +94,8 @@ merge.formula = function(x, y, ...) {
   assert_that(is.formula(x))
   assert_that(is.formula(y))
   assert_that(!hasResponse(y))
-  xlabels = terms(x) %>% labels
-  ylabels = terms(y) %>% labels
+  xlabels = terms(x) %>% labels()
+  ylabels = terms(y) %>% labels()
 
   allLabels = union(xlabels, ylabels)
   if (length(allLabels) == 0) {
@@ -155,73 +159,6 @@ dropRE = function(f) {
   }
 }
 
-# CLUSTER specific ####
-
-#' @noRd
-#' @title Check for CLUSTER terms
-#' @keywords internal
-hasCLUSTER = function(f) {
-  vars = terms(f) %>% labels()
-  any(startsWith(vars, 'CLUSTER:') |
-        endsWith(vars, ':CLUSTER') |
-        vars == 'CLUSTER') # TODO: what about a:CLUSTER:b?
-}
-
-#' @noRd
-#' @title Drop CLUSTER-interactive terms
-#' @description Drop any terms that have an interaction with CLUSTER
-#' @keywords internal
-dropCLUSTER = function(f) {
-  tt = terms(f)
-  vars = labels(tt)
-  newvars = vars[!startsWith(vars, 'CLUSTER:') &
-                   !endsWith(vars, ':CLUSTER') & vars != 'CLUSTER']
-
-  if (length(newvars) == 0) {
-    if (hasIntercept(f)) {
-      update(f, ~ 1)
-    }
-    else {
-      dropIntercept(f)
-    }
-  } else {
-    reformulate(
-      termlabels = newvars,
-      intercept = attr(tt, 'intercept'),
-      response = getResponse(f),
-      env = environment(f)
-    )
-  }
-}
-
-#' @noRd
-#' @title Drop non-CLUSTER terms
-#' @description Keep only terms that have an interaction with CLUSTER
-#' @keywords internal
-keepCLUSTER = function(f) {
-  tt = terms(f)
-  vars = labels(tt)
-  vars1 = vars[startsWith(vars, 'CLUSTER:')] %>% substring(first = 9)
-  rmstr = function(x) {
-    substr(x, start = 0, stop = nchar(x) - 8)
-  }
-  vars2 = vars[endsWith(vars, ':CLUSTER')] %>% rmstr
-
-  if (length(vars1) + length(vars2) == 0) {
-    if ('CLUSTER' %in% vars) {
-      update(f, ~ 1)
-    } else {
-      update(f, ~ -1)
-    }
-  } else {
-    reformulate(
-      termlabels = c(vars1, vars2),
-      intercept = 'CLUSTER' %in% vars,
-      response = getResponse(f),
-      env = environment(f)
-    )
-  }
-}
 
 #' @noRd
 #' @title Get special terms as character vector

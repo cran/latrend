@@ -38,13 +38,17 @@ method <- lcMethodMixtoolsGMM(
    arb.R = FALSE)
 }
 }
+\references{
+\insertRef{benaglia2009mixtools}{latrend}
+}
 \seealso{
 Other lcMethod implementations: 
 \code{\link{lcMethod-class}},
-\code{\link{lcMethodAKMedoids}},
+\code{\link{lcMethodAkmedoids}},
 \code{\link{lcMethodCrimCV}},
 \code{\link{lcMethodCustom}},
 \code{\link{lcMethodDtwclust}},
+\code{\link{lcMethodFeature}},
 \code{\link{lcMethodFunFEM}},
 \code{\link{lcMethodGCKM}},
 \code{\link{lcMethodKML}},
@@ -56,7 +60,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodMixAK_GLMM}},
 \code{\link{lcMethodMixtoolsNPRM}},
 \code{\link{lcMethodRandom}},
-\code{\link{lcMethodStratify}},
-\code{\link{lcMethodTwoStep}}
+\code{\link{lcMethodStratify}}
 }
 \concept{lcMethod implementations}

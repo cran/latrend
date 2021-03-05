@@ -10,13 +10,12 @@
 \alias{getName,lcMethodMixtoolsNPRM-method}
 \alias{getShortName,lcMethodMixtoolsNPRM-method}
 \alias{fit,lcMethodMixtoolsNPRM-method}
+\alias{predictForCluster,lcModelMixtoolsGMM-method}
 \alias{postprob,lcModelMixtoolsGMM-method}
-\alias{predict.lcModelMixtoolsGMM}
 \alias{logLik.lcModelMixtoolsGMM}
 \alias{coef.lcModelMixtoolsGMM}
 \alias{sigma.lcModelMixtoolsGMM}
-\alias{predict.lcModelMixtoolsRM}
-\alias{fitted.lcModelMixtoolsRM}
+\alias{clusterTrajectories,lcModelMixtoolsRM-method}
 \alias{postprob,lcModelMixtoolsRM-method}
 \alias{logLik.lcModelMixtoolsRM}
 \alias{converged,lcModelMixtoolsRM-method}
@@ -36,9 +35,9 @@
 
 \S4method{fit}{lcMethodMixtoolsNPRM}(method, data, envir, verbose, ...)
 
-\S4method{postprob}{lcModelMixtoolsGMM}(object, ...)
+\S4method{predictForCluster}{lcModelMixtoolsGMM}(object, newdata, cluster, what = "mu", ...)
 
-\method{predict}{lcModelMixtoolsGMM}(object, ..., newdata = NULL, what = "mu")
+\S4method{postprob}{lcModelMixtoolsGMM}(object, ...)
 
 \method{logLik}{lcModelMixtoolsGMM}(object, ...)
 
@@ -46,17 +45,14 @@
 
 \method{sigma}{lcModelMixtoolsGMM}(object, ...)
 
-\method{predict}{lcModelMixtoolsRM}(
+\S4method{clusterTrajectories}{lcModelMixtoolsRM}(
   object,
-  ...,
-  newdata = NULL,
+  at = time(object),
   what = "mu",
   se = TRUE,
   ci = c(0.025, 0.975),
-  approxFun = approx
+  ...
 )
-
-\method{fitted}{lcModelMixtoolsRM}(object, ..., clusters)
 
 \S4method{postprob}{lcModelMixtoolsRM}(object, ...)
 
@@ -77,18 +73,19 @@
 
 \item{...}{Additional arguments.}
 
-\item{newdata}{Optional data frame for which to compute the model predictions. If omitted, the model training data is used.
-Cluster trajectory predictions are made when ids are not specified. If the clusters are specified under the Cluster column, output is given only for the specified cluster. Otherwise, a matrix is returned with predictions for all clusters.}
+\item{newdata}{Optional \code{data.frame} for which to compute the model predictions. If omitted, the model training data is used.
+Cluster trajectory predictions are made when ids are not specified.}
 
-\item{what}{The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying what='mb'.}
+\item{cluster}{The cluster name (as \code{character}) to predict for.}
+
+\item{what}{The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying \code{what = 'mb'}.}
+
+\item{at}{An optional vector, list or data frame of covariates at which to compute the cluster trajectory predictions.
+If a vector is specified, this is assumed to be the time covariate. Otherwise, a named list or data frame must be provided.}
 
 \item{se}{Whether to compute the standard error of the prediction.}
 
 \item{ci}{The confidence interval to compute.}
-
-\item{approxFun}{The interpolation function to use for time points not in the feature set.}
-
-\item{clusters}{Optional cluster assignments per id. If unspecified, a \code{matrix} is returned containing the cluster-specific predictions per column.}
 }
 \description{
 mixtools interface

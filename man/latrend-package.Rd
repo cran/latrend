@@ -4,7 +4,7 @@
 \name{latrend-package}
 \alias{latrend-package}
 \alias{_PACKAGE}
-\title{latrend: Framework for Clustering Longitudinal Data}
+\title{latrend: A Framework for Clustering Longitudinal Data}
 \description{
 A framework for clustering longitudinal datasets in a standardized way. Provides an interface to existing R packages for clustering longitudinal univariate trajectories, facilitating reproducible and transparent analyses. Additionally, standard tools are provided to support cluster analyses, including repeated estimation, model validation, and model assessment. The interface enables users to compare results between methods, and to implement and evaluate new methods with ease.
 }
@@ -32,7 +32,7 @@ Other contributors:
 \itemize{
   \item Steffen Pauws \email{s.c.pauws@uvt.nl} [contributor]
   \item Edwin van den Heuvel \email{e.r.v.d.heuvel@tue.nl} [contributor]
-  \item Copyright © 2020 Koninklijke Philips N.V. [copyright holder]
+  \item Copyright © 2021 Koninklijke Philips N.V. [copyright holder]
 }
 
 }

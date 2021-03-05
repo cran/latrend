@@ -91,7 +91,7 @@ clusStep <- function(method, data, repMat, envir, verbose) {
 }
 
 ## -----------------------------------------------------------------------------
-m.twostep <- lcMethodTwoStep(response = "Y", representationStep = repStep, clusterStep = clusStep)
+m.twostep <- lcMethodFeature(response = "Y", representationStep = repStep, clusterStep = clusStep)
 
 ## ----message=TRUE-------------------------------------------------------------
 model.twostep <- latrend(m.twostep, data = casedata)
@@ -118,7 +118,7 @@ clusStep.gen <- function(method, data, repMat, envir, verbose) {
 }
 
 ## -----------------------------------------------------------------------------
-m.twostepgen <- lcMethodTwoStep(response = "Y",
+m.twostepgen <- lcMethodFeature(response = "Y",
   representationStep = repStep.gen, 
   clusterStep = clusStep.gen)
 
@@ -182,24 +182,23 @@ setClass("lcModelSimpleGBTM", contains = "lcModel")
 slotNames("lcModelSimpleGBTM")
 
 ## -----------------------------------------------------------------------------
-predict.lcModelSimpleGBTM <- function(object, newdata = NULL, what = "mu", ...) {
-  if(is.null(newdata)) {
-    predMat <- fitted(object, clusters = NULL)
-  } else {
-    predMat <- lcmm::predictY(object@model, newdata = newdata)$pred %>%
-      set_colnames(clusterNames(object))
-  }
-
-  transformPredict(pred = predMat, model = object, newdata = newdata)
-}
-
-## -----------------------------------------------------------------------------
 fitted.lcModelSimpleGBTM <- function(object, clusters = trajectoryAssignments(object)) {
   predNames <- paste0("pred_m", 1:nClusters(object))
   predMat <- as.matrix(object@model$pred[predNames])
   colnames(predMat) <- clusterNames(object)
   transformFitted(pred = predMat, model = object, clusters = clusters)
 }
+
+## -----------------------------------------------------------------------------
+setMethod('predictForCluster', signature('lcModelSimpleGBTM'), function(
+    object, newdata, cluster, what = 'mu', ...)
+{
+  predMat = lcmm::predictY(object@model, newdata = newdata)$pred %>%
+    set_colnames(clusterNames(object))
+
+  clusIdx = match(cluster, clusterNames(object))
+  predMat[, clusIdx]
+})
 
 ## -----------------------------------------------------------------------------
 setMethod("postprob", signature("lcModelSimpleGBTM"), function(object) {

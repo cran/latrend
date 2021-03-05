@@ -23,6 +23,8 @@ setClass('lcMethodFlexmix', contains = 'lcMethod')
 #' method <- lcMethodFlexmix(Y ~ Time, id = "Id", time = "Time", nClusters = 3)
 #' model <- latrend(method, latrendData)
 #' @family lcMethod package interfaces
+#' @references
+#' \insertRef{gruen2008flexmix}{latrend}
 lcMethodFlexmix = function(formula,
                            formula.mb =  ~ 1,
                            time = getOption('latrend.time'),
@@ -47,7 +49,7 @@ setMethod('getShortName', signature('lcMethodFlexmix'), function(object) 'flx')
 setMethod('preFit', signature('lcMethodFlexmix'), function(method, data, envir, verbose, ...) {
   e = new.env()
 
-  f = formula(method) %>% dropRE %>% dropCLUSTER
+  f = formula(method) %>% dropRE()
   e$formula = paste(deparse(f), '|', idVariable(method)) %>% as.formula
   if (isArgDefined(method, 'model')) {
     e$model = method$model

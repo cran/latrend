@@ -38,10 +38,11 @@ model <- latrend(method, latrendData)
 \seealso{
 Other lcMethod implementations: 
 \code{\link{lcMethod-class}},
-\code{\link{lcMethodAKMedoids}},
+\code{\link{lcMethodAkmedoids}},
 \code{\link{lcMethodCrimCV}},
 \code{\link{lcMethodCustom}},
 \code{\link{lcMethodDtwclust}},
+\code{\link{lcMethodFeature}},
 \code{\link{lcMethodFunFEM}},
 \code{\link{lcMethodGCKM}},
 \code{\link{lcMethodKML}},
@@ -53,7 +54,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodMixtoolsGMM}},
 \code{\link{lcMethodMixtoolsNPRM}},
 \code{\link{lcMethodRandom}},
-\code{\link{lcMethodStratify}},
-\code{\link{lcMethodTwoStep}}
+\code{\link{lcMethodStratify}}
 }
 \concept{lcMethod implementations}
