@@ -1,7 +1,7 @@
 Package: latrend
 Type: Package
-Version: 1.1.0
-Date: 2021-03-05
+Version: 1.1.2
+Date: 2021-04-14
 Title: A Framework for Clustering Longitudinal Data
 Description: A framework for clustering longitudinal datasets in a standardized way. Provides an interface to existing R packages for clustering longitudinal univariate trajectories, facilitating reproducible and transparent analyses. Additionally, standard tools are provided to support cluster analyses, including repeated estimation, model validation, and model assessment. The interface enables users to compare results between methods, and to implement and evaluate new methods with ease. 
 Maintainer: Niek Den Teuling <niek.den.teuling@philips.com>
@@ -14,7 +14,7 @@ Authors@R:
       person(given = "Steffen",
              family = "Pauws",
              role = "ctb",
-             email = "s.c.pauws@uvt.nl"),
+             email = "s.c.pauws@tilburguniversity.edu"),
       person(given = "Edwin",
              family = "van den Heuvel",
              role = "ctb",
@@ -33,8 +33,8 @@ Imports: stats, methods, Rdpack, R.utils, assertthat (>= 0.2.1),
         clusterCrit, mclustcomp, scales, caret, lme4, mclust
 Suggests: testthat (>= 3.0.0), roxygen2 (>= 7.1.0), knitr (>= 1.24),
         rmarkdown (>= 1.18), kml, lcmm, longclust, mixtools, flexmix,
-        fda, funFEM, igraph, crimCV, akmedoids, dtwclust, mixAK, psych,
-        qqplotr
+        fda, funFEM, igraph, crimCV, akmedoids (>= 1.3.0), dtwclust,
+        mixAK, psych, qqplotr, doParallel
 RoxygenNote: 7.1.1
 RdMacros: Rdpack
 VignetteBuilder: knitr
@@ -57,10 +57,10 @@ Collate: 'assert.R' 'compute.R' 'data.R' 'formula.R' 'generics.R'
         'modelStratify.R' 'modelWeightedPartition.R' 'models.R'
         'random.R' 'verbose.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2021-03-05 15:34:27 UTC; 310083353
+Packaged: 2021-04-14 13:15:37 UTC; 310083353
 Author: Niek Den Teuling [aut, cre] (<https://orcid.org/0000-0003-1026-5080>),
   Steffen Pauws [ctb],
   Edwin van den Heuvel [ctb],
   Copyright © 2021 Koninklijke Philips N.V. [cph]
 Repository: CRAN
-Date/Publication: 2021-03-05 16:10:02 UTC
+Date/Publication: 2021-04-14 13:50:10 UTC

@@ -8,6 +8,8 @@ latrendBatch(
   methods,
   data,
   cartesian = TRUE,
+  parallel = FALSE,
+  errorHandling = "stop",
   envir = NULL,
   verbose = getOption("latrend.verbose")
 )
@@ -18,6 +20,10 @@ latrendBatch(
 \item{data}{A \code{data.frame}, \code{matrix}, or a \code{list} thereof to which to apply to the respective \code{lcMethod}. Multiple datasets can be supplied by encapsulating the datasets using \code{data=.(df1, df2, ..., dfN)}.}
 
 \item{cartesian}{Whether to fit the provided methods on each of the datasets. If \code{cartesian=FALSE}, only a single dataset may be provided or a list of data matching the length of \code{methods}.}
+
+\item{parallel}{Whether to enable parallel evaluation. See \link{latrend-parallel}.}
+
+\item{errorHandling}{Whether to \code{"stop"} on an error, or to \verb{"remove'} evaluations that raised an error.}
 
 \item{envir}{The \code{environment} in which to evaluate the \code{lcMethod} arguments.}
 

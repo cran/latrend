@@ -54,7 +54,11 @@ setMethod('preFit', signature('lcMethodKML'), function(method, data, envir, verb
   # Model specification
   cat(verbose, 'Creating clusterLongData object...', level = verboseLevels$finest)
 
-  parRefArgs = list(saveFreq = Inf, scale = FALSE)
+  parRefArgs = list(
+    saveFreq = ifelse(.Platform$OS.type == 'windows', Inf, 1e99), # using Inf results in missing value error on linux
+    scale = FALSE
+  )
+
   parArgs = modifyList(parRefArgs, as.list(method, args = kml::parALGO), keep.null = TRUE)
   e$par = do.call(kml::parALGO, parArgs)
 
@@ -75,6 +79,10 @@ setMethod('fit', signature('lcMethodKML'), function(method, data, envir, verbose
   valueColumn = responseVariable(method)
   suppressFun = ifelse(as.logical(verbose), force, capture.output)
 
+  if (.Platform$OS.type != 'windows') {
+    cldFilePresent = file.exists('cld.Rdata')
+  }
+
   cat(verbose, 'Running kml()...', level = verboseLevels$finest)
   suppressFun(
     # note that slowKML throws an error for nbClusters=1
@@ -86,6 +94,13 @@ setMethod('fit', signature('lcMethodKML'), function(method, data, envir, verbose
       parAlgo = envir$par
     )
   )
+
+  # cleanup
+  if (.Platform$OS.type != 'windows' && !cldFilePresent && file.exists('cld.Rdata')) {
+    suppressWarnings({
+      file.remove('cld.Rdata')
+    })
+  }
 
   new(
     'lcModelKML',

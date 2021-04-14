@@ -5,7 +5,7 @@
 #' @import stats
 #' @importFrom Rdpack reprompt
 #' @importFrom scales percent
-#' @importFrom foreach foreach %do%
+#' @importFrom foreach foreach %do% %dopar%
 #' @import ggplot2
 #' @importFrom utils hasName capture.output combn getS3method modifyList head tail data
 #' @aliases latrend-package
@@ -19,6 +19,42 @@
 #' @name latrend-generics
 #' @rdname latrend-generics
 #' @title Generics used by latrend for different classes
+NULL
+
+#' @name latrend-parallel
+#' @rdname latrend-parallel
+#' @title Parallel computing using latrend
+#' @description The model estimation functions support parallel computation through the use of the \link[foreach]{foreach} mechanism.
+#' In order to make use of parallel execution, a parallel back-end must be registered.
+#'
+#' @section Windows:
+#' On Windows, the \link[parallel]{parallel-package} can be used to define parallel socket workers.
+#' \preformatted{
+#' nCores = parallel::detectCores(logical = FALSE)
+#' cl = parallel::makeCluster(nCores - 1)
+#' parallel::clusterEvalQ(cl, expr=library(latrend))
+#' }
+#'
+#' Then, register the cluster as the parallel back-end using the `doParallel` package:
+#' \preformatted{
+#' doParallel::registerDoParallel(cl)
+#' }
+#'
+#' If you defined your own `lcMethod` or `lcModel` extension classes, make sure to load them on the workers as well.
+#' This can be done, for example, using:
+#' \preformatted{
+#' parallel::clusterEvalQ(cl,
+#'   expr = setClass('lcMethodMyImpl', contains = "lcMethod"))
+#' }
+#'
+#' @section Unix:
+#' On Unix systems, it is easier to setup parallelization as the R process is forked.
+#' In this example we use the `doMC` package:
+#' \preformatted{
+#' nCores = parallel::detectCores(logical = FALSE)
+#' doMC::registerDoMC(nCores - 1)
+#' }
+#' @seealso [latrendRep], [latrendBatch], [latrendBoot], [latrendCV]
 NULL
 
 .onLoad = function(libname, pkgname) {
@@ -49,7 +85,7 @@ NULL
 }
 
 globalVariables(c('.', '.name', '.group', '.method', '.ROW_INDEX', '.Mean', '.Block',
-  'i', 'iseed', 'N', 'i.N', 'g', 'fun', 'method', 'plotTrajs',
+  'i', 'iseed', 'N', 'i.N', 'g', 'fun', 'method', 'plotTrajs', 'cl',
   'Prob', 'Cluster', 'Class', 'Value', 'Id', 'Time',
   'Mu', 'Mu.cluster', 'Mu.class', 'Mu.fixed', 'Mu.random',
   'warning.Verbose',

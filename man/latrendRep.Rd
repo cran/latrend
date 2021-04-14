@@ -9,8 +9,9 @@ latrendRep(
   data,
   .rep = 10,
   ...,
-  .errorhandling = "remove",
+  .errorHandling = "stop",
   .seed = NULL,
+  .parallel = FALSE,
   envir = NULL,
   verbose = getOption("latrend.verbose")
 )
@@ -24,11 +25,11 @@ latrendRep(
 
 \item{...}{Any other arguments to update the \code{lcMethod} definition with.}
 
-\item{.errorhandling}{How to handle fits in which on error occurs.
-If \code{"remove"}, errors are ignored and the respective repetition is exempt from the returned model list.
-If \code{"stop"}, errors are not caught, ensuring that the function halts on the first error.}
+\item{.errorHandling}{Whether to \code{"stop"} on an error, or to \verb{"remove'} evaluations that raised an error.}
 
 \item{.seed}{Set the seed for generating the respective seed for each of the repeated fits.}
+
+\item{.parallel}{Whether to use parallel evaluation. See \link{latrend-parallel}.}
 
 \item{envir}{The \code{environment} in which to evaluate the method arguments. Note that this only applies to \code{data} when \code{data} is a \code{call}.}
 
