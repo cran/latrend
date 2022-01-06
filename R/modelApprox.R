@@ -14,8 +14,7 @@ setClass('lcApproxModel', contains = 'lcModel')
 #' @inheritParams fitted.lcModel
 fitted.lcApproxModel = function(object, ..., clusters = trajectoryAssignments(object)) {
   times = time(object)
-  newdata = data.table(Id = ids(object) %>% rep(each = length(times)),
-                       Time = times) %>%
+  newdata = data.table(Id = rep(ids(object), each = length(times)), Time = times) %>%
     setnames('Id', idVariable(object)) %>%
     setnames('Time', timeVariable(object))
 
@@ -31,20 +30,35 @@ setMethod('predictForCluster', signature('lcApproxModel'),
   function(object, newdata, cluster, what = 'mu', approxFun = approx, ...) {
   assert_that(is.function(approxFun))
 
-  clusTrajs = clusterTrajectories(object, at = NULL, what = what, approxFun = approxFun, ...) %>%
+  clusTrajs = clusterTrajectories(object, at = numeric(), what = what, approxFun = approxFun, ...) %>%
     as.data.table() %>%
     .[Cluster == cluster]
 
   time = timeVariable(object)
   resp = responseVariable(object)
+  clusTimes = clusTrajs[[time]]
   newtimes = newdata[[time]]
 
-  dtpred = clusTrajs[, lapply(.SD, function(y)
-        approxFun(
-          x = get(time),
-          y = y,
-          xout = newtimes)$y),
-    keyby = Cluster, .SDcols = -c(time)]
+  # check if we need to do any interpolation
+  if (all(newtimes %in% clusTimes)) {
+    pred = clusTrajs[match(newtimes, get(time)), get(resp)]
+    return(pred)
+  }
+
+  if (sum(is.finite(clusTrajs[[resp]])) < 2) {
+    warning(
+      sprintf(
+        'Cannot interpolate cluster trajectory of cluster %s: need at least two non-NA cluster trajectory values',
+        cluster
+      )
+    )
+    return(rep(NaN, length(newtimes)))
+  }
+
+  dtpred = clusTrajs[,
+    lapply(.SD, function(y) approxFun(x = get(time), y = y, xout = newtimes)$y),
+    keyby = Cluster, .SDcols = -c(time)
+  ]
 
   dtpred[[resp]]
 })

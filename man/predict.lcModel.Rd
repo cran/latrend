@@ -22,9 +22,30 @@ If \code{newdata} specifies the cluster membership; a \code{data.frame} of clust
 \description{
 Predicts the expected trajectory observations at the given time for each cluster.
 }
-\details{
-Subclasses of \code{lcModel} should preferably implement \code{predictForCluster} instead of overriding \code{predict.lcModel} in order to benefit from standardized error checking and output handling.
+\section{Implementation}{
+
+Note: Subclasses of \code{lcModel} should preferably implement \code{\link[=predictForCluster]{predictForCluster()}} instead of overriding \code{predict.lcModel} as that function is designed to be easier to implement because it is single-purpose.
+
+The \code{predict.lcModelExt} function should be able to handle the case where \code{newdata = NULL} by returning the fitted values.
+After post-processing the non-NULL newdata input, the observation- and cluster-specific predictions can be computed.
+Lastly, the output logic is handled by the \code{\link[=transformPredict]{transformPredict()}} function. It converts the computed predictions (e.g., \code{matrix} or \code{data.frame}) to the appropriate output format.
+\preformatted{
+predict.lcModelExt <- function(object, newdata = NULL, what = "mu", ...) {
+  if (is.null(newdata)) {
+    newdata = model.data(object)
+    if (hasName(newdata, 'Cluster')) {
+      # allowing the Cluster column to remain would break the fitted() output.
+      newdata[['Cluster']] = NULL
+    }
+  }
+
+  # compute cluster-specific predictions for the given newdata
+  pred <- NEWDATA_COMPUTATIONS_HERE
+  transformPredict(pred = pred, model = object, newdata = newdata)
+})
 }
+}
+
 \examples{
 data(latrendData)
 model <- latrend(lcMethodLcmmGMM(
@@ -42,6 +63,8 @@ predId <- predict(model, newdata = data.frame(Cluster = "A", Id = "S1", Time = t
 predIdAll <- predict(model, newdata = data.frame(Id = "S1", Time = time(model)))
 }
 \seealso{
+\link{predictForCluster} \link[stats:predict]{stats::predict} \link{fitted.lcModel} \link{clusterTrajectories} \link{trajectories} \link{predictPostprob} \link{predictAssignments}
+
 Other model-specific methods: 
 \code{\link{clusterTrajectories}()},
 \code{\link{coef.lcModel}()},
@@ -49,6 +72,7 @@ Other model-specific methods:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
@@ -59,7 +83,6 @@ Other model-specific methods:
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
 \code{\link{sigma.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

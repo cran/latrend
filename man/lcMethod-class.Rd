@@ -3,124 +3,103 @@
 \docType{class}
 \name{lcMethod-class}
 \alias{lcMethod-class}
-\alias{compose}
-\alias{compose,lcMethod-method}
-\alias{fit}
-\alias{fit,lcMethod-method}
-\alias{getLabel}
-\alias{getLabel,lcMethod-method}
-\alias{getName}
-\alias{getName,lcMethod-method}
-\alias{getShortName}
-\alias{getShortName,lcMethod-method}
-\alias{length,lcMethod-method}
-\alias{names,lcMethod-method}
-\alias{preFit}
-\alias{preFit,lcMethod-method}
-\alias{prepareData}
-\alias{prepareData,lcMethod-method}
-\alias{postFit}
-\alias{postFit,lcMethod-method}
-\alias{validate}
-\alias{validate,lcMethod-method}
+\alias{lcMethod}
 \title{lcMethod class}
-\usage{
-\S4method{compose}{lcMethod}(method, envir = NULL)
-
-\S4method{fit}{lcMethod}(method, data, envir, verbose)
-
-\S4method{getLabel}{lcMethod}(object, ...)
-
-\S4method{getName}{lcMethod}(object)
-
-\S4method{getShortName}{lcMethod}(object, ...)
-
-\S4method{length}{lcMethod}(x)
-
-\S4method{names}{lcMethod}(x)
-
-\S4method{preFit}{lcMethod}(method, data, envir, verbose)
-
-\S4method{prepareData}{lcMethod}(method, data, verbose)
-
-\S4method{postFit}{lcMethod}(method, data, model, envir, verbose)
-
-\S4method{validate}{lcMethod}(method, data, envir = NULL, ...)
-}
-\arguments{
-\item{method}{The \code{lcMethod} object.}
-
-\item{envir}{The \code{environment} in which the \code{lcMethod} should be evaluated}
-
-\item{data}{The data, as a \code{data.frame}, on which the model will be trained.}
-
-\item{verbose}{A \link[R.utils:Verbose]{R.utils::Verbose} object indicating the level of verbosity.}
-
-\item{object}{The object to extract the label from.}
-
-\item{...}{Additional arguments.}
-
-\item{x}{The \code{lcMethod} object.}
-
-\item{model}{The \code{lcModel} object returned by \code{fit()}.}
-}
-\value{
-The updated \code{lcMethod} object.
-
-An \code{lcModel} object.
-
-The extracted label, as \code{character}.
-
-A \verb{character vector} of argument names.
-
-An \code{environment} that will be passed to \code{fit()}.
-
-A \code{data.frame} with the post-processed data.
-
-The updated \code{lcModel} object.
-
-Either \code{TRUE} if all validation checks passed,
-or a \code{character} containing a description of the failed validation checks.
-}
 \description{
-Base class used to define a longitudinal cluster method. It is implemented as a wrapper around a \code{call}.
+\code{lcMethod} objects represent the specification of a method for longitudinal clustering.
+Furthermore, the object class contains the logic for estimating the respective method.
 
-Model estimation is handled through a series of calls implement by the \code{lcMethod} object. The calls are made by \link{latrend}, in the following order:
-\itemize{
-\item compose
-\item validate
-\item prepareData
-\item preFit
-\item fit
-\item postFit
-}
-
-Extracts the assigned label.
-
-Extracts the name of the given \code{object}.
+You can specify a longitudinal cluster method through one of the method-specific constructor functions,
+e.g., \code{\link[=lcMethodKML]{lcMethodKML()}}, \code{\link[=lcMethodLcmmGBTM]{lcMethodLcmmGBTM()}}, or \code{\link[=lcMethodDtwclust]{lcMethodDtwclust()}}.
+Alternatively, you can instantiate methods through \code{\link[methods:new]{methods::new()}}, e.g., by calling \code{new("lcMethodKML", response = "Value")}.
+In both cases, default values are specified for omitted arguments.
 }
 \details{
-Because the \code{lcMethod} arguments may be unevaluated, evaluation functions such as \code{[[} accept an \code{envir} argument.
+Because the \code{lcMethod} arguments may be unevaluated, argument retrieval functions such as \code{[[} accept an \code{envir} argument.
 A default \code{environment} can be assigned or obtained from a \code{lcMethod} object using the \code{environment()} function.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{arguments}}{A \code{list} representing the arguments of the \code{lcMethod} object. Arguments are not evaluated upon creation of the method object. Instead, arguments are stored similar to a \code{call} object. Do not modify or access.}
+\item{\code{arguments}}{A \code{list} representing the arguments of the \code{lcMethod} object.
+Arguments are not evaluated upon creation of the method object.
+Instead, arguments are stored similar to a \code{call} object, and are only evaluated when a method is fitted.
+Do not modify or access.}
 
-\item{\code{sourceCalls}}{A list of calls for tracking the original call after substitution. Used for printing objects which require too many characters (e.g. ,function definitions, matrices).}
+\item{\code{sourceCalls}}{A list of calls for tracking the original call after substitution.
+Used for printing objects which require too many characters (e.g. ,function definitions, matrices).
+Do not modify or access.}
 }}
 
+\section{Method arguments}{
+
+An \code{lcMethod} objects represent the specification of a method with a set of configurable parameters (referred to as arguments).
+
+Arguments can be of any type.
+It is up to the \code{lcMethod} implementation of \code{\link[=validate]{validate()}} to ensure that the required arguments are present and are of the expected type.
+
+Arguments can have almost any name. Exceptions include the names \code{"data"}, \code{"envir"}, and \code{"verbose"}.
+Furthermore, argument names may not start with a period (\code{"."}).
+
+Arguments cannot be directly modified, i.e., \code{lcMethod} objects are immutable.
+Modifying an argument involves creating an altered copy through the \link{update.lcMethod} method.
+}
+
+\section{Fitting procedure}{
+
+Each \code{lcMethod} subclass defines a type of methods in terms of a series of steps for estimating the method.
+These steps, as part of the fitting procedure, are executed by \code{\link[=latrend]{latrend()}} in the following order:
+\enumerate{
+\item \code{\link[=compose]{compose()}}: Evaluate and finalize the method argument values.
+\item \code{\link[=validate]{validate()}}: Check the validity of the method argument values in relation to the dataset.
+\item \code{\link[=prepareData]{prepareData()}}: Process the training data for fitting.
+\item \code{\link[=preFit]{preFit()}}: Prepare environment for estimation, independent of training data.
+\item \code{\link[=fit]{fit()}}: Estimate the specified method on the training data, outputting an object inheriting from \code{lcModel}.
+\item \code{\link[=postFit]{postFit()}}: Post-process the outputted \code{lcModel} object.
+}
+
+The result of the fitting procedure is an \linkS4class{lcModel} object that inherits from the \code{lcModel} class.
+}
+
+\section{Implementation}{
+
+The base class \code{lcMethod} provides the logic for storing, evaluating, and printing the method parameters.
+
+Subclasses of \code{lcMethod} differ only in the fitting procedure logic (see above).
+
+To implement your own \code{lcMethod} subclass, you'll want to implement at least the following functions:
+\itemize{
+\item \code{\link[=fit]{fit()}}: The main function for estimating your method.
+\item \code{\link[=getName]{getName()}}: The name of your method.
+\item \code{\link[=getShortName]{getShortName()}}: The abbreviated name of your method.
+\item \code{\link[=getArgumentDefaults]{getArgumentDefaults()}}: Sensible default argument values to your method.
+}
+
+For more complex methods, the additional functions as part of the fitting procedure (see the \emph{Fitting procedure} section above) will be of use.
+}
+
 \examples{
-getName(lcMethodKML("Y")) # "longitudinal k-means"
-getShortName(lcMethodKML("Y")) # "KML"
-m = lcMethodKML("Y")
-names(m)
+kmlMethod <- lcMethodKML(response = "Value", nClusters = 2)
+kmlMethod
+
+kmlMethod <- new("lcMethodKML", response = "Value", nClusters = 2)
+
+# create a copy with updated nClusters argument
+kmlMethod3 <- update(kmlMethod, nClusters = 3)
+
+# get argument names
+names(kmlMethod)
+
+# evaluate argument
+kmlMethod$nClusters
+
 }
 \seealso{
 \link{environment}
 
 Other lcMethod implementations: 
+\code{\link{getArgumentDefaults}()},
+\code{\link{getArgumentExclusions}()},
 \code{\link{lcMethodAkmedoids}},
 \code{\link{lcMethodCrimCV}},
 \code{\link{lcMethodCustom}},
@@ -148,6 +127,7 @@ Other lcMethod functions:
 \code{\link{as.list.lcMethod}()},
 \code{\link{evaluate.lcMethod}()},
 \code{\link{formula.lcMethod}()},
+\code{\link{names,lcMethod-method}},
 \code{\link{update.lcMethod}()}
 }
 \concept{lcMethod functions}

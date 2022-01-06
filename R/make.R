@@ -11,11 +11,12 @@ make.trajectoryAssignments = function(object, clusters) {
   clusNames = clusterNames(object)
   nClusters = nClusters(object)
 
-  assert_that(noNA(clusters))
+  assert_that(
+    !is.null(clusters),
+    noNA(clusters)
+  )
 
-  if (is.null(clusters)) {
-    NULL
-  } else if (is.factor(clusters)) {
+  if (is.factor(clusters)) {
     # factor
     assert_that(nlevels(clusters) == nClusters)
     if (all(levels(clusters) == clusNames)) {
@@ -62,11 +63,10 @@ make.clusterIndices = function(object, clusters) {
   clusNames = clusterNames(object)
   nClusters = nClusters(object)
 
+  assert_that(!is.null(clusters))
   assert_that(noNA(clusters), msg = 'each trajectory should be assigned to a cluster')
 
-  if (is.null(clusters)) {
-    NULL
-  } else if (is.integer(clusters)) {
+  if (is.integer(clusters)) {
     # integer
     assert_that(min(clusters) >= 1,
       max(clusters) <= nClusters)
@@ -126,6 +126,25 @@ make.clusterNames = function(n) {
     clusNames = c(clusNames, paste0('C', seq(length(clusNames) + 1, n)))
   } else {
     clusNames[seq_len(n)]
+  }
+}
+
+
+#' @noRd
+#' @title Generate unique IDs vector from input
+#' @details Used by models to choose the ordering of trajectories in the ids() vector in a standardized manner.
+#' @param x The id data vector (`integer`, `factor`, or `character`). Typically the "Id" column of a dataset.
+#' @return A vector of unique IDs, either `integer` (for `integer` input) or `character`.
+#'
+#' Currently, the output can be `integer`. This might change in the future.
+#' @keywords internal
+make.ids = function(x) {
+  assert_that(noNA(x), msg = "The provided ID data vector contains NAs")
+
+  if (is.factor(x)) {
+    levels(x)[levels(x) %in% x]
+  } else {
+    sort(unique(x))
   }
 }
 

@@ -35,7 +35,7 @@ setMethod('predictForCluster', signature('lcModelFlexmix'), function(
   assert_that(ncol(pred) == 1,
     msg = 'unexpected output. the lcModel implementation does not support this model')
 
-  pred
+  as.numeric(pred)
 })
 
 
@@ -50,7 +50,13 @@ setMethod('postprob', signature('lcModelFlexmix'), function(object, ...) {
 #' @export
 #' @rdname interface-flexmix
 logLik.lcModelFlexmix = function(object, ...) {
-  logLik(object@model)
+  ll = object@model@logLik
+  N = nIds(object)
+  df = length(coef(object))
+  attr(ll, 'nobs') = N
+  attr(ll, 'df') = df
+  class(ll) = 'logLik'
+  ll
 }
 
 

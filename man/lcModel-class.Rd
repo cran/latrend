@@ -3,17 +3,7 @@
 \docType{class}
 \name{lcModel-class}
 \alias{lcModel-class}
-\alias{getLabel,lcModel-method}
-\alias{getName,lcModel-method}
-\alias{getShortName,lcModel-method}
 \title{lcModel class}
-\usage{
-\S4method{getLabel}{lcModel}(object, ...)
-
-\S4method{getName}{lcModel}(object)
-
-\S4method{getShortName}{lcModel}(object)
-}
 \arguments{
 \item{object}{The \code{lcModel} object.}
 
@@ -21,9 +11,6 @@
 }
 \description{
 Abstract class for defining estimated longitudinal cluster models.
-
-Extracts the name of the \code{lcModel} object.
-The name is comprised of the underlying \code{lcMethod} name, and the assigned label (if any).
 }
 \details{
 An extending class must implement the following methods to ensure basic functionality:
@@ -55,7 +42,9 @@ For predicting the posterior probability for unseen data, the \code{predictPostp
 
 \item{\code{label}}{The label assigned to this model.}
 
-\item{\code{ids}}{The possible trajectory identifier values the model was fitted on.}
+\item{\code{ids}}{The trajectory identifier values the model was fitted on.}
+
+\item{\code{times}}{The exact times on which the model has been trained}
 
 \item{\code{clusterNames}}{The names of the clusters.}
 
@@ -72,6 +61,7 @@ Other model-specific methods:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
 \code{\link{nobs.lcModel}()},
@@ -82,7 +72,6 @@ Other model-specific methods:
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
 \code{\link{sigma.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

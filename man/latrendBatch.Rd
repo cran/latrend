@@ -2,12 +2,13 @@
 % Please edit documentation in R/latrend.R
 \name{latrendBatch}
 \alias{latrendBatch}
-\title{Cluster longitudinal data for a list of model specifications}
+\title{Cluster longitudinal data for a list of method specifications}
 \usage{
 latrendBatch(
   methods,
   data,
   cartesian = TRUE,
+  seed = NULL,
   parallel = FALSE,
   errorHandling = "stop",
   envir = NULL,
@@ -17,11 +18,16 @@ latrendBatch(
 \arguments{
 \item{methods}{A \code{list} of \code{lcMethod} objects.}
 
-\item{data}{A \code{data.frame}, \code{matrix}, or a \code{list} thereof to which to apply to the respective \code{lcMethod}. Multiple datasets can be supplied by encapsulating the datasets using \code{data=.(df1, df2, ..., dfN)}.}
+\item{data}{The dataset(s) to which to fit the respective \code{lcMethod} on.
+Either a \code{data.frame}, \code{matrix}, \code{list} or an expression evaluating to one of the supported types.
+Multiple datasets can be supplied by encapsulating the datasets using \code{data = .(df1, df2, ..., dfN)}.
+Doing this results in a more readable \code{call} associated with each fitted \code{lcModel} object.}
 
 \item{cartesian}{Whether to fit the provided methods on each of the datasets. If \code{cartesian=FALSE}, only a single dataset may be provided or a list of data matching the length of \code{methods}.}
 
-\item{parallel}{Whether to enable parallel evaluation. See \link{latrend-parallel}.}
+\item{seed}{Sets the seed for generating the respective seed for each of the method fits. Seeds are only set for methods without a seed argument.}
+
+\item{parallel}{Whether to enable parallel evaluation. See \link{latrend-parallel}. Method evaluation and dataset transformation is done on the calling thread.}
 
 \item{errorHandling}{Whether to \code{"stop"} on an error, or to \verb{"remove'} evaluations that raised an error.}
 
@@ -34,18 +40,27 @@ or one of \code{c('info', 'fine', 'finest')}.}
 }
 \value{
 A \code{lcModels} object.
+In case of a model fit error under \code{errorHandling = pass}, a \code{list} is returned.
 }
 \description{
-Fit a list of longitudinal cluster methods.
+Fit a list of longitudinal cluster methods on one or more datasets.
+}
+\details{
+Methods and datasets are evaluated and validated prior to any fitting. This ensures that the batch estimation fails as early as possible in case of errors.
 }
 \examples{
 data(latrendData)
-methods <- lcMethods(lcMethodKML("Y", id = "Id", time = "Time"), nClusters = 1:3)
+refMethod <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+methods <- lcMethods(refMethod, nClusters = 1:3)
 models <- latrendBatch(methods, data = latrendData)
 
-models <- latrendBatch(lcMethods(lcMethodKML("Y", id = "Id", time = "Time"), nClusters = 1:2),
-   data = .(subset(latrendData, Time > .5),
-            subset(latrendData, Time < .5))) # different data per method
+# different dataset per method
+models <- latrendBatch(lcMethods(refMethod, nClusters = 1:2),
+   data = .(
+     subset(latrendData, Time > .5),
+     subset(latrendData, Time < .5)
+   )
+)
 
 }
 \seealso{

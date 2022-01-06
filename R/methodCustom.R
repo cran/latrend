@@ -31,13 +31,17 @@ setClass('lcMethodCustom', contains = 'lcMethod')
 #' method <- lcMethodCustom(response = "Y", fun = clusfun, id = "Id", time = "Time")
 #' model <- latrend(method, data = latrendData)
 #' @family lcMethod implementations
-lcMethodCustom = function(response,
-                          fun,
-                          center = meanNA,
-                          time = getOption('latrend.time'),
-                          id = getOption('latrend.id'),
-                          name = 'custom') {
-  lcMethod.call('lcMethodCustom', call = match.call.defaults())
+lcMethodCustom = function(
+  response,
+  fun,
+  center = meanNA,
+  time = getOption('latrend.time'),
+  id = getOption('latrend.id'),
+  name = 'custom'
+) {
+  mc = match.call.all()
+  mc$Class = 'lcMethodCustom'
+  do.call(new, as.list(mc))
 }
 
 setValidity('lcMethodCustom', function(object) {
@@ -50,6 +54,14 @@ setValidity('lcMethodCustom', function(object) {
   if (isArgDefined(object, 'center')) {
     assert_that(is.function(object$center))
   }
+})
+
+#' @rdname interface-custom
+setMethod('getArgumentDefaults', signature('lcMethodCustom'), function(object) {
+  c(
+    formals(lcMethodCustom),
+    callNextMethod()
+  )
 })
 
 #' @rdname interface-custom
@@ -75,7 +87,7 @@ setMethod('getShortName', signature('lcMethodCustom'), function(object) 'custom'
 #' @rdname interface-custom
 setMethod('prepareData', signature('lcMethodCustom'), function(method, data, verbose) {
   assert_that(has_name(data, responseVariable(method)))
-  return(NULL)
+  callNextMethod()
 })
 
 #' @rdname interface-custom

@@ -17,15 +17,37 @@
 A \code{numeric} vector of the fitted values for the respective class, or a \code{matrix} of fitted values for each cluster.
 }
 \description{
-Extract lcModel fitted values
+Returns the cluster-specific fitted values for the given \code{lcModel} object.
+The default implementation calls \code{\link[=predict]{predict()}} with \code{newdata = NULL}.
+}
+\section{Implementation}{
+
+Classes extending \code{lcModel} can override this method to adapt the computation of the predicted values for the training data.
+Note that the implementation of this function is only needed when \code{\link[=predict]{predict()}} and \code{\link[=predictForCluster]{predictForCluster()}} are not defined for the \code{lcModel} subclass.
+\preformatted{
+fitted.lcModelExt <- function(object, ..., clusters = trajectoryAssignments(object)) {
+  pred = predict(object, newdata = NULL)
+  transformFitted(pred = pred, model = object, clusters = clusters)
+}
+}
+The \code{\link[=transformFitted]{transformFitted()}} function takes care of transforming the prediction input to the right output format.
+}
+
+\examples{
+data(latrendData)
+model <- latrend(lcMethodKML("Y", id = "Id", time = "Time"), latrendData)
+fitted(model)
 }
 \seealso{
+\link{fittedTrajectories} \link{plotFittedTrajectories} \link[stats:fitted.values]{stats::fitted} \link{predict.lcModel} \link{trajectoryAssignments} \link{transformFitted}
+
 Other model-specific methods: 
 \code{\link{clusterTrajectories}()},
 \code{\link{coef.lcModel}()},
 \code{\link{converged}()},
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
@@ -37,7 +59,6 @@ Other model-specific methods:
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
 \code{\link{sigma.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

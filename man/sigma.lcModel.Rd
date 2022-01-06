@@ -11,10 +11,21 @@
 
 \item{...}{Additional arguments.}
 }
+\value{
+A \code{numeric} indicating the residual standard deviation.
+}
 \description{
-Extract residual standard deviation from a lcModel
+Extracts or estimates the residual standard deviation. If \code{\link[=sigma]{sigma()}} is not defined for a model, it is estimated from the residual error vector.
+}
+\examples{
+data(latrendData)
+model <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
+   id = "Id", time = "Time"), data = latrendData)
+sigma(model)
 }
 \seealso{
+\link{coef.lcModel} \link{metric}
+
 Other model-specific methods: 
 \code{\link{clusterTrajectories}()},
 \code{\link{coef.lcModel}()},
@@ -22,6 +33,7 @@ Other model-specific methods:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
@@ -32,7 +44,6 @@ Other model-specific methods:
 \code{\link{predictForCluster}()},
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

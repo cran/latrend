@@ -14,7 +14,15 @@
 \description{
 Extract the number of observations from a lcModel
 }
+\examples{
+data(latrendData)
+method <- lcMethodKML("Y", id = "Id", time = "Time", nClusters = 3)
+kml <- latrend(method, latrendData)
+nobs(kml)
+}
 \seealso{
+\link{nIds} \link{nClusters}
+
 Other model-specific methods: 
 \code{\link{clusterTrajectories}()},
 \code{\link{coef.lcModel}()},
@@ -22,6 +30,7 @@ Other model-specific methods:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
@@ -32,7 +41,6 @@ Other model-specific methods:
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
 \code{\link{sigma.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

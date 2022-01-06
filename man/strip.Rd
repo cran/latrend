@@ -3,20 +3,44 @@
 \name{strip}
 \alias{strip}
 \alias{strip,lcMethod-method}
+\alias{strip,ANY-method}
 \alias{strip,lcModel-method}
-\title{Strip a lcModel for serialization}
+\title{Reduce the lcModel memory footprint for serialization}
 \usage{
-\S4method{strip}{lcMethod}(object, ...)
+\S4method{strip}{lcMethod}(object, ..., classes = "formula")
 
-\S4method{strip}{lcModel}(object, ...)
+\S4method{strip}{ANY}(object, ..., classes = "formula")
+
+\S4method{strip}{lcModel}(object, ..., classes = "formula")
 }
 \arguments{
-\item{object}{The \code{lcModel}.}
+\item{object}{The \code{lcModel} object.}
 
 \item{...}{Additional arguments.}
+
+\item{classes}{The object classes for which to remove their assigned environment. By default, only environments from \code{formula} are removed.}
+}
+\value{
+An \code{lcModel} object of the same type as the \code{object} argument.
 }
 \description{
-Removes associated environments from any of the arguments. This is typically the case for arguments of type \code{formula}.
-
 Strip a lcModel of non-essential variables and environments in order to reduce the model size for serialization.
+}
+\section{Implementation}{
+
+Classes extending \code{lcModel} can override this method to remove additional non-essentials.
+\preformatted{
+setMethod("strip", "lcModelExt", function(object, ..., classes = "formula") {
+  object <- callNextMethod()
+  # further process the object
+  return(object)
+})
+}
+}
+
+\examples{
+data(latrendData)
+model <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
+   id = "Id", time = "Time"), data = latrendData)
+strip(model)
 }

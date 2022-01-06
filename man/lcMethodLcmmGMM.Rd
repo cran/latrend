@@ -11,6 +11,7 @@ lcMethodLcmmGMM(
   classmb = ~1,
   time = getOption("latrend.time"),
   id = getOption("latrend.id"),
+  init = "default",
   nClusters = 2,
   ...
 )
@@ -27,6 +28,14 @@ lcMethodLcmmGMM(
 \item{time}{The name of the time variable.}
 
 \item{id}{The name of the trajectory identifier variable. This replaces the \code{subject} argument of \link[lcmm:hlme]{lcmm::hlme}.}
+
+\item{init}{Alternative for the \code{B} argument of \link[lcmm:hlme]{lcmm::hlme}, for initializing the hlme fitting procedure.
+If \code{"lme.random"} (default): random initialization through a standard linear mixed model.
+Assigns a fitted standard linear mixed model enclosed in a call to random() to the \code{B} argument.
+If \code{"lme"}, fits a standard linear mixed model and passes this to the \code{B} argument.
+If \code{NULL} or \code{"default"}, the default \link[lcmm:hlme]{lcmm::hlme} input for \code{B} is used.
+
+The argument is ignored if the \code{B} argument is specified, or \code{nClusters = 1}.}
 
 \item{nClusters}{The number of clusters to fit. This replaces the \code{ng} argument of \link[lcmm:hlme]{lcmm::hlme}.}
 
@@ -55,6 +64,8 @@ method <- lcMethodLcmmGMM(fixed = Y ~ Time,
 }
 \seealso{
 Other lcMethod implementations: 
+\code{\link{getArgumentDefaults}()},
+\code{\link{getArgumentExclusions}()},
 \code{\link{lcMethod-class}},
 \code{\link{lcMethodAkmedoids}},
 \code{\link{lcMethodCrimCV}},

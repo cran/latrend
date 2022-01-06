@@ -12,12 +12,14 @@
 \item{...}{Not used.}
 }
 \value{
-The unique times at which observations occur.
+A \verb{numeric vector} of the unique times at which observations occur, in increasing order.
 }
 \description{
-Sampling times of a lcModel
+Extract the sampling times on which the \code{lcModel} was fitted.
 }
 \seealso{
+\link{timeVariable} \link{model.data}
+
 Other model-specific methods: 
 \code{\link{clusterTrajectories}()},
 \code{\link{coef.lcModel}()},
@@ -25,6 +27,7 @@ Other model-specific methods:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
@@ -35,7 +38,6 @@ Other model-specific methods:
 \code{\link{predictForCluster}()},
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
-\code{\link{sigma.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{sigma.lcModel}()}
 }
 \concept{model-specific methods}

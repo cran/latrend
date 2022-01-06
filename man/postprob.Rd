@@ -3,7 +3,7 @@
 \name{postprob}
 \alias{postprob}
 \alias{postprob,lcModel-method}
-\title{Posterior probability per fitted id}
+\title{Posterior probability per fitted trajectory}
 \usage{
 \S4method{postprob}{lcModel}(object, ...)
 }
@@ -12,9 +12,25 @@
 
 \item{...}{Additional arguments.}
 }
-\description{
-Posterior probability per fitted id
+\value{
+A I-by-K \code{matrix} with \code{I = nIds(object)} and \code{K = nClusters(object)}.
 }
+\description{
+Get the posterior probability matrix with element \eqn{(i,j)} indicating the probability of trajectory \eqn{i} belonging to cluster \eqn{j}.
+}
+\details{
+This method should be extended by \code{lcModel} implementations. The default implementation returns uniform probabilities for all observations.
+}
+\section{Implementation}{
+
+Classes extending \code{lcModel} should override this method.
+\preformatted{
+setMethod("postprob", "lcModelExt", function(object, ...) {
+  # return trajectory-specific posterior probability matrix
+})
+}
+}
+
 \examples{
 data(latrendData)
 model <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
@@ -22,6 +38,8 @@ model <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
 postprob(model)
 }
 \seealso{
+\link{trajectoryAssignments} \link{predictPostprob} \link{predictAssignments}
+
 Other model-specific methods: 
 \code{\link{clusterTrajectories}()},
 \code{\link{coef.lcModel}()},
@@ -29,6 +47,7 @@ Other model-specific methods:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
@@ -39,7 +58,6 @@ Other model-specific methods:
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
 \code{\link{sigma.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

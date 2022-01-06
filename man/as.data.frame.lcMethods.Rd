@@ -4,7 +4,7 @@
 \alias{as.data.frame.lcMethods}
 \title{Convert a list of lcMethod objects to a data.frame}
 \usage{
-\method{as.data.frame}{lcMethods}(x, ..., eval = FALSE, nullValue = NA, envir = NULL)
+\method{as.data.frame}{lcMethods}(x, ..., eval = TRUE, nullValue = NA, envir = parent.frame())
 }
 \arguments{
 \item{x}{the \code{lcMethods} or \code{list} to be coerced to a \code{data.frame}.}
@@ -32,6 +32,7 @@ Other lcMethod functions:
 \code{\link{evaluate.lcMethod}()},
 \code{\link{formula.lcMethod}()},
 \code{\link{lcMethod-class}},
+\code{\link{names,lcMethod-method}},
 \code{\link{update.lcMethod}()}
 }
 \concept{lcMethod functions}

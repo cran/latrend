@@ -16,7 +16,25 @@
 Either \code{logical} indicating convergence, or a \code{numeric} status code.
 }
 \description{
-Check convergence of the fitted model.
+Check convergence of the fitted \code{lcModel} object.
+The default implementation returns \code{NA}.
+}
+\section{Implementation}{
+
+Classes extending \code{lcModel} can override this method to return a convergence status or code.
+\preformatted{
+setMethod("converged", "lcModelExt", function(object, ...) {
+  # return convergence code
+})
+}
+}
+
+\examples{
+data(latrendData)
+method <- lcMethodLcmmGBTM(fixed = Y ~ Time, mixture = ~ 1,
+  id = "Id", time = "Time", nClusters = 3)
+gbtm <- latrend(method, data = latrendData)
+converged(gbtm)
 }
 \seealso{
 Other model-specific methods: 
@@ -25,6 +43,7 @@ Other model-specific methods:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
@@ -36,7 +55,6 @@ Other model-specific methods:
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
 \code{\link{sigma.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

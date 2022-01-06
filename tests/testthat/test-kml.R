@@ -9,8 +9,9 @@ test_that('method', {
 
 test_that('default', {
   m = lcMethodTestKML()
-  model = latrend(m, testLongData) %>%
-    expect_silent()
+  expect_silent({
+    model = latrend(m, testLongData)
+  })
   expect_valid_lcModel(model)
 })
 
@@ -28,6 +29,14 @@ test_that('nclusters', {
 
   expect_valid_lcModel(models[[1]])
   expect_valid_lcModel(models[[2]])
+})
+
+test_that('fitted', {
+  m = lcMethodTestKML()
+  model = latrend(m, testLongData)
+
+  dtft = fittedTrajectories(model) %>% as.data.table()
+  expect_true(all(dtft[, uniqueN(Value), keyby=Cluster]$V1 == length(time(model))))
 })
 
 test_that('predictPostprob', {

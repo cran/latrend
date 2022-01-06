@@ -11,16 +11,25 @@
 
 \item{...}{Additional arguments.}
 }
+\value{
+A \code{numeric} with the deviance value. If unavailable, \code{NA} is returned.
+}
 \description{
-lcModel deviance
+Get the deviance of the fitted \code{lcModel} object.
+}
+\details{
+The default implementation checks for the existence of the \code{deviance()} function for the internal model, and returns the output, if available.
 }
 \seealso{
+\link[stats:deviance]{stats::deviance} \link{metric}
+
 Other model-specific methods: 
 \code{\link{clusterTrajectories}()},
 \code{\link{coef.lcModel}()},
 \code{\link{converged}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
@@ -32,7 +41,6 @@ Other model-specific methods:
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
 \code{\link{sigma.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

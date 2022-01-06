@@ -16,7 +16,7 @@ latrendCV(
 )
 }
 \arguments{
-\item{method}{The \code{lcMethod} object specifying the longitudinal cluster method to apply.}
+\item{method}{An \code{lcMethod} object specifying the longitudinal cluster method to apply, or the name (as \code{character}) of an \code{lcMethod} subclass. See \linkS4class{lcMethod} for details.}
 
 \item{data}{A \code{data.frame}.}
 
@@ -24,11 +24,11 @@ latrendCV(
 
 \item{seed}{The seed to use. Optional.}
 
-\item{parallel}{Whether to enable parallel evaluation. See \link{latrend-parallel}.}
+\item{parallel}{Whether to enable parallel evaluation. See \link{latrend-parallel}. Method evaluation and dataset transformation is done on the calling thread.}
 
 \item{errorHandling}{Whether to \code{"stop"} on an error, or to \verb{"remove'} evaluations that raised an error.}
 
-\item{envir}{The \code{environment} in which to evaluate the method arguments. Note that this only applies to \code{data} when \code{data} is a \code{call}.}
+\item{envir}{The \code{environment} in which to evaluate the method arguments (by \code{\link[=compose]{compose()}}). This environment is also used to evaluate the \code{data} argument if it is of type \code{call}.}
 
 \item{verbose}{The level of verbosity. Either an object of class \code{Verbose} (see \link[R.utils:Verbose]{R.utils::Verbose} for details),
 a \code{logical} indicating whether to show basic computation information,
@@ -44,7 +44,7 @@ Creates k random subsets ("folds") from the data, estimating a model for each of
 }
 \examples{
 data(latrendData)
-method <- lcMethodKML("Y", id = "Id", time = "Time")
+method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
 model <- latrendCV(method, latrendData, folds = 5)
 
 model <- latrendCV(method, subset(latrendData, Time < .5), folds = 5, seed = 1)

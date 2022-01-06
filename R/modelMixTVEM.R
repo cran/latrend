@@ -9,10 +9,12 @@ setClass('lcModelMixTVEM', contains = 'lcModel')
 predict.lcModelMixTVEM = function(object, ...,
                                   newdata = NULL,
                                   what = 'mu') {
-  assert_that(is.newdata(newdata))
+  assert_that(is_newdata(newdata))
   assert_that(what == 'mu', msg = 'only what="mu" is supported')
 
   if (is.null(newdata)) {
+    newdata = model.data(object)
+    newdata$Cluster = NULL
     pred = object@model$bestFit$fittedY %>%
       set_colnames(clusterNames(object))
   } else {
@@ -34,9 +36,11 @@ predict.lcModelMixTVEM = function(object, ...,
       )
   }
 
-  transformPredict(pred = pred,
-                   model = object,
-                   newdata = newdata)
+  transformPredict(
+    pred = pred,
+    model = object,
+    newdata = newdata
+  )
 }
 
 #' @rdname interface-mixtvem

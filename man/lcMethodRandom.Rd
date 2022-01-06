@@ -11,7 +11,8 @@ lcMethodRandom(
   time = getOption("latrend.time"),
   id = getOption("latrend.id"),
   nClusters = 2,
-  name = "random"
+  name = "random",
+  ...
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ lcMethodRandom(
 \item{nClusters}{The number of clusters.}
 
 \item{name}{The name of the method.}
+
+\item{...}{Additional arguments, such as the seed.}
 }
 \description{
 Creates a model with random cluster assignments according to the random cluster proportions drawn from a Dirichlet distribution.
@@ -49,6 +52,8 @@ method <- lcMethodRandom(alpha = c(100, 1, 1, 1), nClusters = 4,
 }
 \seealso{
 Other lcMethod implementations: 
+\code{\link{getArgumentDefaults}()},
+\code{\link{getArgumentExclusions}()},
 \code{\link{lcMethod-class}},
 \code{\link{lcMethodAkmedoids}},
 \code{\link{lcMethodCrimCV}},

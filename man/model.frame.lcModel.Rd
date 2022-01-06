@@ -11,10 +11,21 @@
 
 \item{...}{Additional arguments.}
 }
+\value{
+A \code{data.frame} containing the variables used by the model.
+}
 \description{
-Extract model training data
+See \code{\link[stats:model.frame]{stats::model.frame()}} for more details.
+}
+\examples{
+data(latrendData)
+method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time", nClusters = 3)
+lmkm <- latrend(method, data = latrendData)
+model.frame(lmkm)
 }
 \seealso{
+\link[stats:model.frame]{stats::model.frame} \link{model.data.lcModel}
+
 Other model-specific methods: 
 \code{\link{clusterTrajectories}()},
 \code{\link{coef.lcModel}()},
@@ -22,6 +33,7 @@ Other model-specific methods:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{nobs.lcModel}()},
@@ -32,7 +44,6 @@ Other model-specific methods:
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
 \code{\link{sigma.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

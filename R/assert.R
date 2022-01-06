@@ -1,19 +1,97 @@
-is.named = function(x) {
-  !is.null(names(x))
+# used internally for creating more readable chained validation statements
+`%c%` = function(x, y) {
+  c(x, y)
 }
 
-assertthat::on_failure(is.named) = function(call, env) {
-  paste0(deparse(call$x), ' is not named')
+is_named = function(x) {
+  !is.null(names(x)) && noNA(names(x))
 }
 
-is.newdata = function(x) {
-  is.null(x) || is.list(x) && is.named(x)
+assertthat::on_failure(is_named) = function(call, env) {
+  x = call$x
+  if (is.null(x)) {
+    paste0(deparse(call$x), ' is not named')
+  } else {
+    paste0('some elements of ', deparse(call$x), ' are not named')
+  }
 }
 
-assertthat::on_failure(is.newdata) = function(call, env) {
-  paste0(deparse(call$x), ' is not valid newdata (list and named, or null)')
+is_newdata = function(x) {
+  is.null(x) || is.data.frame(x)
 }
 
+assertthat::on_failure(is_newdata) = function(call, env) {
+  paste0(deparse(call$x), ' is not valid newdata (data.frame or NULL)')
+}
+
+has_colnames = function(x, which) {
+  if (missing(which)) {
+    !is.null(colnames(x))
+  } else {
+    all(which %in% colnames(x))
+  }
+}
+
+assertthat::on_failure(has_colnames) = function(call, env) {
+  x = eval(call$x, env)
+
+  if (hasName(call, 'which')) {
+    which = eval(call$which, env)
+    paste0(
+      deparse(call$x),
+      ' does not have all of column name(s): "',
+      paste0(which, collapse = '", "'),
+      '"'
+    )
+  } else {
+    paste0(deparse(call$x), ' does not have any column names')
+  }
+}
+
+is_at = function(x) {
+  is.numeric(x) && noNA(x) && !any(is.infinite(x))
+}
+
+assertthat::on_failure(is_at) = function(call, env) {
+  x = call$x
+  valid = validate_that(
+    is.numeric(x),
+    noNA(x),
+    !any(is.infinite(x))
+  )
+
+  paste0('"at" argument of ', deparse(call$x), ' is not valid: ', valid)
+}
+
+is_valid_cluster_name = function(x, clusters = clusterNames(model), model) {
+  stopifnot(is.character(clusters))
+
+  if (is.factor(x)) {
+    noNA(x) && all(levels(x) %in% clusters)
+  } else {
+    is.character(x) && all(unique(x) %in% clusters)
+  }
+}
+
+assertthat::on_failure(is_valid_cluster_name) = function(call, env) {
+  x = eval(call$x, env)
+  clusters = eval(call$clusters, env)
+
+  if (is.character(x) || is.factor(x)) {
+    if (anyNA(x)) {
+      sprintf('cluster names vector %s should not contain NAs', deparse(call$x))
+    } else {
+      sprintf(
+        'cluster names vector %s contains unexpected elements: expecting "%s"',
+        deparse(call$x),
+        paste0(clusters, collapse = '", "')
+      )
+    }
+  }
+  else {
+    sprintf('cluster names vector %s should be character or factor', deparse(call$x))
+  }
+}
 
 has_same_ids = function(m1, m2) {
   assert_that(is.lcModel(m1), is.lcModel(m2))
@@ -82,15 +160,17 @@ assertthat::on_failure(has_lcMethod_args) = function(call, env) {
 
 #' @export
 #' @rdname assert
-#' @description Check whether the input is a valid posterior probability matrix for the given model.
+#' @description Check whether the input is a valid posterior probability matrix (for the given model).
 #' @param pp The posterior probability `matrix`.
-#' @param model The `lcModel` object.
-is_valid_postprob = function(pp, model) {
-  assert_that(is.lcModel(model))
+#' @param model The `lcModel` object. Optional.
+is_valid_postprob = function(pp, model = NULL) {
+  assert_that(is.null(model) || is.lcModel(model))
+
+  clusColsOK = is.null(model) || ncol(pp) == nClusters(model)
 
   is.matrix(pp) &&
     is.numeric(pp) &&
-    ncol(pp) == nClusters(model) &&
+    clusColsOK &&
     noNA(pp) &&
     min(pp) >= 0 &&
     max(pp) <= 1 &&
@@ -105,11 +185,20 @@ is_valid_postprob = function(pp, model) {
 assertthat::on_failure(is_valid_postprob) = function(call, env) {
   pp = eval(call$pp, env)
   model = eval(call$model, env)
-  validate_that(is.matrix(pp) &&
-      is.numeric(pp) &&
-      ncol(pp) == nClusters(model) &&
-      noNA(pp) &&
-      min(pp) >= 0 &&
-      max(pp) <= 1 &&
-      isTRUE(all.equal(rowSums(pp), rep(1, nrow(pp)))))
+
+  if (!is.null(model)) {
+    clusVal = validate_that(ncol(pp) == nClusters(model))
+    if (clusVal) {
+      return(clusVal)
+    }
+  }
+
+  validate_that(
+    is.matrix(pp) &&
+    is.numeric(pp) &&
+    noNA(pp) &&
+    min(pp) >= 0 &&
+    max(pp) <= 1 &&
+    isTRUE(all.equal(rowSums(pp), rep(1, nrow(pp))))
+  )
 }

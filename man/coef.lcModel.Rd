@@ -2,7 +2,7 @@
 % Please edit documentation in R/model.R
 \name{coef.lcModel}
 \alias{coef.lcModel}
-\title{Coefficients of a lcModel}
+\title{Extract lcModel coefficients}
 \usage{
 \method{coef}{lcModel}(object, ...)
 }
@@ -12,10 +12,29 @@
 \item{...}{Additional arguments.}
 }
 \value{
-A \verb{named numeric vector} with all coefficients, or a \code{matrix} with each column containing the cluster-specific coefficients.
+A named \verb{numeric vector} with all coefficients, or a \code{matrix} with each column containing the cluster-specific coefficients. If \code{coef()} is not defined for the given model, an empty \verb{numeric vector} is returned.
 }
 \description{
-Coefficients of a lcModel
+Extract the coefficients of the \code{lcModel} object, if defined.
+The returned set of coefficients depends on the underlying type of \code{lcModel}.
+The default implementation checks for the existence of a \code{coef()} function for the internal model as defined in the \verb{@model} slot, returning the output if available.
+}
+\section{Implementation}{
+
+Classes extending \code{lcModel} can override this method to return model-specific coefficients.
+\preformatted{
+coef.lcModelExt <- function(object, ...) {
+  # return model coefficients
+}
+}
+}
+
+\examples{
+data(latrendData)
+method <- lcMethodLcmmGBTM(fixed = Y ~ Time, mixture = ~ 1,
+  id = "Id", time = "Time", nClusters = 3)
+gbtm <- latrend(method, data = latrendData)
+coef(gbtm)
 }
 \seealso{
 Other model-specific methods: 
@@ -24,6 +43,7 @@ Other model-specific methods:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
 \code{\link{lcModel-class}},
 \code{\link{logLik.lcModel}()},
 \code{\link{model.frame.lcModel}()},
@@ -35,7 +55,6 @@ Other model-specific methods:
 \code{\link{predictPostprob}()},
 \code{\link{residuals.lcModel}()},
 \code{\link{sigma.lcModel}()},
-\code{\link{time.lcModel}()},
-\code{\link{trajectories}()}
+\code{\link{time.lcModel}()}
 }
 \concept{model-specific methods}

@@ -4,7 +4,7 @@
 \alias{as.data.frame.lcMethod}
 \title{Convert lcMethod arguments to a list of atomic types}
 \usage{
-\method{as.data.frame}{lcMethod}(x, ..., eval = FALSE, nullValue = NA, envir = NULL)
+\method{as.data.frame}{lcMethod}(x, ..., eval = TRUE, nullValue = NA, envir = NULL)
 }
 \arguments{
 \item{x}{\code{lcMethod} to be coerced to a \code{character} \code{vector}.}
@@ -32,6 +32,7 @@ Other lcMethod functions:
 \code{\link{evaluate.lcMethod}()},
 \code{\link{formula.lcMethod}()},
 \code{\link{lcMethod-class}},
+\code{\link{names,lcMethod-method}},
 \code{\link{update.lcMethod}()}
 }
 \concept{lcMethod functions}

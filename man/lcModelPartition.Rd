@@ -9,11 +9,11 @@ lcModelPartition(
   response,
   trajectoryAssignments,
   nClusters = NA,
-  center = meanNA,
   clusterNames = NULL,
   time = getOption("latrend.time"),
   id = getOption("latrend.id"),
   name = "part",
+  center = meanNA,
   envir = parent.frame()
 )
 }
@@ -22,13 +22,15 @@ lcModelPartition(
 
 \item{response}{The name of the response variable.}
 
-\item{trajectoryAssignments}{A \code{vector} of cluster membership per trajectory, either \code{factor}, or \code{integer} (\code{1} to \code{nClusters}).}
+\item{trajectoryAssignments}{A \code{vector} of cluster membership per trajectory, a \code{data.frame} with an id column and \code{"Cluster"} column, or the name of the cluster membership column in the \code{data} argument..
+For \code{vector} input, the type must be \code{factor}, \code{character}, or \code{integer} (\code{1} to \code{nClusters}).
+The order of the trajectory, and thus the respective assignments, is determined by the id column of the data.
+Provide a \code{factor} id column for the input data to ensure that the ordering is as you aspect.}
 
-\item{nClusters}{The number of clusters. Optional for \code{factor} assignments.}
+\item{nClusters}{The number of clusters. Should be \code{NA} for trajectory assignments of type \code{factor}.}
 
-\item{center}{The \code{function} for computing the longitudinal cluster centers, used for representing the cluster trajectories.}
-
-\item{clusterNames}{The names of the clusters, or a function with input \code{n} outputting a \verb{character vector} of names.}
+\item{clusterNames}{The names of the clusters, or a function with input \code{n} outputting a \verb{character vector} of names.
+If unspecified, the names are determined from the \code{trajectoryAssignments} argument.}
 
 \item{time}{The name of the time variable.}
 
@@ -36,9 +38,21 @@ lcModelPartition(
 
 \item{name}{The name of the method.}
 
+\item{center}{The \code{function} for computing the longitudinal cluster centers, used for representing the cluster trajectories.}
+
 \item{envir}{The \code{environment} associated with the model. Used for evaluating the assigned \code{data} object by \link{model.data.lcModel}.}
 }
 \description{
 Represents an arbitrary partitioning of a set of trajectories.
 As such, this model has no predictive capabilities. The cluster trajectories are represented by the specified center function (mean by default).
+}
+\examples{
+# comparing a model to the ground truth using the adjusted Rand index
+data(latrendData)
+model <- latrend(lcMethodKML(), data = latrendData, response = "Y")
+# extract the reference class from the Class column
+trajLabels <- aggregate(Class ~ Id, head, 1, data = latrendData)
+trajLabels$Cluster <- trajLabels$Class
+refModel <- lcModelPartition(latrendData, response = "Y", trajectoryAssignments = trajLabels)
+externalMetric(model, refModel, 'adjustedRand') # 0.76
 }

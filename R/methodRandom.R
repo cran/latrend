@@ -22,6 +22,7 @@ setValidity('lcMethodRandom', function(object) {
 #' @inheritParams lcMethodCustom
 #' @param nClusters The number of clusters.
 #' @param alpha The Dirichlet parameters. Either `scalar` or of length `nClusters`. The higher alpha, the more uniform the clusters will be.
+#' @param ... Additional arguments, such as the seed.
 #' @examples
 #' data(latrendData)
 #' method <- lcMethodRandom(response = "Y", id = "Id", time = "Time")
@@ -36,15 +37,28 @@ setValidity('lcMethodRandom', function(object) {
 #' @family lcMethod implementations
 #' @references
 #' \insertRef{frigyik2010introduction}{latrend}
-lcMethodRandom = function(response,
-                          alpha = 10,
-                          center = meanNA,
-                          time = getOption('latrend.time'),
-                          id = getOption('latrend.id'),
-                          nClusters = 2,
-                          name = 'random') {
-  lcMethod.call('lcMethodRandom', call = match.call.defaults())
+lcMethodRandom = function(
+  response,
+  alpha = 10,
+  center = meanNA,
+  time = getOption('latrend.time'),
+  id = getOption('latrend.id'),
+  nClusters = 2,
+  name = 'random',
+  ...
+) {
+  mc = match.call.all()
+  mc$Class = 'lcMethodRandom'
+  do.call(new, as.list(mc))
 }
+
+#' @rdname interface-custom
+setMethod('getArgumentDefaults', signature('lcMethodRandom'), function(object) {
+  c(
+    formals(lcMethodRandom),
+    callNextMethod()
+  )
+})
 
 #' @rdname interface-custom
 setMethod('getName', signature('lcMethodRandom'), function(object) 'random')

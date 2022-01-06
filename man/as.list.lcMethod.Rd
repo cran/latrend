@@ -27,6 +27,7 @@ A \code{list} with the argument \code{call}s or evaluated results depending on t
 Extract the method arguments as a list
 }
 \examples{
+library(kml)
 data(latrendData)
 method <- lcMethodKML("Y", id = "Id", time = "Time")
 as.list(method)
@@ -48,6 +49,7 @@ Other lcMethod functions:
 \code{\link{evaluate.lcMethod}()},
 \code{\link{formula.lcMethod}()},
 \code{\link{lcMethod-class}},
+\code{\link{names,lcMethod-method}},
 \code{\link{update.lcMethod}()}
 }
 \concept{lcMethod functions}

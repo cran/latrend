@@ -27,20 +27,36 @@ setClass('lcMethodAkmedoids', contains = 'lcMatrixMethod')
 #' @family lcMethod implementations
 #' @references
 #' \insertRef{adepeju2020akmedoids}{latrend}
-lcMethodAkmedoids = function(response,
-                             time = getOption('latrend.time'),
-                             id = getOption('latrend.id'),
-                             nClusters = 3, # must be > 2
-                             clusterCenter = median,
-                             crit = 'Calinski_Harabasz', # Default silhouette width results in: Error in smooth.spline(x, y) : 'tol' must be strictly positive and finite
-                             ...) {
-  lcMethod.call(
-    'lcMethodAkmedoids',
-    call = match.call.defaults(),
-    defaults = akmedoids::akclustr,
-    excludeArgs = c('traj', 'id_field', 'k')
-  )
+lcMethodAkmedoids = function(
+  response,
+  time = getOption('latrend.time'),
+  id = getOption('latrend.id'),
+  nClusters = 3, # must be > 2
+  clusterCenter = median,
+  crit = 'Calinski_Harabasz', # Default silhouette width results in: Error in smooth.spline(x, y) : 'tol' must be strictly positive and finite
+  ...
+) {
+  mc = match.call.all()
+  mc$Class = 'lcMethodAkmedoids'
+  do.call(new, as.list(mc))
 }
+
+#' @rdname interface-akmedoids
+setMethod('getArgumentDefaults', signature('lcMethodAkmedoids'), function(object) {
+  c(
+    formals(lcMethodAkmedoids),
+    formals(akmedoids::akclustr),
+    callNextMethod()
+  )
+})
+
+#' @rdname interface-akmedoids
+setMethod('getArgumentExclusions', signature('lcMethodAkmedoids'), function(object) {
+  union(
+    callNextMethod(),
+    c('traj', 'id_field', 'k')
+  )
+})
 
 #' @rdname interface-akmedoids
 setMethod('getName', signature('lcMethodAkmedoids'), function(object) 'anchored k-medoids')
@@ -56,12 +72,7 @@ setMethod('fit', signature('lcMethodAkmedoids'), function(method, data, envir, v
   args$k = method$nClusters
   args$id_field = FALSE
 
-  # Helper variables
-  suppressFun = ifelse(as.logical(verbose), force, capture.output)
-
-  suppressFun({
-    model = do.call(akmedoids::akclustr, args)
-  })
+  model = do.call(akmedoids::akclustr, args)
 
   clusNames = make.clusterNames(method$nClusters)
 

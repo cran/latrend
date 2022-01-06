@@ -3,7 +3,6 @@ setClass('lcModelMixtoolsRM', contains = 'lcApproxModel')
 
 
 #. clusterTrajectories ####
-#' @importFrom plyr alply
 #' @rdname interface-mixtools
 #' @inheritParams clusterTrajectories
 #' @param se Whether to compute the standard error of the prediction.
@@ -11,7 +10,7 @@ setClass('lcModelMixtoolsRM', contains = 'lcApproxModel')
 setMethod('clusterTrajectories', signature('lcModelMixtoolsRM'), function(
     object, at = time(object), what = 'mu', se = TRUE, ci = c(.025, .975), ...)
   {
-  if (is.null(at)) {
+  if (length(at) == 0) {
     assert_that(
       what %in% c('mu', 'sigma'),
       is.logical(se),
@@ -35,20 +34,24 @@ setMethod('clusterTrajectories', signature('lcModelMixtoolsRM'), function(
       .Block = rep(blocks, nClusters(object))
     )
 
-    statMat = plyr::alply(comboMat, 1, function(x) {
+    statFun = function(com, block) {
       dd = density(
         object@model,
-        component = x[1],
-        block = x[2],
+        component = com,
+        block = block,
         scale = FALSE
       )
+
       c(
         Fit = respFun(dd$x, na.rm = TRUE),
         Se.fit = seFun(dd$x),
         Q = quantile(dd$x, ci)
       )
-    }) %>%
+    }
+
+    statMat = mapply(statFun, comboMat[, 1], comboMat[, 2], SIMPLIFY = FALSE) %>%
       do.call(rbind, .)
+
     dtStats = cbind(comboMat, statMat) %>%
       as.data.table() %>%
       .[, Time := times[.Block]] %>%

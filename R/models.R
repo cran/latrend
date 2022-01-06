@@ -3,8 +3,12 @@
 setOldClass('lcModels')
 
 #' @export
+#' @aliases lcModels-class
 #' @title Construct a flat (named) list of lcModel objects
-#' @description Takes the inputs and generates a named `lcModels` object containing a list of the input models. Duplicates are preserved.
+#' @description The `lcModels` `S3` class represents a `list` of `lcModel` objects.
+#' This makes it easier to work with a set of models in a more structured manner.
+#'
+#' The `lcModels()` function takes the inputs and generates a named `lcModels` object containing a list of the input models. Duplicates are preserved.
 #' @param ... `lcModel`, `lcModels`, or a recursive `list` of `lcModel` objects. Arguments may be named.
 #' @return A `lcModels` object containing all specified `lcModel` objects.
 #' @examples
@@ -36,8 +40,9 @@ is.lcModels = function(x) {
 
 #' @export
 #' @title Convert a list of lcModels to a lcModels list
-#' @param x An `R` object.
+#' @param x A `list` of `lcModel` objects, an `lcModels` object, or `NULL`.
 #' @return A `lcModels` object.
+#' @seealso lcModels
 #' @family lcModel list functions
 as.lcModels = function(x) {
   if (missing(x) || is.null(x)) {
@@ -111,10 +116,28 @@ as.data.frame.lcModels = function(x, ...,
   as.data.frame(dt)
 }
 
-# externalMetric ####
+# . estimationTime ####
+#' @export
+#' @rdname estimationTime
+#' @param object The list of `lcModel` objects.
+setMethod('estimationTime', signature('lcModels'), function(object, unit, ...) {
+  sum(vapply(object, estimationTime, unit = unit, ..., FUN.VALUE = 0), na.rm = TRUE)
+})
+
+
+#' @export
+#' @rdname estimationTime
+setMethod('estimationTime', signature('list'), function(object, unit, ...) {
+  models = as.lcModels(object)
+  estimationTime(models, unit = unit, ...)
+})
+
+
 .externalMetric.lcModels = function(object, object2, name, drop = TRUE) {
-  assert_that(is.character(name),
-    is.flag(drop))
+  assert_that(
+    is.character(name),
+    is.flag(drop)
+  )
 
   if (length(object) == 0) {
     if (drop) {
@@ -139,6 +162,7 @@ as.data.frame.lcModels = function(x, ...,
 }
 
 .externalMetricDist.lcModels = function(object, name) {
+  assert_that(length(name) > 0, msg = 'no external metric names provided')
   assert_that(
     is.character(name),
     length(name) == 1
@@ -154,6 +178,7 @@ as.data.frame.lcModels = function(x, ...,
   as.dist(t(m), diag = FALSE, upper = FALSE)
 }
 
+# . externalMetric ####
 #' @export
 #' @importFrom stats as.dist
 #' @rdname externalMetric
@@ -198,8 +223,8 @@ setMethod('externalMetric', signature('list', 'lcModel'),
 })
 
 
-# metric ####
 .metric.lcModels = function(object, name, drop = TRUE) {
+  assert_that(length(name) > 0, msg = 'no metric names provided')
   assert_that(is.lcModels(object),
     is.character(name),
     is.flag(drop))
@@ -226,6 +251,7 @@ setMethod('externalMetric', signature('list', 'lcModel'),
   }
 }
 
+# . metric ####
 #' @export
 #' @rdname metric
 #' @param drop Whether to return a `numeric vector` instead of a `data.frame`
@@ -257,10 +283,15 @@ setMethod('metric', signature('lcModels'), .metric.lcModels)
 #' @seealso [max.lcModels] [externalMetric]
 min.lcModels = function(x, name, ...) {
   x = as.lcModels(x)
+
+  if (length(x) == 0) {
+    stop('cannot compute min() on empty list of lcModels')
+  }
+
   values = metric(x, name)
   bestIdx = which.min(values)
   if (length(bestIdx) == 0) {
-    return(as.lcModels(NULL))
+    stop('cannot determine min() on lcModels; none of the models had a valid metric value')
   } else {
     x[[bestIdx]]
   }
@@ -283,14 +314,54 @@ min.lcModels = function(x, name, ...) {
 #' @seealso [min.lcModels] [externalMetric]
 max.lcModels = function(x, name, ...) {
   x = as.lcModels(x)
+
+  if (length(x) == 0) {
+    stop('cannot compute min() on empty list of lcModels')
+  }
+
   values = metric(x, name)
   bestIdx = which.max(values)
   if (length(bestIdx) == 0) {
-    return(as.lcModels(NULL))
+    stop('cannot determine max() on lcModels; none of the models had a valid metric value')
   } else {
     x[[bestIdx]]
   }
 }
+
+
+# . plot ####
+#' @export
+#' @name plot-lcModels-method
+#' @aliases plot,lcModels,ANY-method plot,lcModels-method
+#' @title Grid plot for a list of models
+#' @inheritParams subset.lcModels
+#' @param x The `lcModels` object.
+#' @param y Not used.
+#' @param ... Additional parameters passed to the `plot()` call for each `lcModel` object.
+#' @param gridArgs Named list of parameters passed to [gridExtra::arrangeGrob].
+setMethod('plot', signature('lcModels', 'ANY'), function(x, y, ..., subset, gridArgs = list()) {
+  if (length(x) == 0) {
+    warning('Cannot plot empty list of models')
+    return(invisible(FALSE))
+  }
+
+  if (!missing(subset)) {
+    mc = match.call.all()
+    x = do.call(subset.lcModels, list(x = x, subset = mc$subset))
+
+    if (length(x) == 0) {
+      warning('Subsetting resulted in 0 models selected for plotting')
+      return(invisible(FALSE))
+    }
+  }
+
+
+  pList = lapply(x, plot, ...)
+
+  grob = do.call(gridExtra::arrangeGrob, c(pList, gridArgs))
+
+  gridExtra::grid.arrange(grob)
+})
 
 
 #' @export
@@ -308,16 +379,18 @@ max.lcModels = function(x, name, ...) {
 #' @examples
 #' data(latrendData)
 #' baseMethod <- lcMethodKML(response = "Y", id = "Id", time = "Time")
-#' kml1 <- latrend(baseMethod, nClusters = 1, latrendData)
-#' kml2 <- latrend(baseMethod, nClusters = 2, latrendData)
-#' kml3 <- latrend(baseMethod, nClusters = 3, latrendData)
-#' models <- lcModels(kml1, kml2, kml3)
-#' plotMetric(models, "BIC", by = "nClusters", group = ".name")
-plotMetric = function(models,
-                      name,
-                      by = 'nClusters',
-                      subset,
-                      group = character()) {
+#' methods <- lcMethods(baseMethod, nClusters = 1:3)
+#' models <- latrendBatch(methods, latrendData)
+#' plotMetric(models, c("BIC", "WRSS"))
+plotMetric = function(
+  models,
+  name,
+  by = 'nClusters',
+  subset,
+  group = character()
+) {
+  .loadOptionalPackage('ggplot2')
+
   models = as.lcModels(models)
   assert_that(length(models) > 0, msg = 'need at least 1 lcModel to plot')
   assert_that(is.character(name), length(name) >= 1)
@@ -333,15 +406,17 @@ plotMetric = function(models,
 
   dtModels = as.data.frame(models) %>%
     as.data.table()
-  assert_that(nrow(dtModels) == nrow(dtMetrics))
-  assert_that(is.null(group) || has_name(dtModels, group))
+
+  assert_that(
+    nrow(dtModels) == nrow(dtMetrics),
+    is.null(group) || has_name(dtModels, group)
+  )
 
   dtModelMetrics = cbind(dtModels, dtMetrics)
   if (length(group) == 0) {
     dtModelMetrics[, .group := 'All']
   } else {
-    dtModelMetrics[, .group := do.call(interaction, base::subset(dtModelMetrics, select =
-                                                             group))]
+    dtModelMetrics[, .group := do.call(interaction, base::subset(dtModelMetrics, select = group))]
   }
   assert_that(has_name(dtModelMetrics, by))
 
@@ -356,22 +431,31 @@ plotMetric = function(models,
     setnames('.group', 'Group')
   levels(dtgg$Metric) = name
 
-  p = ggplot(dtgg, aes_string(x = by, y = 'Value', group = 'Group'))
+  p = ggplot2::ggplot(
+    data = dtgg,
+    mapping = ggplot2::aes_string(x = by, y = 'Value', group = 'Group')
+  )
 
-  if (is.numeric(dtModelMetrics[[by]]) ||
-      is.logical(dtModelMetrics[[by]])) {
-    p = p + geom_line()
+  if (is.numeric(dtModelMetrics[[by]]) || is.logical(dtModelMetrics[[by]])) {
+    p = p + ggplot2::geom_line()
   }
-  p = p + geom_point()
+  p = p + ggplot2::geom_point()
+
+  if (by == 'nClusters') {
+    p = p + ggplot2::scale_x_continuous(
+      breaks = seq(1, max(dtModelMetrics[[by]])),
+      minor_breaks = NULL
+    )
+  }
 
   if (length(name) == 1) {
-    p = p + ylab(name)
+    p = p + ggplot2::ylab(name)
   } else {
-    p = p + ylab('Value') +
-      facet_wrap( ~ Metric, scales = 'free_y')
+    p = p + ggplot2::ylab('Value') +
+      ggplot2::facet_wrap( ~ Metric, scales = 'free_y')
   }
 
-  return(p)
+  p
 }
 
 #' @export
