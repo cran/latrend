@@ -7,10 +7,14 @@ setValidity('lcMethodLcmmGMM', function(object) {
     assert_that(hasSingleResponse(object$formula))
 
     reTerms = getREterms(f)
-    assert_that(length(reTerms) == 1, msg = 'formula should contain one random-effects component')
-    assert_that(getREGroupName(reTerms[[1]]) %in% c(object$id, 'ID'), msg =
-                  'Group variable in random-effects component should match the id argument, or equal "ID"')
-
+    assert_that(
+      length(reTerms) == 1,
+      msg = 'formula should contain one random-effects component'
+    )
+    assert_that(
+      getREGroupName(reTerms[[1]]) %in% c(object$id, 'ID'),
+      msg = 'Group variable in random-effects component should match the id argument, or equal "ID"'
+    )
   }
 
   if (isArgDefined(object, 'formula.mb')) {
@@ -40,15 +44,28 @@ setValidity('lcMethodLcmmGMM', function(object) {
 #' The following arguments are ignored: data, fixed, random, mixture, subject, classmb, returndata, ng, verbose, subset.
 #' @examples
 #' data(latrendData)
-#' method <- lcMethodLcmmGMM(fixed = Y ~ Time,
-#'    mixture = ~ Time, random = ~ 1,
-#'    id = "Id", time = "Time", , nClusters = 3)
-#' gmm <- latrend(method, data = latrendData)
-#' summary(gmm)
 #'
-#' method <- lcMethodLcmmGMM(fixed = Y ~ Time,
-#'     mixture = ~ Time, random = ~ Time,
-#'     id = "Id", time = "Time", nClusters = 3)
+#' if (rlang::is_installed("lcmm")) {
+#'   method <- lcMethodLcmmGMM(
+#'     fixed = Y ~ Time,
+#'     mixture = ~ Time,
+#'     random = ~ 1,
+#'     id = "Id",
+#'     time = "Time", ,
+#'     nClusters = 2
+#'   )
+#'   gmm <- latrend(method, data = latrendData)
+#'   summary(gmm)
+#'
+#'   method <- lcMethodLcmmGMM(
+#'     fixed = Y ~ Time,
+#'     mixture = ~ Time,
+#'     random = ~ Time,
+#'     id = "Id",
+#'     time = "Time",
+#'     nClusters = 3
+#'   )
+#' }
 #' @family lcMethod implementations
 #' @references
 #' \insertRef{proustlima2017estimation}{latrend}

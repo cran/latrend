@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -342,11 +343,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <ul>
 <li><a href="#the-candidate-model">The candidate model</a></li>
 </ul></li>
-<li><a href="#evaluate-stability-of-the-estimation-through-repeated-estimation">Evaluate stability of the estimation through repeated estimation</a>
+<li><a href="#evaluate-stability-of-the-estimation-through-repeated-estimation">Evaluate
+stability of the estimation through repeated estimation</a>
 <ul>
 <li><a href="#comparison-between-fits">Comparison between fits</a></li>
 </ul></li>
-<li><a href="#evaluating-replicability-and-stability-through-bootstrapping">Evaluating replicability and stability through bootstrapping</a></li>
+<li><a href="#evaluating-replicability-and-stability-through-bootstrapping">Evaluating
+replicability and stability through bootstrapping</a></li>
 <li><a href="#ten-fold-cross-validation">Ten-fold cross validation</a>
 <ul>
 <li><a href="#manual-cross-validation">Manual cross validation</a></li>
@@ -354,11 +357,18 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </ul>
 </div>
 
-<p>In this vignette we demonstrate different ways in which longitudinal cluster models can be internally validated.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latrend)</span></code></pre></div>
+<p>In this vignette we demonstrate different ways in which longitudinal
+cluster models can be internally validated.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latrend)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
 <div id="demonstration" class="section level1">
 <h1>Demonstration</h1>
-<p>We explore the <code>latrendData</code> dataset. This is a synthetic dataset for which the reference group of each trajectory is available, indicated by the <code>Class</code> column. However, in this vignette we will assume that the true group specification and number of groups are unknown. Instead, we have a candidate model which we wish to validate internally.</p>
+<p>We explore the <code>latrendData</code> dataset. This is a synthetic
+dataset for which the reference group of each trajectory is available,
+indicated by the <code>Class</code> column. However, in this vignette we
+will assume that the true group specification and number of groups are
+unknown. Instead, we have a candidate model which we wish to validate
+internally.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(latrendData)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(latrendData)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Id      Time           Y   Class</span></span>
@@ -368,11 +378,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  1 0.6666667 -0.39115398 Class 1</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  1 0.8888889 -0.19407876 Class 1</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6  1 1.1111111 -0.02991783 Class 1</span></span></code></pre></div>
-<p>Specify the package options to adopt the respective column names of the loaded dataset, for convenience.</p>
+<p>Specify the package options to adopt the respective column names of
+the loaded dataset, for convenience.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">latrend.id =</span> <span class="st">&quot;Id&quot;</span>, <span class="at">latrend.time =</span> <span class="st">&quot;Time&quot;</span>)</span></code></pre></div>
 <div id="the-candidate-model" class="section level2">
 <h2>The candidate model</h2>
-<p>We consider a KML model with 3 clusters to be our candidate model that we will validate. We defined the method with a reduced number of repeated random starts (as indicated by the <code>nbRedrawing</code> argument) in order to reduce the computation time needed in the repeated evaluations below. This is only done for demonstration purposes.</p>
+<p>We consider a KML model with 3 clusters to be our candidate model
+that we will validate. We defined the method with a reduced number of
+repeated random starts (as indicated by the <code>nbRedrawing</code>
+argument) in order to reduce the computation time needed in the repeated
+evaluations below. This is only done for demonstration purposes.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>kml <span class="ot">&lt;-</span> <span class="fu">lcMethodKML</span>(<span class="st">&quot;Y&quot;</span>, <span class="at">nClusters =</span> <span class="dv">3</span>, <span class="at">nbRedrawing =</span> <span class="dv">5</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>kml</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; lcMethodKML specifying &quot;longitudinal k-means (KML)&quot;</span></span>
@@ -393,9 +408,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 </div>
 <div id="evaluate-stability-of-the-estimation-through-repeated-estimation" class="section level1">
-<h1>Evaluate stability of the estimation through repeated estimation</h1>
-<p>The purpose of model validation is essentially to identify that the model is robust and generalizes well to unseen data. A necessary condition for these aspects is that the model is reproducible on the original training data. This evaluation helps to ensure that the model estimation procedure is robust, i.e., does not yield spurious model solutions.</p>
-<p>We can fit a method repeatedly using the <code>latrendRep</code> data.</p>
+<h1>Evaluate stability of the estimation through repeated
+estimation</h1>
+<p>The purpose of model validation is essentially to identify that the
+model is robust and generalizes well to unseen data. A necessary
+condition for these aspects is that the model is reproducible on the
+original training data. This evaluation helps to ensure that the model
+estimation procedure is robust, i.e., does not yield spurious model
+solutions.</p>
+<p>We can fit a method repeatedly using the <code>latrendRep</code>
+data.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>repModels <span class="ot">&lt;-</span> <span class="fu">latrendRep</span>(kml, <span class="at">data =</span> latrendData, <span class="at">.rep=</span><span class="dv">10</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(repModels, <span class="at">excludeShared =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 10 lcModels with</span></span>
@@ -443,7 +465,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8   TRUE        Y</span></span>
 <span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9   TRUE        Y</span></span>
 <span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10  TRUE        Y</span></span></code></pre></div>
-<p>A convenient way to assess the stability across repeated runs is to compare the models on one or more internal model metrics. Similar solutions should yield similar metric scores.</p>
+<p>A convenient way to assess the stability across repeated runs is to
+compare the models on one or more internal model metrics. Similar
+solutions should yield similar metric scores.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>repSelfMetrics <span class="ot">&lt;-</span> <span class="fu">metric</span>(repModels, <span class="at">name =</span> <span class="fu">c</span>(<span class="st">&quot;BIC&quot;</span>, <span class="st">&quot;WMAE&quot;</span>, <span class="st">&quot;APPA&quot;</span>))</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in FUN(X[[i]], ...): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
@@ -485,15 +509,22 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(repSelfMetrics[, <span class="st">&quot;WMAE&quot;</span>])</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  0.1925  0.1925  0.1925  0.1925  0.1926  0.1926</span></span></code></pre></div>
-<p>As can be seen from the numbers, the models are (practically) identical in terms of model fit, measurement error, and cluster separation.</p>
+<p>As can be seen from the numbers, the models are (practically)
+identical in terms of model fit, measurement error, and cluster
+separation.</p>
 <div id="comparison-between-fits" class="section level2">
 <h2>Comparison between fits</h2>
-<p>Alternatively, we can select the model with the best fit, and compare it against the other fitted models.</p>
+<p>Alternatively, we can select the model with the best fit, and compare
+it against the other fitted models.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bestRepModel <span class="ot">&lt;-</span> <span class="fu">min</span>(repModels, <span class="st">&quot;BIC&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">externalMetric</span>(repModels, bestRepModel, <span class="at">name =</span> <span class="st">&quot;adjustedRand&quot;</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] 1 1 1 1 1 1 1 1 1 1</span></span></code></pre></div>
-<p>As indicated by the adjusted Rand index, the methods are highly similar (a score of 1 indicates a perfect agreement). Note however that there are some discrepancies among the repeated runs on one or two trajectories.</p>
-<p>Similarly, we can compute the pairwise adjusted Rand indices, resulting in a similarity matrix</p>
+<p>As indicated by the adjusted Rand index, the methods are highly
+similar (a score of 1 indicates a perfect agreement). Note however that
+there are some discrepancies among the repeated runs on one or two
+trajectories.</p>
+<p>Similarly, we can compute the pairwise adjusted Rand indices,
+resulting in a similarity matrix</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>simMat <span class="ot">&lt;-</span> <span class="fu">externalMetric</span>(repModels, <span class="at">name =</span> <span class="st">&quot;adjustedRand&quot;</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(simMat, <span class="dv">2</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    1 2 3 4 5 6 7 8 9</span></span>
@@ -578,7 +609,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="ten-fold-cross-validation" class="section level1">
 <h1>Ten-fold cross validation</h1>
-<p>Lastly, we can fit models using <span class="math inline">\(k\)</span>-fold cross-validation to validate the models on previously unseen data from the test folds.</p>
+<p>Lastly, we can fit models using <span class="math inline">\(k\)</span>-fold cross-validation to validate the
+models on previously unseen data from the test folds.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>trainModels <span class="ot">&lt;-</span> <span class="fu">latrendCV</span>(kml, <span class="at">data =</span> latrendData, <span class="at">folds =</span> <span class="dv">10</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>trainModels</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 10 lcModels with</span></span>
@@ -595,7 +627,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10    10     kml trainFold(latrendData, fold = 10, &quot;Id&quot;, 10, 1)  779295076</span></span></code></pre></div>
 <div id="manual-cross-validation" class="section level2">
 <h2>Manual cross validation</h2>
-<p>Alternatively, we can generate the training data folds ourselves, and fit models using <code>latrendBatch</code>.</p>
+<p>Alternatively, we can generate the training data folds ourselves, and
+fit models using <code>latrendBatch</code>.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>dataFolds <span class="ot">&lt;-</span> <span class="fu">createTrainDataFolds</span>(latrendData, <span class="at">folds =</span> <span class="dv">10</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>foldModels <span class="ot">&lt;-</span> <span class="fu">latrendBatch</span>(kml, <span class="at">data =</span> dataFolds)</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>foldModels</span>

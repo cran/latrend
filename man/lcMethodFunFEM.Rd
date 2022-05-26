@@ -31,17 +31,18 @@ The following external arguments are ignored: fd, K, disp, graph.}
 Specify a FunFEM method
 }
 \examples{
-library(funFEM)
-library(fda)
 data(latrendData)
-method <- lcMethodFunFEM("Y", id = "Id", time = "Time", nClusters = 3)
-model <- latrend(method, latrendData)
 
-method <- lcMethodFunFEM("Y",
+if (require("funFEM") && require("fda")) {
+  method <- lcMethodFunFEM("Y", id = "Id", time = "Time", nClusters = 3)
+  model <- latrend(method, latrendData)
+
+  method <- lcMethodFunFEM("Y",
    basis = function(time) {
-      create.bspline.basis(time,
-        nbasis = 10, norder = 4)
-})
+      create.bspline.basis(time, nbasis = 10, norder = 4)
+   }
+  )
+}
 }
 \references{
 \insertRef{bouveyron2015funfem}{latrend}
@@ -61,7 +62,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodLMKM}},
 \code{\link{lcMethodLcmmGBTM}},
 \code{\link{lcMethodLcmmGMM}},
-\code{\link{lcMethodLongclust}},
 \code{\link{lcMethodMclustLLPA}},
 \code{\link{lcMethodMixAK_GLMM}},
 \code{\link{lcMethodMixtoolsGMM}},

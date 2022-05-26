@@ -13,12 +13,14 @@ setOldClass('lcModels')
 #' @return A `lcModels` object containing all specified `lcModel` objects.
 #' @examples
 #' data(latrendData)
-#' kml <- latrend(lcMethodKML("Y", id = "Id", time = "Time"), latrendData)
-#' gmm <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
-#'    id = "Id", time = "Time"), latrendData)
-#' lcModels(kml, gmm)
+#' lmkmMethod <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+#' lmkmModel <- latrend(lmkmMethod, latrendData)
+#' rngMethod <- lcMethodRandom("Y", id = "Id", time = "Time")
+#' rngModel <- latrend(rngMethod, latrendData)
 #'
-#' lcModels(defaults = c(kml, gmm))
+#' lcModels(lmkmModel, rngModel)
+#'
+#' lcModels(defaults = c(lmkmModel, rngModel))
 #' @family lcModel list functions
 lcModels = function(...) {
   list(...) %>%
@@ -82,19 +84,19 @@ as.list.lcModels = function(x, ...) {
 #' @param excludeShared Whether to exclude columns which have the same value across all methods.
 #' @param ... Arguments passed to [as.data.frame.lcMethod].
 #' @return A `data.frame`.
-as.data.frame.lcModels = function(x, ...,
-                                  excludeShared = FALSE,
-                                  eval = TRUE) {
+as.data.frame.lcModels = function(
+  x,
+  ...,
+  excludeShared = FALSE,
+  eval = TRUE
+) {
   x = as.lcModels(x)
 
   dfs = lapply(x, getLcMethod) %>%
     lapply(as.data.frame, eval = eval, ...)
 
   suppressWarnings({
-    dt = rbindlist(dfs,
-                   use.names = TRUE,
-                   fill = TRUE,
-                   idcol = '.name')
+    dt = rbindlist(dfs, use.names = TRUE, fill = TRUE, idcol = '.name')
   })
 
   if (isTRUE(excludeShared) && nrow(dt) > 1) {
@@ -107,8 +109,11 @@ as.data.frame.lcModels = function(x, ...,
     dt[, `.name` := character()]
   }
 
-  dataNames = vapply(x, function(model)
-    deparse(getCall(model)$data), FUN.VALUE = '')
+  dataNames = vapply(
+    x,
+    function(model) deparse(getCall(model)$data) %>% paste0(collapse = ''),
+    FUN.VALUE = ''
+  )
   if (!excludeShared || uniqueN(dataNames) > 1) {
     dt[, data := dataNames]
   }
@@ -175,6 +180,7 @@ setMethod('estimationTime', signature('list'), function(object, unit, ...) {
 
   m = matrix(NaN, nrow = length(object), ncol = length(object))
   m[do.call(rbind, pairs)] = unlist(result)
+
   as.dist(t(m), diag = FALSE, upper = FALSE)
 }
 
@@ -274,12 +280,15 @@ setMethod('metric', signature('lcModels'), .metric.lcModels)
 #' @return The lcModel with the lowest metric value
 #' @examples
 #' data(latrendData)
-#' baseMethod <- lcMethodKML(response = "Y", id = "Id", time = "Time")
-#' kml1 <- latrend(baseMethod, nClusters = 1, latrendData)
-#' kml2 <- latrend(baseMethod, nClusters = 2, latrendData)
-#' kml3 <- latrend(baseMethod, nClusters = 3, latrendData)
-#' models <- lcModels(kml1, kml2, kml3)
-#' min(models, 'WRSS')
+#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+#'
+#' model1 <- latrend(method, latrendData, nClusters = 1)
+#' model2 <- latrend(method, latrendData, nClusters = 2)
+#' model3 <- latrend(method, latrendData, nClusters = 3)
+#'
+#' models <- lcModels(model1, model2, model3)
+#'
+#' min(models, "WMAE")
 #' @seealso [max.lcModels] [externalMetric]
 min.lcModels = function(x, name, ...) {
   x = as.lcModels(x)
@@ -305,12 +314,17 @@ min.lcModels = function(x, name, ...) {
 #' @return The lcModel with the highest metric value
 #' @examples
 #' data(latrendData)
-#' baseMethod <- lcMethodKML(response = "Y", id = "Id", time = "Time")
-#' kml1 <- latrend(baseMethod, nClusters = 1, latrendData)
-#' kml2 <- latrend(baseMethod, nClusters = 2, latrendData)
-#' kml3 <- latrend(baseMethod, nClusters = 3, latrendData)
-#' models <- lcModels(kml1, kml2, kml3)
-#' max(models, 'WRSS')
+#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+#'
+#' model1 <- latrend(method, latrendData, nClusters = 1)
+#' model2 <- latrend(method, latrendData, nClusters = 2)
+#' model3 <- latrend(method, latrendData, nClusters = 3)
+#'
+#' models <- lcModels(model1, model2, model3)
+#'
+#' if (require("clusterCrit")) {
+#'   max(models, "Dunn")
+#' }
 #' @seealso [min.lcModels] [externalMetric]
 max.lcModels = function(x, name, ...) {
   x = as.lcModels(x)
@@ -378,10 +392,17 @@ setMethod('plot', signature('lcModels', 'ANY'), function(x, y, ..., subset, grid
 #' @return `ggplot2` object.
 #' @examples
 #' data(latrendData)
-#' baseMethod <- lcMethodKML(response = "Y", id = "Id", time = "Time")
-#' methods <- lcMethods(baseMethod, nClusters = 1:3)
+#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+#' methods <- lcMethods(method, nClusters = 1:3)
 #' models <- latrendBatch(methods, latrendData)
-#' plotMetric(models, c("BIC", "WRSS"))
+#'
+#' if (require("ggplot2")) {
+#'   plotMetric(models, "WMAE")
+#' }
+#'
+#' if (require("ggplot2") && require("clusterCrit")) {
+#'   plotMetric(models, c("WMAE", "Dunn"))
+#' }
 plotMetric = function(
   models,
   name,
@@ -468,15 +489,18 @@ plotMetric = function(
 #' @return A `lcModels` list with the subset of `lcModel` objects.
 #' @examples
 #' data(latrendData)
-#' mKML <- lcMethodKML(response = "Y", id = "Id", time = "Time")
-#' kml1 <- latrend(mKML, nClusters = 1, latrendData)
-#' kml2 <- latrend(mKML, nClusters = 2, latrendData)
-#' kml3 <- latrend(mKML, nClusters = 3, latrendData)
-#' gmm <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
-#'    id = "Id", time = "Time"), latrendData)
-#' models <- lcModels(kml1, kml2, kml3, gmm)
+#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
 #'
-#' subset(models, nClusters > 1 & .method == 'kml')
+#' model1 <- latrend(method, latrendData, nClusters = 1)
+#' model2 <- latrend(method, latrendData, nClusters = 2)
+#' model3 <- latrend(method, latrendData, nClusters = 3)
+#'
+#' rngMethod <- lcMethodRandom("Y", id = "Id", time = "Time")
+#' rngModel <- latrend(rngMethod, latrendData)
+#'
+#' models <- lcModels(model1, model2, model3, rngModel)
+#'
+#' subset(models, nClusters > 1 & .method == 'lmkm')
 #' @family lcModel list functions
 subset.lcModels = function(x, subset, drop = FALSE, ...) {
   x = as.lcModels(x)

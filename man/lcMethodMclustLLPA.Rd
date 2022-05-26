@@ -28,10 +28,11 @@ The following external arguments are ignored: data, G, verbose.}
 Latent profile analysis or finite Gaussian mixture modeling.
 }
 \examples{
-library(mclust)
 data(latrendData)
-method <- lcMethodMclustLLPA("Y", id = "Id", time = "Time", nClusters = 3)
-model <- latrend(method, latrendData)
+if (require("mclust")) {
+  method <- lcMethodMclustLLPA("Y", id = "Id", time = "Time", nClusters = 3)
+  model <- latrend(method, latrendData)
+}
 }
 \references{
 \insertRef{scrucca2016mclust}{latrend}
@@ -52,7 +53,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodLMKM}},
 \code{\link{lcMethodLcmmGBTM}},
 \code{\link{lcMethodLcmmGMM}},
-\code{\link{lcMethodLongclust}},
 \code{\link{lcMethodMixAK_GLMM}},
 \code{\link{lcMethodMixtoolsGMM}},
 \code{\link{lcMethodMixtoolsNPRM}},

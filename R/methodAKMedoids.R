@@ -20,10 +20,11 @@ setClass('lcMethodAkmedoids', contains = 'lcMatrixMethod')
 #' @param ... Arguments passed to [akmedoids::akclustr].
 #' The following external arguments are ignored: traj, id_field, k
 #' @examples
-#' library(akmedoids)
 #' data(latrendData)
-#' method <- lcMethodAkmedoids(response = "Y", time = "Time", id = "Id", nClusters = 3)
-#' model <- latrend(method, data = latrendData)
+#' if (require("akmedoids")) {
+#'   method <- lcMethodAkmedoids(response = "Y", time = "Time", id = "Id", nClusters = 3)
+#'   model <- latrend(method, data = latrendData)
+#' }
 #' @family lcMethod implementations
 #' @references
 #' \insertRef{adepeju2020akmedoids}{latrend}
@@ -71,6 +72,8 @@ setMethod('fit', signature('lcMethodAkmedoids'), function(method, data, envir, v
   args$traj = envir$dataMat
   args$k = method$nClusters
   args$id_field = FALSE
+
+  assert_that(method$nClusters %between% c(3, 20), msg = 'akmedoids only supports nClusters = 3, ..., 20')
 
   model = do.call(akmedoids::akclustr, args)
 

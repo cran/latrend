@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -343,13 +344,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><a href="#data-settings">Data settings</a></li>
 <li><a href="#method-settings">Method settings</a>
 <ul>
-<li><a href="#specifying-the-gckm-method">Specifying the GCKM method</a></li>
+<li><a href="#specifying-the-gckm-method">Specifying the GCKM
+method</a></li>
 </ul></li>
 <li><a href="#evaluating-the-settings">Evaluating the settings</a></li>
 <li><a href="#analyzing-the-results">Analyzing the results</a>
 <ul>
-<li><a href="#recovery-of-the-number-of-clusters">Recovery of the number of clusters</a></li>
-<li><a href="#trajectory-assignment-agreement">Trajectory assignment agreement</a></li>
+<li><a href="#recovery-of-the-number-of-clusters">Recovery of the number
+of clusters</a></li>
+<li><a href="#trajectory-assignment-agreement">Trajectory assignment
+agreement</a></li>
 <li><a href="#residual-error">Residual error</a></li>
 </ul></li>
 </ul>
@@ -357,7 +361,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>In this vignette we demonstrate how to conduct a simulation study with minimal coding. We show how to do a structural evaluation of methods for clustering longitudinal data, for different specifications, and across various (synthetic) data scenarios.</p>
+<p>In this vignette we demonstrate how to conduct a simulation study
+with minimal coding. We show how to do a structural evaluation of
+methods for clustering longitudinal data, for different specifications,
+and across various (synthetic) data scenarios.</p>
 <p>A typical workflow in a simulation study involves:</p>
 <ol style="list-style-type: decimal">
 <li><a href="#data-settings">Data settings</a></li>
@@ -365,20 +372,43 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><a href="#evaluating-the-settings">Evaluating the settings</a></li>
 <li><a href="#analyzing-the-results">Analyzing the results</a></li>
 </ol>
-<p>There are many packages available in <code>R</code> which facilitate such a workflow. In this vignette, we use the <a href="https://cran.r-project.org/package=simTool">simTool</a> package.</p>
-<p>Due to the relatively large number of models fitted, we will disable all model outputs:</p>
+<p>There are many packages available in <code>R</code> which facilitate
+such a workflow. In this vignette, we use the <a href="https://cran.r-project.org/package=simTool">simTool</a>
+package.</p>
+<p>Due to the relatively large number of models fitted, we will disable
+all model outputs:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(latrend)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">latrend.verbose =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 </div>
 <div id="data-generation" class="section level1">
 <h1>Data generation</h1>
-<p>Using synthetic data allows us to investigate to performance of the methods under specific conditions of interest (e.g., sensitivity to noise, within-cluster variability, and cluster separation).</p>
-<p>For demonstration purposes, we define a trivial dataset comprising two distinct groups with group trajectories represented by a line (i.e., intercept and slope). A trajectory <span class="math inline">\(\textbf{y}_i\)</span> belonging to group <span class="math inline">\(k\)</span> is described by <span class="math inline">\(y_{ij} = \beta_{0k} + \beta_{1k} t_{j} + z_{0i} + e_{ij}\)</span>. Here, <span class="math inline">\(\beta_{0k}\)</span> and <span class="math inline">\(\beta_{1k}\)</span> are the intercept and slope for group <span class="math inline">\(k\)</span>, respectively. Furthermore, <span class="math inline">\(z_i\)</span> denotes the trajectory-specific random intercept, i.e., its deviation from the group trajectory. Lastly, <span class="math inline">\(e_{ij}\)</span> represents independent random noise with <span class="math inline">\(e_{ij} \sim N(0, \sigma^2)\)</span>.</p>
-<p>We can generate data according to this model using a utility function named <code>generateLongData()</code> that is included in the package. This function generates datasets based on a mixture of linear mixed models. We create a wrapper around this function in order to adapt the function to our needs. Most importantly, we code the shape and coefficients of the group trajectories as fixed, setting <span class="math inline">\((\beta_{0A},\beta_{1A}) = (0, 0)\)</span> for group A (40%) and <span class="math inline">\((\beta_{0B},\beta_{1B}) = (1, -1)\)</span> for group B (60%). Other data settings (e.g., the magnitude of perturbation) are passed via <code>...</code>.</p>
+<p>Using synthetic data allows us to investigate to performance of the
+methods under specific conditions of interest (e.g., sensitivity to
+noise, within-cluster variability, and cluster separation).</p>
+<p>For demonstration purposes, we define a trivial dataset comprising
+two distinct groups with group trajectories represented by a line (i.e.,
+intercept and slope). A trajectory <span class="math inline">\(\textbf{y}_i\)</span> belonging to group <span class="math inline">\(k\)</span> is described by <span class="math inline">\(y_{ij} = \beta_{0k} + \beta_{1k} t_{j} + z_{0i} +
+e_{ij}\)</span>. Here, <span class="math inline">\(\beta_{0k}\)</span>
+and <span class="math inline">\(\beta_{1k}\)</span> are the intercept
+and slope for group <span class="math inline">\(k\)</span>,
+respectively. Furthermore, <span class="math inline">\(z_i\)</span>
+denotes the trajectory-specific random intercept, i.e., its deviation
+from the group trajectory. Lastly, <span class="math inline">\(e_{ij}\)</span> represents independent random
+noise with <span class="math inline">\(e_{ij} \sim N(0,
+\sigma^2)\)</span>.</p>
+<p>We can generate data according to this model using a utility function
+named <code>generateLongData()</code> that is included in the package.
+This function generates datasets based on a mixture of linear mixed
+models. We create a wrapper around this function in order to adapt the
+function to our needs. Most importantly, we code the shape and
+coefficients of the group trajectories as fixed, setting <span class="math inline">\((\beta_{0A},\beta_{1A}) = (0, 0)\)</span> for
+group A (40%) and <span class="math inline">\((\beta_{0B},\beta_{1B}) =
+(1, -1)\)</span> for group B (60%). Other data settings (e.g., the
+magnitude of perturbation) are passed via <code>...</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dataGen <span class="ot">&lt;-</span> <span class="cf">function</span>(numTraj, ..., data.seed) {</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  latrend<span class="sc">::</span><span class="fu">generateLongData</span>(</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">sizes =</span> <span class="fu">c</span>(<span class="fu">floor</span>(numTraj <span class="sc">*</span> .<span class="dv">4</span>), <span class="fu">ceiling</span>(numTraj <span class="sc">*</span> .<span class="dv">6</span>)),</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">fixed =</span> Y <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Time,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">fixed =</span> Y <span class="sc">~</span> <span class="dv">0</span>,</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Time,</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">random =</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">&quot;Traj&quot;</span>,</span>
@@ -387,9 +417,17 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    ...</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Because the <em>simTool</em> package does not appear to support overlapping names between data and method functions, we needed to rename the <code>seed</code> argument of our underlying data generating function.</p>
-<p>Note that the <code>generateLongData</code> is included in the <em>latrend</em> package primarily for demonstration purposes. For generating data in a more flexible way, consider using the <a href="https://cran.r-project.org/package=simstudy">simstudy</a> package.</p>
-<p>Now that we have defined a data generating function, we set the default trajectory id and time column names, so we do not have to specify this in any future calls.</p>
+<p>Because the <em>simTool</em> package does not appear to support
+overlapping names between data and method functions, we needed to rename
+the <code>seed</code> argument of our underlying data generating
+function.</p>
+<p>Note that the <code>generateLongData</code> is included in the
+<em>latrend</em> package primarily for demonstration purposes. For
+generating data in a more flexible way, consider using the <a href="https://cran.r-project.org/package=simstudy">simstudy</a>
+package.</p>
+<p>Now that we have defined a data generating function, we set the
+default trajectory id and time column names, so we do not have to
+specify this in any future calls.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">latrend.id =</span> <span class="st">&quot;Traj&quot;</span>, <span class="at">latrend.time =</span> <span class="st">&quot;Time&quot;</span>)</span></code></pre></div>
 <p>It’s a good idea to inspect the data we are generating.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>exampleData <span class="ot">&lt;-</span> <span class="fu">dataGen</span>(<span class="at">numTraj =</span> <span class="dv">200</span>, <span class="at">randomScale =</span> .<span class="dv">1</span>, <span class="at">data.seed =</span> <span class="dv">1</span>)</span>
@@ -398,8 +436,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="data-settings" class="section level1">
 <h1>Data settings</h1>
-<p>We now specify the data settings of interest. In this example, we evaluate the methods on datasets with varying sample size (50 and 250 trajectories) and random intercept scale (small and large random intercept). Moreover, we evaluate methods repeatedly under these settings by specifying different values for <code>data.seed</code>, generating a slightly different dataset for each seed.</p>
-<p>As we intend to evaluate the methods on each combination of data settings, we need to generate a table of all permutations. This can be done using the <code>expand.grid()</code> function, or using <code>expand_tibble()</code>.</p>
+<p>We now specify the data settings of interest. In this example, we
+evaluate the methods on datasets with varying sample size (50 and 250
+trajectories) and random intercept scale (small and large random
+intercept). Moreover, we evaluate methods repeatedly under these
+settings by specifying different values for <code>data.seed</code>,
+generating a slightly different dataset for each seed.</p>
+<p>As we intend to evaluate the methods on each combination of data
+settings, we need to generate a table of all permutations. This can be
+done using the <code>expand.grid()</code> function, or using
+<code>expand_tibble()</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dataGrid <span class="ot">&lt;-</span> simTool<span class="sc">::</span><span class="fu">expand_tibble</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">fun =</span> <span class="st">&quot;dataGen&quot;</span>,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">numTraj =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">250</span>),</span>
@@ -420,8 +466,17 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="method-settings" class="section level1">
 <h1>Method settings</h1>
-<p>Similarly to the data settings table, we specify a table of all permutations for the method settings. Typically this is done separately for each method, as their settings will usually differ. In this example we evaluate KmL and GCKM only on differing number of clusters so the method settings can be jointly generated. Repeated method evaluation is achieved through specifying several values for the <code>seed</code> argument.</p>
-<p>The method evaluation function (specified by the <code>proc</code> field) here is simply the <code>latrend()</code> function, which will fit the specified method type to the generated data. ## Specfying the KmL method</p>
+<p>Similarly to the data settings table, we specify a table of all
+permutations for the method settings. Typically this is done separately
+for each method, as their settings will usually differ. In this example
+we evaluate KmL and GCKM only on differing number of clusters so the
+method settings can be jointly generated. Repeated method evaluation is
+achieved through specifying several values for the <code>seed</code>
+argument.</p>
+<p>The method evaluation function (specified by the <code>proc</code>
+field) here is simply the <code>latrend()</code> function, which will
+fit the specified method type to the generated data. ## Specfying the
+KmL method</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>kmlMethodGrid <span class="ot">&lt;-</span> simTool<span class="sc">::</span><span class="fu">expand_tibble</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">proc =</span> <span class="st">&quot;latrend&quot;</span>,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;lcMethodKML&quot;</span>,</span>
@@ -439,8 +494,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 latrend lcMethodKML         3     1 Y</span></span></code></pre></div>
 <div id="specifying-the-gckm-method" class="section level2">
 <h2>Specifying the GCKM method</h2>
-<p>Parametric models such as GCKM are more unwieldy to specify in a simulation study due to the need to define the parametric shape through one or more formulas. Formulas are tedious to query or filter in a post-hoc simulation analysis<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
-<p>We can solve this by defining simple keywords representing the different parametric shapes of interest. We then specify a wrapper function for <code>latrend()</code> that sets the correct <code>formula</code> argument depending on the keyword.</p>
+<p>Parametric models such as GCKM are more unwieldy to specify in a
+simulation study due to the need to define the parametric shape through
+one or more formulas. Formulas are tedious to query or filter in a
+post-hoc simulation analysis<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
+<p>We can solve this by defining simple keywords representing the
+different parametric shapes of interest. We then specify a wrapper
+function for <code>latrend()</code> that sets the correct
+<code>formula</code> argument depending on the keyword.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fitGCKM <span class="ot">&lt;-</span> <span class="cf">function</span>(type, ...) {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  form <span class="ot">&lt;-</span> <span class="cf">switch</span>(type,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">constant =</span> Y <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Time <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Traj),</span>
@@ -449,7 +510,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">latrend</span>(..., <span class="at">formula =</span> form)</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>We can then specify our GCKM method settings in a similar way as we did for the KmL method, but with the <code>proc</code> argument set to the <code>fitGCKM</code> function we have just defined.</p>
+<p>We can then specify our GCKM method settings in a similar way as we
+did for the KmL method, but with the <code>proc</code> argument set to
+the <code>fitGCKM</code> function we have just defined.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>gckmMethodGrid <span class="ot">&lt;-</span> simTool<span class="sc">::</span><span class="fu">expand_tibble</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">proc =</span> <span class="st">&quot;fitGCKM&quot;</span>,</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;lcMethodGCKM&quot;</span>,</span>
@@ -457,7 +520,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">nClusters =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<p>Finally, we combine our method-specific permutation grids into one large grid. By using the <code>bind_rows()</code> function, mismatches in the columns between the grids are handled properly.</p>
+<p>Finally, we combine our method-specific permutation grids into one
+large grid. By using the <code>bind_rows()</code> function, mismatches
+in the columns between the grids are handled properly.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>methodGrid <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(kmlMethodGrid, gckmMethodGrid)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(methodGrid)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 x 6</span></span>
@@ -473,425 +538,154 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="evaluating-the-settings" class="section level1">
 <h1>Evaluating the settings</h1>
-<p>The <code>eval_tibbles()</code> function takes the data and method grids as inputs, and runs the method estimation as intended for each simulation setting. In practice, it is advisable to run evaluations in parallel as the number of simulation settings is likely much greater than in this trivial demonstration.</p>
-<p>Before we run the simulations, we first want to define a function for computing our model performance metrics. This function will be run by <code>eval_tibbles()</code> for every estimated model. The details on what we are computing here is explained further in the next section.</p>
+<p>The <code>eval_tibbles()</code> function takes the data and method
+grids as inputs, and runs the method estimation as intended for each
+simulation setting. In practice, it is advisable to run evaluations in
+parallel as the number of simulation settings is likely much greater
+than in this trivial demonstration.</p>
+<p>Before we run the simulations, we first want to define a function for
+computing our model performance metrics. This function will be run by
+<code>eval_tibbles()</code> for every estimated model. The details on
+what we are computing here is explained further in the next section.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>analyzeModel <span class="ot">&lt;-</span> <span class="cf">function</span>(model) {</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> <span class="fu">model.data</span>(model)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  refModel <span class="ot">&lt;-</span> <span class="fu">lcModelPartition</span>(data, <span class="at">response =</span> <span class="st">&quot;Y&quot;</span>, <span class="at">trajectoryAssignments =</span> <span class="st">&quot;Class&quot;</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">BIC =</span> <span class="fu">BIC</span>(model),</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">APPA =</span> <span class="fu">metric</span>(model, <span class="st">&quot;APPA&quot;</span>),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">APPA =</span> <span class="fu">metric</span>(model, <span class="st">&quot;APPA.min&quot;</span>),</span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">WMAE =</span> <span class="fu">metric</span>(model, <span class="st">&quot;WMAE&quot;</span>),</span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">ARI =</span> <span class="fu">externalMetric</span>(model, refModel, <span class="st">&quot;adjustedRand&quot;</span>)</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>At last, we can run the simulations and post-hoc summary computations:</p>
+<p>At last, we can run the simulations and post-hoc summary
+computations:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> simTool<span class="sc">::</span><span class="fu">eval_tibbles</span>(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_grid =</span> dataGrid, </span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">proc_grid =</span> methodGrid,</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">post_analyze =</span> analyzeModel</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
 <span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
 <span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
 <span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
 <span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
 <span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
 <span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
 <span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
 <span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
 <span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-108"><a href="#cb11-108" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
 <span id="cb11-109"><a href="#cb11-109" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-111"><a href="#cb11-111" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-112"><a href="#cb11-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-116"><a href="#cb11-116" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-117"><a href="#cb11-117" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-125"><a href="#cb11-125" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-126"><a href="#cb11-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-127"><a href="#cb11-127" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-128"><a href="#cb11-128" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-129"><a href="#cb11-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-130"><a href="#cb11-130" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-131"><a href="#cb11-131" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-132"><a href="#cb11-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-133"><a href="#cb11-133" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-134"><a href="#cb11-134" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-135"><a href="#cb11-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-136"><a href="#cb11-136" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-137"><a href="#cb11-137" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-138"><a href="#cb11-138" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-139"><a href="#cb11-139" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-140"><a href="#cb11-140" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-141"><a href="#cb11-141" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-142"><a href="#cb11-142" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-143"><a href="#cb11-143" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-144"><a href="#cb11-144" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-145"><a href="#cb11-145" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-146"><a href="#cb11-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-147"><a href="#cb11-147" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-148"><a href="#cb11-148" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-149"><a href="#cb11-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-150"><a href="#cb11-150" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-151"><a href="#cb11-151" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-152"><a href="#cb11-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-153"><a href="#cb11-153" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-154"><a href="#cb11-154" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-155"><a href="#cb11-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-156"><a href="#cb11-156" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-157"><a href="#cb11-157" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-158"><a href="#cb11-158" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-159"><a href="#cb11-159" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-160"><a href="#cb11-160" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-161"><a href="#cb11-161" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-162"><a href="#cb11-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-163"><a href="#cb11-163" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-164"><a href="#cb11-164" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-165"><a href="#cb11-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-166"><a href="#cb11-166" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-167"><a href="#cb11-167" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-168"><a href="#cb11-168" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-169"><a href="#cb11-169" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-170"><a href="#cb11-170" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-171"><a href="#cb11-171" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-172"><a href="#cb11-172" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-173"><a href="#cb11-173" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-174"><a href="#cb11-174" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-175"><a href="#cb11-175" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-176"><a href="#cb11-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-177"><a href="#cb11-177" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-178"><a href="#cb11-178" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-179"><a href="#cb11-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-180"><a href="#cb11-180" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-181"><a href="#cb11-181" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-182"><a href="#cb11-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-183"><a href="#cb11-183" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-184"><a href="#cb11-184" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-185"><a href="#cb11-185" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-186"><a href="#cb11-186" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-187"><a href="#cb11-187" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-188"><a href="#cb11-188" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-189"><a href="#cb11-189" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-190"><a href="#cb11-190" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-191"><a href="#cb11-191" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-192"><a href="#cb11-192" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-193"><a href="#cb11-193" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-194"><a href="#cb11-194" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-195"><a href="#cb11-195" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-196"><a href="#cb11-196" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-197"><a href="#cb11-197" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-198"><a href="#cb11-198" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-199"><a href="#cb11-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-200"><a href="#cb11-200" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-201"><a href="#cb11-201" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-202"><a href="#cb11-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-203"><a href="#cb11-203" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-204"><a href="#cb11-204" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-205"><a href="#cb11-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-206"><a href="#cb11-206" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-207"><a href="#cb11-207" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-208"><a href="#cb11-208" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-209"><a href="#cb11-209" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-210"><a href="#cb11-210" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-211"><a href="#cb11-211" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-212"><a href="#cb11-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-213"><a href="#cb11-213" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-214"><a href="#cb11-214" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-215"><a href="#cb11-215" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-216"><a href="#cb11-216" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-217"><a href="#cb11-217" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-218"><a href="#cb11-218" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-219"><a href="#cb11-219" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-220"><a href="#cb11-220" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-221"><a href="#cb11-221" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-223"><a href="#cb11-223" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-224"><a href="#cb11-224" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-225"><a href="#cb11-225" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-226"><a href="#cb11-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-227"><a href="#cb11-227" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-228"><a href="#cb11-228" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-229"><a href="#cb11-229" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-230"><a href="#cb11-230" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-231"><a href="#cb11-231" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-232"><a href="#cb11-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-233"><a href="#cb11-233" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-234"><a href="#cb11-234" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-235"><a href="#cb11-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-236"><a href="#cb11-236" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-237"><a href="#cb11-237" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-238"><a href="#cb11-238" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-239"><a href="#cb11-239" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-240"><a href="#cb11-240" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-241"><a href="#cb11-241" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-242"><a href="#cb11-242" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-243"><a href="#cb11-243" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-244"><a href="#cb11-244" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-245"><a href="#cb11-245" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-246"><a href="#cb11-246" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-247"><a href="#cb11-247" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-248"><a href="#cb11-248" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-249"><a href="#cb11-249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-250"><a href="#cb11-250" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-251"><a href="#cb11-251" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-252"><a href="#cb11-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-253"><a href="#cb11-253" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-254"><a href="#cb11-254" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-255"><a href="#cb11-255" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-256"><a href="#cb11-256" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-257"><a href="#cb11-257" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-258"><a href="#cb11-258" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-259"><a href="#cb11-259" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-260"><a href="#cb11-260" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-261"><a href="#cb11-261" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-262"><a href="#cb11-262" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-263"><a href="#cb11-263" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-264"><a href="#cb11-264" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-265"><a href="#cb11-265" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-266"><a href="#cb11-266" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-267"><a href="#cb11-267" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-268"><a href="#cb11-268" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-269"><a href="#cb11-269" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-270"><a href="#cb11-270" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-271"><a href="#cb11-271" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-272"><a href="#cb11-272" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-273"><a href="#cb11-273" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-274"><a href="#cb11-274" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-275"><a href="#cb11-275" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-276"><a href="#cb11-276" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-277"><a href="#cb11-277" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-278"><a href="#cb11-278" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-279"><a href="#cb11-279" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-280"><a href="#cb11-280" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-281"><a href="#cb11-281" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-282"><a href="#cb11-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-283"><a href="#cb11-283" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-284"><a href="#cb11-284" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-285"><a href="#cb11-285" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-286"><a href="#cb11-286" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-287"><a href="#cb11-287" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-288"><a href="#cb11-288" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-289"><a href="#cb11-289" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-290"><a href="#cb11-290" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-291"><a href="#cb11-291" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-292"><a href="#cb11-292" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-293"><a href="#cb11-293" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-294"><a href="#cb11-294" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-295"><a href="#cb11-295" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-296"><a href="#cb11-296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-297"><a href="#cb11-297" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-298"><a href="#cb11-298" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-299"><a href="#cb11-299" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-300"><a href="#cb11-300" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-301"><a href="#cb11-301" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-302"><a href="#cb11-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-303"><a href="#cb11-303" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-304"><a href="#cb11-304" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-305"><a href="#cb11-305" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-306"><a href="#cb11-306" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-307"><a href="#cb11-307" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-308"><a href="#cb11-308" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-309"><a href="#cb11-309" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-310"><a href="#cb11-310" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-311"><a href="#cb11-311" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-312"><a href="#cb11-312" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-313"><a href="#cb11-313" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-314"><a href="#cb11-314" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-315"><a href="#cb11-315" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-316"><a href="#cb11-316" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-317"><a href="#cb11-317" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-318"><a href="#cb11-318" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-319"><a href="#cb11-319" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-320"><a href="#cb11-320" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-321"><a href="#cb11-321" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-322"><a href="#cb11-322" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-323"><a href="#cb11-323" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-324"><a href="#cb11-324" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-325"><a href="#cb11-325" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-326"><a href="#cb11-326" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-327"><a href="#cb11-327" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-328"><a href="#cb11-328" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-329"><a href="#cb11-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-330"><a href="#cb11-330" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-331"><a href="#cb11-331" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-332"><a href="#cb11-332" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-333"><a href="#cb11-333" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-334"><a href="#cb11-334" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-335"><a href="#cb11-335" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-336"><a href="#cb11-336" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-337"><a href="#cb11-337" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-338"><a href="#cb11-338" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-339"><a href="#cb11-339" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-340"><a href="#cb11-340" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-341"><a href="#cb11-341" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-342"><a href="#cb11-342" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-343"><a href="#cb11-343" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-344"><a href="#cb11-344" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-345"><a href="#cb11-345" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-346"><a href="#cb11-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-347"><a href="#cb11-347" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-348"><a href="#cb11-348" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-349"><a href="#cb11-349" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-350"><a href="#cb11-350" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-351"><a href="#cb11-351" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-352"><a href="#cb11-352" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-353"><a href="#cb11-353" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-354"><a href="#cb11-354" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-355"><a href="#cb11-355" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-356"><a href="#cb11-356" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-357"><a href="#cb11-357" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-358"><a href="#cb11-358" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-359"><a href="#cb11-359" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-360"><a href="#cb11-360" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-361"><a href="#cb11-361" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-362"><a href="#cb11-362" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-363"><a href="#cb11-363" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-364"><a href="#cb11-364" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-365"><a href="#cb11-365" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-366"><a href="#cb11-366" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-367"><a href="#cb11-367" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-368"><a href="#cb11-368" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-369"><a href="#cb11-369" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-370"><a href="#cb11-370" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-371"><a href="#cb11-371" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-372"><a href="#cb11-372" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-373"><a href="#cb11-373" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-374"><a href="#cb11-374" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-375"><a href="#cb11-375" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-376"><a href="#cb11-376" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-377"><a href="#cb11-377" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-378"><a href="#cb11-378" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-379"><a href="#cb11-379" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-380"><a href="#cb11-380" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-381"><a href="#cb11-381" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-382"><a href="#cb11-382" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-383"><a href="#cb11-383" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-384"><a href="#cb11-384" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-385"><a href="#cb11-385" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-386"><a href="#cb11-386" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-387"><a href="#cb11-387" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-388"><a href="#cb11-388" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-389"><a href="#cb11-389" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-390"><a href="#cb11-390" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-391"><a href="#cb11-391" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-392"><a href="#cb11-392" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-393"><a href="#cb11-393" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-394"><a href="#cb11-394" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-395"><a href="#cb11-395" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-396"><a href="#cb11-396" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-397"><a href="#cb11-397" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-398"><a href="#cb11-398" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-399"><a href="#cb11-399" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-400"><a href="#cb11-400" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-401"><a href="#cb11-401" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span>
-<span id="cb11-402"><a href="#cb11-402" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-403"><a href="#cb11-403" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in metric(model, &quot;APPA&quot;): Internal metric(s) &quot;APPA&quot; are not defined.</span></span>
-<span id="cb11-404"><a href="#cb11-404" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Returning NA.</span></span></code></pre></div>
-<p>The <code>result</code> table contains a <code>results</code> column containing the fitted models.</p>
+<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-111"><a href="#cb11-111" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-112"><a href="#cb11-112" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-116"><a href="#cb11-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-117"><a href="#cb11-117" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
+<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
+<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span></code></pre></div>
+<p>The <code>result</code> table contains a <code>results</code> column
+containing the fitted models.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>result</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 120 x 15</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    fun     numTraj randomScales data.seed replications proc    method  nClusters</span></span>
@@ -911,19 +705,28 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of data generating functions: 8</span></span>
 <span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of analyzing procedures: 15</span></span>
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of replications: 1</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Estimated replications per hour: 235</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Start of the simulation: 2022-01-06 12:03:17</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; End of the simulation: 2022-01-06 12:03:33</span></span></code></pre></div>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Estimated replications per hour: 210</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Start of the simulation: 2022-05-26 00:56:45</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; End of the simulation: 2022-05-26 00:57:02</span></span></code></pre></div>
 </div>
 <div id="analyzing-the-results" class="section level1">
 <h1>Analyzing the results</h1>
-<p>We can now analyze the computed results. We use the <a href="https://cran.r-project.org/package=data.table">data.table</a> package to handle the filtering and aggregation of the results table.</p>
+<p>We can now analyze the computed results. We use the <a href="https://cran.r-project.org/package=data.table">data.table</a>
+package to handle the filtering and aggregation of the results
+table.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>resultsTable <span class="ot">&lt;-</span> <span class="fu">as.data.table</span>(result<span class="sc">$</span>simulation)</span></code></pre></div>
 <div id="recovery-of-the-number-of-clusters" class="section level2">
 <h2>Recovery of the number of clusters</h2>
-<p>Often, researchers are interested in estimating the number of clusters by means of minimizing a metric indicating either model fit, cluster separation, or another factor that helps to determine the preferred number of clusters. Evaluating how many times the correct number of clusters is obtained from a cluster metric can help to decide which metric to use, and which selection approach to take.</p>
-<p>In this example, we evaluate the use of the Bayesian information criterion (BIC). For each data scenario, we identify the cluster solution that minimizes the BIC.</p>
+<p>Often, researchers are interested in estimating the number of
+clusters by means of minimizing a metric indicating either model fit,
+cluster separation, or another factor that helps to determine the
+preferred number of clusters. Evaluating how many times the correct
+number of clusters is obtained from a cluster metric can help to decide
+which metric to use, and which selection approach to take.</p>
+<p>In this example, we evaluate the use of the Bayesian information
+criterion (BIC). For each data scenario, we identify the cluster
+solution that minimizes the BIC.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>resultsTable[, .(<span class="at">K =</span> nClusters[<span class="fu">which.min</span>(BIC)]), keyby <span class="ot">=</span> .(numTraj, randomScales, data.seed, method)]</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     numTraj randomScales data.seed       method K</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1:      50          0.1         1 lcMethodGCKM 3</span></span>
@@ -942,12 +745,25 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14:     250          0.5         1  lcMethodKML 3</span></span>
 <span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15:     250          0.5         2 lcMethodGCKM 3</span></span>
 <span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16:     250          0.5         2  lcMethodKML 3</span></span></code></pre></div>
-<p>Column <em>K</em> of the table shows the selected number of clusters for each scenario. This shows that estimating the number of clusters by minimizing the BIC results in a consistent overestimation of the number of clusters in our datasets. As an alternative to minimizing the BIC, we could consider using the elbow method instead. However, in order to conclude whether that is a feasible approach to our data would require more simulations, across a greater number of cluster.</p>
+<p>Column <em>K</em> of the table shows the selected number of clusters
+for each scenario. This shows that estimating the number of clusters by
+minimizing the BIC results in a consistent overestimation of the number
+of clusters in our datasets. As an alternative to minimizing the BIC, we
+could consider using the elbow method instead. However, in order to
+conclude whether that is a feasible approach to our data would require
+more simulations, across a greater number of cluster.</p>
 </div>
 <div id="trajectory-assignment-agreement" class="section level2">
 <h2>Trajectory assignment agreement</h2>
-<p>Another aspect of interest might be the ability of the cluster model to identify the correct cluster assignment for each of the trajectories. An intuitive metric for assessing this is the adjusted Rand index (ARI). This metric measures the agreement between two partitionings, where a score of 1 indicate a perfect agreement, and a score of 0 indicates an agreement no better than by chance.</p>
-<p>We compute the average ARI per data scenario and method to identify in which scenarios the methods were able to recover the reference cluster assignments.</p>
+<p>Another aspect of interest might be the ability of the cluster model
+to identify the correct cluster assignment for each of the trajectories.
+An intuitive metric for assessing this is the adjusted Rand index (ARI).
+This metric measures the agreement between two partitionings, where a
+score of 1 indicate a perfect agreement, and a score of 0 indicates an
+agreement no better than by chance.</p>
+<p>We compute the average ARI per data scenario and method to identify
+in which scenarios the methods were able to recover the reference
+cluster assignments.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>resultsTable[nClusters <span class="sc">&gt;</span> <span class="dv">1</span>, .(<span class="at">ARI =</span> <span class="fu">mean</span>(ARI)), keyby <span class="ot">=</span> .(nClusters, numTraj, randomScales, method)]</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     nClusters numTraj randomScales       method        ARI</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1:         2      50          0.1 lcMethodGCKM 1.00000000</span></span>
@@ -966,7 +782,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14:         3     250          0.1  lcMethodKML 0.66598327</span></span>
 <span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15:         3     250          0.5 lcMethodGCKM 0.31915680</span></span>
 <span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16:         3     250          0.5  lcMethodKML 0.10838125</span></span></code></pre></div>
-<p>The trajectory assignment recovery is affected the most by the magnitude of the random scale (i.e., the amount of overlap between the clusters). Moreover, it is apparent that KmL performs much worse under high random scale than GCKM.</p>
+<p>The trajectory assignment recovery is affected the most by the
+magnitude of the random scale (i.e., the amount of overlap between the
+clusters). Moreover, it is apparent that KmL performs much worse under
+high random scale than GCKM.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>resultsTable[nClusters <span class="sc">&gt;</span> <span class="dv">1</span>, .(<span class="at">ARI =</span> <span class="fu">mean</span>(ARI)), keyby <span class="ot">=</span> .(randomScales, nClusters, method)]</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    randomScales nClusters       method        ARI</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:          0.1         2 lcMethodGCKM 0.99404109</span></span>
@@ -980,8 +799,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="residual-error" class="section level2">
 <h2>Residual error</h2>
-<p>Another aspect of interest might be the residual error, i.e., how well our cluster model describes the data. Here, we gauge this by computing the mean absolute error, weighted by the posterior probabilities<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.</p>
-<p>Both methods achieve practically the same mean residual error. Another sign of the data comprising two clusters is that the MAE drops down significantly for the two-cluster solution, but hardly any improvement is gained for the three-cluster solution.</p>
+<p>Another aspect of interest might be the residual error, i.e., how
+well our cluster model describes the data. Here, we gauge this by
+computing the mean absolute error, weighted by the posterior
+probabilities<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.</p>
+<p>Both methods achieve practically the same mean residual error.
+Another sign of the data comprising two clusters is that the MAE drops
+down significantly for the two-cluster solution, but hardly any
+improvement is gained for the three-cluster solution.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>resultsTable[randomScales <span class="sc">==</span> .<span class="dv">1</span>, .(<span class="at">WMAE =</span> <span class="fu">mean</span>(WMAE)), keyby <span class="ot">=</span> .(nClusters, method)]</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    nClusters       method       WMAE</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:         1 lcMethodGCKM 0.26270832</span></span>
@@ -990,7 +815,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4:         2  lcMethodKML 0.11192675</span></span>
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5:         3 lcMethodGCKM 0.10389798</span></span>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6:         3  lcMethodKML 0.09871263</span></span></code></pre></div>
-<p>As one would expect, the residual error is strongly affected by the magnitude of the random scale.</p>
+<p>As one would expect, the residual error is strongly affected by the
+magnitude of the random scale.</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>resultsTable[, .(<span class="at">WMAE =</span> <span class="fu">mean</span>(WMAE)), keyby <span class="ot">=</span> .(randomScales, nClusters)]</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    randomScales nClusters      WMAE</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:          0.1         1 0.2627083</span></span>
@@ -1004,8 +830,15 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="footnotes footnotes-end-of-document">
 <hr />
 <ol>
-<li id="fn1"><p>Another reason to avoid defining formulas directly in the permutation grid is due to the way <code>data.frame</code> and tibbles handle columns containing <code>formula</code>, returning a <code>list</code> instead of the <code>formula</code> element when querying a single row. This results in an invalid method specification when <code>eval_tibbles()</code> calls the <code>proc</code> argument using this output.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>For KmL and GCKM, the WMAE is effectively the same as the MAE.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>Another reason to avoid defining formulas directly in
+the permutation grid is due to the way <code>data.frame</code> and
+tibbles handle columns containing <code>formula</code>, returning a
+<code>list</code> instead of the <code>formula</code> element when
+querying a single row. This results in an invalid method specification
+when <code>eval_tibbles()</code> calls the <code>proc</code> argument
+using this output.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>For KmL and GCKM, the WMAE is effectively the same as
+the MAE.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

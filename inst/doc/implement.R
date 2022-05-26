@@ -2,7 +2,8 @@
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  message = TRUE
+  message = TRUE,
+  eval = all(vapply(c('ggplot2', 'kml', 'lcmm'), requireNamespace, FUN.VALUE = TRUE, quietly = TRUE)) # needed to prevent errors for _R_CHECK_DEPENDS_ONLY_=true despite VignetteDepends declaration
 )
 
 ## ----setup, include = FALSE---------------------------------------------------

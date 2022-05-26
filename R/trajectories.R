@@ -5,14 +5,6 @@
 #' @rdname trajectories
 #' @aliases trajectories,data.frame-method
 setMethod('trajectories', signature('data.frame'), function(object, id, time, response, ...) {
-  assert_that(
-    has_name(object, id),
-    has_name(object, time),
-    is.numeric(object[[id]]) || is.factor(object[[id]]) || is.character(object[[id]]),
-    noNA(object[[id]]),
-    noNA(object[[time]])
-  )
-
   object
 })
 
@@ -20,7 +12,7 @@ setMethod('trajectories', signature('data.frame'), function(object, id, time, re
 #' @rdname trajectories
 #' @aliases trajectories,matrix-method
 setMethod('trajectories', signature('matrix'), function(object, id, time, response, ...) {
-  data = meltRepeatedMeasures(object, id = id, time = time, response = response)
+  data = tsframe(object, id = id, time = time, response = response)
   trajectories(data, id = id, time = time, response = response, ...)
 })
 
@@ -218,16 +210,35 @@ setMethod('plotClusterTrajectories', signature('data.frame'), function(object,
 #' @seealso [trajectories] [plotFittedTrajectories] [plotClusterTrajectories]
 #' @examples
 #' data(latrendData)
-#' plotTrajectories(latrendData, response = "Y", id = "Id", time = "Time")
 #'
-#' plotTrajectories(latrendData, response = quote(exp(Y)), id = "Id", time = "Time")
+#' if (require("ggplot2")) {
+#'   plotTrajectories(latrendData, response = "Y", id = "Id", time = "Time")
 #'
-#' plotTrajectories(latrendData, response = "Y", id = "Id", time = "Time", cluster = "Class")
+#'   plotTrajectories(
+#'     latrendData,
+#'     response = quote(exp(Y)),
+#'     id = "Id",
+#'     time = "Time"
+#'   )
 #'
-#' # compute cluster membership based on the mean being below 0
-#' assignments = aggregate(Y ~ Id, latrendData, mean)$Y < 0
-#' plotTrajectories(latrendData,
-#'   response = "Y", id = "Id", time = "Time", cluster = assignments)
+#'   plotTrajectories(
+#'     latrendData,
+#'     response = "Y",
+#'     id = "Id",
+#'     time = "Time",
+#'     cluster = "Class"
+#'   )
+#'
+#'   # compute cluster membership based on the mean being below 0
+#'   assignments <- aggregate(Y ~ Id, latrendData, mean)$Y < 0
+#'   plotTrajectories(
+#'     latrendData,
+#'     response = "Y",
+#'     id = "Id",
+#'     time = "Time",
+#'     cluster = assignments
+#'   )
+#' }
 setMethod('plotTrajectories', signature('data.frame'),
   function(
     object,

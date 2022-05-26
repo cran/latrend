@@ -12,10 +12,12 @@ setClass('lcMethodGCKM', contains = 'lcMethodLMKM')
 #' @param ... Arguments passed to [lme4::lmer].
 #' The following external arguments are ignored: data, centers, trace.
 #' @examples
-#' library(lme4)
 #' data(latrendData)
-#' method <- lcMethodGCKM(Y ~ (Time | Id), id = "Id", time = "Time", nClusters = 3)
-#' model <- latrend(method, latrendData)
+#'
+#' if (require("lme4")) {
+#'   method <- lcMethodGCKM(Y ~ (Time | Id), id = "Id", time = "Time", nClusters = 3)
+#'   model <- latrend(method, latrendData)
+#' }
 #' @family lcMethod implementations
 lcMethodGCKM = function(
   formula,
@@ -68,8 +70,10 @@ setMethod('prepareData', signature('lcMethodGCKM'), function(method, data, verbo
     verbose = canShow(verbose, 'fine')
   )
 
-  e = new.env()
-  e$x = lme4::ranef(lmm)[[idVariable(method)]] %>% as.matrix()
-  return(e)
+  envir = new.env()
+  envir$converged = length(lmm@optinfo$conv$lme4) == 0
+  envir$x = lme4::ranef(lmm)[[idVariable(method)]] %>% as.matrix()
+
+  envir
 })
 

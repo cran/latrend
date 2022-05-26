@@ -31,11 +31,30 @@ setMethod("postprob", "lcModelExt", function(object, ...) {
 }
 }
 
+\section{Troubleshooting}{
+
+If you are getting errors about undefined model signatures when calling postprob(model),
+check whether the postprob() function is still the one defined by the latrend package.
+It may have been overridden when attaching another package (e.g., lcmm). If you need to attach conflicting packages, load them first.
+}
+
 \examples{
 data(latrendData)
-model <- latrend(lcMethodLcmmGMM(fixed = Y ~ Time, mixture = ~ Time,
-   id = "Id", time = "Time"), data = latrendData)
+method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+model <- latrend(method, latrendData)
+
 postprob(model)
+
+if (rlang::is_installed("lcmm")) {
+  gmmMethod = lcMethodLcmmGMM(
+    fixed = Y ~ Time,
+    mixture = ~ Time,
+    id = "Id",
+    time = "Time"
+  )
+  gmmModel <- latrend(gmmMethod, data = latrendData)
+  postprob(gmmModel)
+}
 }
 \seealso{
 \link{trajectoryAssignments} \link{predictPostprob} \link{predictAssignments}

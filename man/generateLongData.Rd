@@ -6,12 +6,12 @@
 \usage{
 generateLongData(
   sizes = c(40, 60),
-  fixed = Value ~ 1 + Time,
+  fixed = Value ~ 1,
   cluster = ~1 + Time,
   random = ~1,
   id = getOption("latrend.id"),
   data = data.frame(Time = seq(0, 1, by = 0.1)),
-  fixedCoefs = c(0, 0),
+  fixedCoefs = 0,
   clusterCoefs = cbind(c(-2, 1), c(2, -1)),
   randomScales = cbind(0.1, 0.1),
   rrandom = rnorm,
@@ -57,8 +57,13 @@ generateLongData(
 Generate longitudinal test data
 }
 \examples{
-longdata <- generateLongData(sizes = c(40, 70), id = "Id",
-                            cluster = ~poly(Time, 2, raw = TRUE),
-                            clusterCoefs = cbind(c(1, 2, 5), c(-3, 4, .2)))
-plotTrajectories(longdata, response = "Value", id = "Id", time = "Time")
+longdata <- generateLongData(
+  sizes = c(40, 70), id = "Id",
+  cluster = ~poly(Time, 2, raw = TRUE),
+  clusterCoefs = cbind(c(1, 2, 5), c(-3, 4, .2))
+)
+
+if (require("ggplot2")) {
+  plotTrajectories(longdata, response = "Value", id = "Id", time = "Time")
+}
 }

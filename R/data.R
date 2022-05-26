@@ -14,10 +14,13 @@
 #' @seealso [generateLongData]
 #' @examples
 #' data(latrendData)
-#' plotTrajectories(latrendData, id = "Id", time = "Time", response = "Y")
 #'
-#' # plot according to the reference class
-#' plotTrajectories(latrendData, id = "Id", time = "Time", response = "Y", cluster = "Class")
+#' if (require("ggplot2")) {
+#'   plotTrajectories(latrendData, id = "Id", time = "Time", response = "Y")
+#'
+#'   # plot according to the reference class
+#'   plotTrajectories(latrendData, id = "Id", time = "Time", response = "Y", cluster = "Class")
+#' }
 "latrendData"
 
 
@@ -48,13 +51,15 @@
 #' \insertRef{aloia2008time}{latrend}
 #'
 #' @examples
-#' library(latrend)
 #' data(OSA.adherence)
-#' plotTrajectories(OSA.adherence, id = "Patient", time = "Biweek", response = "UsageHours")
 #'
-#' # plot according to cluster ground truth
-#' plotTrajectories(OSA.adherence, id = "Patient", time = "Biweek", response = "UsageHours",
-#'   cluster = "Group")
+#' if (require("ggplot2")) {
+#'   plotTrajectories(OSA.adherence, id = "Patient", time = "Biweek", response = "UsageHours")
+#'
+#'   # plot according to cluster ground truth
+#'   plotTrajectories(OSA.adherence, id = "Patient", time = "Biweek", response = "UsageHours",
+#'     cluster = "Group")
+#' }
 "OSA.adherence"
 
 
@@ -76,18 +81,23 @@
 #' @param shuffle Whether to randomly reorder the strata in which they appear in the data.frame.
 #' @param seed Optional seed to set for the PRNG. The set PRNG state persists after the function completes.
 #' @examples
-#' longdata <- generateLongData(sizes = c(40, 70), id = "Id",
-#'                             cluster = ~poly(Time, 2, raw = TRUE),
-#'                             clusterCoefs = cbind(c(1, 2, 5), c(-3, 4, .2)))
-#' plotTrajectories(longdata, response = "Value", id = "Id", time = "Time")
+#' longdata <- generateLongData(
+#'   sizes = c(40, 70), id = "Id",
+#'   cluster = ~poly(Time, 2, raw = TRUE),
+#'   clusterCoefs = cbind(c(1, 2, 5), c(-3, 4, .2))
+#' )
+#'
+#' if (require("ggplot2")) {
+#'   plotTrajectories(longdata, response = "Value", id = "Id", time = "Time")
+#' }
 generateLongData = function(
   sizes = c(40, 60),
-  fixed = Value ~ 1 + Time,
+  fixed = Value ~ 1,
   cluster = ~ 1 + Time,
   random = ~ 1,
   id = getOption('latrend.id'),
   data = data.frame(Time = seq(0, 1, by = .1)),
-  fixedCoefs = c(0, 0),
+  fixedCoefs = 0,
   clusterCoefs = cbind(c(-2, 1), c(2, -1)),
   randomScales = cbind(.1, .1),
   rrandom = rnorm,

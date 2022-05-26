@@ -1,6 +1,4 @@
 ## ----setup, include = FALSE---------------------------------------------------
-library(latrend)
-library(ggplot2)
 set.seed(1)
 knitr::opts_chunk$set(
   cache = TRUE,
@@ -8,14 +6,16 @@ knitr::opts_chunk$set(
   fig.width = 7,
   fig.align = "center",
   fig.topcaption = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = all(vapply(c('ggplot2', 'kml', 'lcmm', 'mclustcomp'), requireNamespace, FUN.VALUE = TRUE, quietly = TRUE)) # needed to prevent errors for _R_CHECK_DEPENDS_ONLY_=true despite VignetteDepends declaration
 )
 
 ## ---- results='hide',message=FALSE,warning=FALSE------------------------------
 library(latrend)
-data(latrendData)
+library(ggplot2)
 
 ## -----------------------------------------------------------------------------
+data(latrendData)
 head(latrendData)
 
 ## -----------------------------------------------------------------------------

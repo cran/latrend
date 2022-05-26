@@ -124,7 +124,7 @@ NULL
 #' data(latrendData)
 #'
 #' # parallel latrendRep()
-#' method <- lcMethodKML(response = "Y")
+#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
 #' models <- latrendRep(method, data = latrendData, .rep = 5, parallel = TRUE)
 #'
 #' # parallel latrendBatch()
@@ -143,7 +143,8 @@ NULL
     latrend.printOptions = FALSE,
     latrend.printSharedModelArgs = FALSE,
     latrend.warnModelDataClusterColumn = TRUE,
-    latrend.warnNewDataClusterColumn = TRUE
+    latrend.warnNewDataClusterColumn = TRUE,
+    latrend.warnTrajectoryLength = 1
   )
 
   optMask = !(names(opts) %in% names(options()))
@@ -153,23 +154,47 @@ NULL
 }
 
 .loadOptionalPackage = function(name) {
-  if(not(name %in% .packages())) {
-    if(requireNamespace(name, quietly = TRUE)) {
+  assert_that(is.string(name))
+
+  .checkPackageInstalled(name)
+
+  pkgEnvName = rlang::pkg_env_name(name)
+
+  if (!rlang::is_attached(pkgEnvName)) {
+    if (requireNamespace(name, quietly = TRUE)) {
       ns = loadNamespace(name)
       attachNamespace(ns)
     } else {
+      # fallback
       stop('unable to load required package "', name , '". Install the package to use this method.')
     }
   }
 }
 
-globalVariables(c('.', '.name', '.group', '.method', '.ROW_INDEX', '.Mean', '.Block',
-  'i', 'iseed', 'N', 'i.N', 'g', 'fun', 'method', 'plotTrajs', 'cl',
-  'Prob', 'Cluster', 'Class', 'Value', 'Id', 'Time',
-  'modelMethod', 'modelData', 'modelCall',
-  'weighted.mean',
-  'Mu', 'Mu.cluster', 'Mu.class', 'Mu.fixed', 'Mu.random',
-  'warning.Verbose',
-  'TVEMMixNormal',
-  '.Component'
-))
+.checkPackageInstalled = function(name) {
+  assert_that(is.string(name))
+
+  if (!rlang::is_installed(name)) {
+    stop(
+      sprintf(
+        'The "%1$s" package is required. Install the package to use this method.\n\tRun: install.packages("%1$s")',
+        name
+      )
+    )
+  }
+}
+
+globalVariables(
+  c(
+    '.', '..id', '..time', '..response', '.Fill', '.name', '.group', '.method', '.ROW_INDEX', '.Mean', '.Block',
+    'AllNA',
+    'i', 'iseed', 'Include', 'N', 'i.N', 'g', 'fun', 'method', 'plotTrajs', 'cl',
+    'Prob', 'Cluster', 'Class', 'Value', 'Id', 'Time',
+    'modelMethod', 'modelData', 'modelCall',
+    'weighted.mean',
+    'Mu', 'Mu.cluster', 'Mu.class', 'Mu.fixed', 'Mu.random',
+    'warning.Verbose',
+    'TVEMMixNormal',
+    '.Component'
+  )
+)

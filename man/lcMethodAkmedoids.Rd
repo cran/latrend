@@ -34,10 +34,11 @@ The following external arguments are ignored: traj, id_field, k}
 Specify AKMedoids method
 }
 \examples{
-library(akmedoids)
 data(latrendData)
-method <- lcMethodAkmedoids(response = "Y", time = "Time", id = "Id", nClusters = 3)
-model <- latrend(method, data = latrendData)
+if (require("akmedoids")) {
+  method <- lcMethodAkmedoids(response = "Y", time = "Time", id = "Id", nClusters = 3)
+  model <- latrend(method, data = latrendData)
+}
 }
 \references{
 \insertRef{adepeju2020akmedoids}{latrend}
@@ -57,7 +58,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodLMKM}},
 \code{\link{lcMethodLcmmGBTM}},
 \code{\link{lcMethodLcmmGMM}},
-\code{\link{lcMethodLongclust}},
 \code{\link{lcMethodMclustLLPA}},
 \code{\link{lcMethodMixAK_GLMM}},
 \code{\link{lcMethodMixtoolsGMM}},

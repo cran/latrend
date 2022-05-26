@@ -2,7 +2,8 @@
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  message = TRUE
+  message = TRUE,
+  eval = all(vapply(c('ggplot2', 'simTool', 'dplyr', 'mclustcomp'), requireNamespace, FUN.VALUE = TRUE, quietly = TRUE)) # needed to prevent errors for _R_CHECK_DEPENDS_ONLY_=true despite VignetteDepends declaration
 )
 
 ## ----setup, include = FALSE---------------------------------------------------
@@ -24,7 +25,7 @@ options(latrend.verbose = FALSE)
 dataGen <- function(numTraj, ..., data.seed) {
   latrend::generateLongData(
     sizes = c(floor(numTraj * .4), ceiling(numTraj * .6)),
-    fixed = Y ~ 1 + Time,
+    fixed = Y ~ 0,
     cluster = ~ 1 + Time,
     random = ~ 1,
     id = "Traj",
@@ -92,7 +93,7 @@ analyzeModel <- function(model) {
   
   tibble::tibble(
     BIC = BIC(model),
-    APPA = metric(model, "APPA"),
+    APPA = metric(model, "APPA.min"),
     WMAE = metric(model, "WMAE"),
     ARI = externalMetric(model, refModel, "adjustedRand")
   )

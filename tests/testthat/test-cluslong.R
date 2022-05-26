@@ -18,12 +18,11 @@ test_that('method var', {
 })
 
 test_that('method name', {
-  refMethod = lcMethodKML(response = "Value", nbRedrawing = 1, maxIt = 10, seed = 1)
-  model = latrend("lcMethodKML", response = "Value", nbRedrawing = 1, maxIt = 10, seed = 1, data = testLongData)
+  refMethod = lcMethodLMKM(formula = Value ~ Assessment, seed = 1)
+  model = latrend('lcMethodLMKM', formula = Value ~ Assessment, seed = 1, data = testLongData)
 
   newMethod = getLcMethod(model)
-  expect_equal(newMethod$nbRedrawing, refMethod$nbRedrawing)
-  expect_equal(newMethod$maxIt, refMethod$maxIt)
+  expect_equal(newMethod$seed, refMethod$seed)
 })
 
 test_that('overwritten argument', {
@@ -63,7 +62,9 @@ test_that('data call', {
 })
 
 test_that('specify id and time with matrix input', {
-  mat = dcastRepeatedMeasures(testLongData, response = 'Value')
+  skip_if_not_installed('kml')
+
+  mat = tsmatrix(testLongData, response = 'Value')
   model = latrend(lcMethodTestKML(), id = 'Device', time = 'Observation', data = mat)
 
   expect_is(model, 'lcModel')
@@ -71,10 +72,10 @@ test_that('specify id and time with matrix input', {
 })
 
 test_that('envir', {
-  kml = lcMethodKML(nClusters = a, response = 'Value', nbRedrawing = 1, maxIt = 10)
-  e = list2env(list(a = 1))
+  method = lcMethodLMKM(nClusters = a, formula = Value ~ Assessment)
+  env = list2env(list(a = 1))
 
-  model = latrend(kml, data = testLongData, envir = e)
+  model = latrend(method, data = testLongData, envir = env)
 
   expect_is(model, 'lcModel')
   expect_equal(nClusters(model), 1)
@@ -88,7 +89,7 @@ test_that('data.frame input', {
 })
 
 test_that('matrix input', {
-  mat = dcastRepeatedMeasures(testLongData, response = 'Value')
+  mat = tsmatrix(testLongData, response = 'Value')
   model = latrend(mTest, data = mat)
 
   expect_is(model, 'lcModel')
@@ -97,7 +98,8 @@ test_that('matrix input', {
 test_that('custom id and time', {
   nameData = copy(testLongData) %>%
     setnames(c('Traj', 'Assessment'), c('Device', 'Observation'))
-  model = latrend(lcMethodTestKML(), id = 'Device', time = 'Observation', data = nameData)
+  method = lcMethodLMKM(Value ~ Observation, id = 'Device', time = 'Observation')
+  model = latrend(method, data = nameData)
 
   expect_is(model, 'lcModel')
   expect_equal(deparse(getCall(model)$data), 'nameData')
@@ -175,24 +177,19 @@ test_that('data with Inf observations', {
   expect_error(latrend(mTest, data = infData))
 })
 
-test_that('data with missing observations', {
-  set.seed(1)
-  naData = copy(testLongData) %>%
-    .[sample(.N, 100)]
-
-  model = latrend(lcMethodTestGCKM(), data = naData)
-  expect_is(model, 'lcModel')
-
-  expect_error(latrend(lcMethodTestKML(), data = naData))
-})
-
-
 test_that('running the same probabilistic method twice without seed yields different results', {
   method = lcMethodTestRandom(alpha = 1, nClusters = 2)
   model1 = latrend(method, data = testLongData)
   model2 = latrend(method, data = testLongData)
 
-  expect_true(!isTRUE(all.equal(trajectoryAssignments(model1), trajectoryAssignments(model2))))
+  expect_true(
+    !isTRUE(
+      all.equal(
+        trajectoryAssignments(model1),
+        trajectoryAssignments(model2)
+      )
+    )
+  )
 })
 
 
@@ -201,7 +198,10 @@ test_that('setting seed', {
   model1 = latrend(method, data = testLongData, seed = 1)
   model2 = latrend(method, data = testLongData, seed = 1)
 
-  expect_equivalent(trajectoryAssignments(model1), trajectoryAssignments(model2))
+  expect_equivalent(
+    trajectoryAssignments(model1),
+    trajectoryAssignments(model2)
+  )
 })
 
 
@@ -213,4 +213,10 @@ test_that('setting different seeds yields different result', {
   expect_true(getLcMethod(model1)$seed == 1)
   expect_true(getLcMethod(model2)$seed == 2)
   expect_true(!isTRUE(all.equal(trajectoryAssignments(model1), trajectoryAssignments(model2))))
+})
+
+test_that('trajectory length warning', {
+  options(latrend.warnTrajectoryLength = 1e3)
+  expect_warning(latrend(mTest, data = testLongData), regexp = 'warnTrajectoryLength')
+  options(latrend.warnTrajectoryLength = 0)
 })

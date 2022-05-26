@@ -91,8 +91,8 @@ test_that('unevaluated values', {
 })
 
 test_that('dependency function evaluation', {
-  method = lcMethodTestKML()
-  expect_is(method$centerMethod, 'function')
+  method = lcMethodTestLMKM(fun = mean)
+  expect_is(method$fun, 'function')
 })
 
 test_that('local variables', {
@@ -303,6 +303,33 @@ test_that('as.data.frame with symbols', {
   expect_equal(df$name, xvar)
 })
 
+test_that('as.data.frame with vector arguments', {
+  m = new(
+    'lcMethodTest',
+    null = NULL,
+    vec = c('a', 'b'),
+    ab = LETTERS[1:26]
+  )
+
+  df = as.data.frame(m, eval = FALSE)
+  refDf = data.frame(
+    null = NA,
+    vec = 'c("a", "b")',
+    ab = 'LETTERS[1:26]',
+    stringsAsFactors = FALSE
+  )
+  expect_equal(df, refDf)
+
+  df2 = as.data.frame(m, eval = TRUE)
+  refDf2 = data.frame(
+    null = NA,
+    vec = 'c("a", "b")',
+    ab = sprintf('c(%s)', paste0('"', LETTERS[1:26], '"', collapse = ', ')),
+    stringsAsFactors = FALSE
+  )
+  expect_equal(df2, refDf2)
+})
+
 
 # List ####
 test_that('as.list', {
@@ -315,12 +342,16 @@ test_that('as.list', {
 })
 
 test_that('as.list with function', {
+  skip_if_not_installed('kml')
+
   method = lcMethodTestKML()
   lis = as.list(method, args = kml::parALGO)
   expect_length(setdiff(names(lis), formalArgs(kml::parALGO)), 0)
 })
 
 test_that('as.list with two functions', {
+  skip_if_not_installed('kml')
+
   method = lcMethodTestKML()
   funs = c(kml::parALGO, kml::kml)
   lis = as.list(method, args = funs)

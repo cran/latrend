@@ -37,10 +37,12 @@ The following optional arguments are ignored: data, x, mu0, verb.}
 Specify non-parametric estimation for independent repeated measures
 }
 \examples{
-library(mixtools)
 data(latrendData)
-method <- lcMethodMixtoolsNPRM("Y", id = "Id", time = "Time", nClusters = 3)
-model <- latrend(method, latrendData)
+
+if (require("mixtools")) {
+  method <- lcMethodMixtoolsNPRM("Y", id = "Id", time = "Time", nClusters = 3)
+  model <- latrend(method, latrendData)
+}
 }
 \references{
 \insertRef{benaglia2009mixtools}{latrend}
@@ -61,7 +63,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodLMKM}},
 \code{\link{lcMethodLcmmGBTM}},
 \code{\link{lcMethodLcmmGMM}},
-\code{\link{lcMethodLongclust}},
 \code{\link{lcMethodMclustLLPA}},
 \code{\link{lcMethodMixAK_GLMM}},
 \code{\link{lcMethodMixtoolsGMM}},

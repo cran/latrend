@@ -47,15 +47,28 @@ Growth mixture modeling through latent-class linear mixed modeling.
 }
 \examples{
 data(latrendData)
-method <- lcMethodLcmmGMM(fixed = Y ~ Time,
-   mixture = ~ Time, random = ~ 1,
-   id = "Id", time = "Time", , nClusters = 3)
-gmm <- latrend(method, data = latrendData)
-summary(gmm)
 
-method <- lcMethodLcmmGMM(fixed = Y ~ Time,
-    mixture = ~ Time, random = ~ Time,
-    id = "Id", time = "Time", nClusters = 3)
+if (rlang::is_installed("lcmm")) {
+  method <- lcMethodLcmmGMM(
+    fixed = Y ~ Time,
+    mixture = ~ Time,
+    random = ~ 1,
+    id = "Id",
+    time = "Time", ,
+    nClusters = 2
+  )
+  gmm <- latrend(method, data = latrendData)
+  summary(gmm)
+
+  method <- lcMethodLcmmGMM(
+    fixed = Y ~ Time,
+    mixture = ~ Time,
+    random = ~ Time,
+    id = "Id",
+    time = "Time",
+    nClusters = 3
+  )
+}
 }
 \references{
 \insertRef{proustlima2017estimation}{latrend}
@@ -77,7 +90,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodKML}},
 \code{\link{lcMethodLMKM}},
 \code{\link{lcMethodLcmmGBTM}},
-\code{\link{lcMethodLongclust}},
 \code{\link{lcMethodMclustLLPA}},
 \code{\link{lcMethodMixAK_GLMM}},
 \code{\link{lcMethodMixtoolsGMM}},

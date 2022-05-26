@@ -41,11 +41,22 @@ method <- lcMethodRandom(response = "Y", id = "Id", time = "Time")
 model <- latrend(method, latrendData)
 
 # uniform clusters
-method <- lcMethodRandom(alpha = 1e3, nClusters = 3, response = "Y", id = "Id", time = "Time")
+method <- lcMethodRandom(
+  alpha = 1e3,
+  nClusters = 3,
+  response = "Y",
+  id = "Id",
+  time = "Time"
+)
 
 # single large cluster
-method <- lcMethodRandom(alpha = c(100, 1, 1, 1), nClusters = 4,
-  response = "Y", id = "Id", time = "Time")
+method <- lcMethodRandom(
+  alpha = c(100, 1, 1, 1),
+  nClusters = 4,
+  response = "Y",
+  id = "Id",
+  time = "Time"
+)
 }
 \references{
 \insertRef{frigyik2010introduction}{latrend}
@@ -66,7 +77,6 @@ Other lcMethod implementations:
 \code{\link{lcMethodLMKM}},
 \code{\link{lcMethodLcmmGBTM}},
 \code{\link{lcMethodLcmmGMM}},
-\code{\link{lcMethodLongclust}},
 \code{\link{lcMethodMclustLLPA}},
 \code{\link{lcMethodMixAK_GLMM}},
 \code{\link{lcMethodMixtoolsGMM}},

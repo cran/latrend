@@ -13,7 +13,9 @@
 \item{...}{
   Arguments passed on to \code{\link[=trajectories]{trajectories}}
   \describe{
-    \item{\code{}}{}
+    \item{\code{id}}{The identifier variable name.}
+    \item{\code{time}}{The time variable name.}
+    \item{\code{response}}{The response variable name.}
   }}
 }
 \description{
@@ -21,8 +23,12 @@ Plot fitted trajectories of a lcModel
 }
 \examples{
 data(latrendData)
-model <- latrend(method = lcMethodKML("Y", id = "Id", time = "Time"), latrendData)
-plotFittedTrajectories(model)
+method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+model <- latrend(method, latrendData, nClusters = 3)
+
+if (require("ggplot2")) {
+  plotFittedTrajectories(model)
+}
 }
 \seealso{
 \link{fittedTrajectories} \link{plotClusterTrajectories} \link{plotTrajectories} \link{plot}

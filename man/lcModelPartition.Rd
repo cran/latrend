@@ -14,6 +14,7 @@ lcModelPartition(
   id = getOption("latrend.id"),
   name = "part",
   center = meanNA,
+  method = NULL,
   envir = parent.frame()
 )
 }
@@ -40,6 +41,8 @@ If unspecified, the names are determined from the \code{trajectoryAssignments} a
 
 \item{center}{The \code{function} for computing the longitudinal cluster centers, used for representing the cluster trajectories.}
 
+\item{method}{Optional \code{lcMethod} object that was used for fitting this model to the data.}
+
 \item{envir}{The \code{environment} associated with the model. Used for evaluating the assigned \code{data} object by \link{model.data.lcModel}.}
 }
 \description{
@@ -49,10 +52,15 @@ As such, this model has no predictive capabilities. The cluster trajectories are
 \examples{
 # comparing a model to the ground truth using the adjusted Rand index
 data(latrendData)
-model <- latrend(lcMethodKML(), data = latrendData, response = "Y")
+method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+model <- latrend(method, latrendData, nClusters = 3)
+
 # extract the reference class from the Class column
 trajLabels <- aggregate(Class ~ Id, head, 1, data = latrendData)
 trajLabels$Cluster <- trajLabels$Class
 refModel <- lcModelPartition(latrendData, response = "Y", trajectoryAssignments = trajLabels)
-externalMetric(model, refModel, 'adjustedRand') # 0.76
+
+if (require("mclustcomp")) {
+  externalMetric(model, refModel, "adjustedRand")
+}
 }

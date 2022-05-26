@@ -5,6 +5,9 @@ options(latrend.time = 'Assessment')
 options(latrend.verbose = R.utils::Verbose())
 options(latrend.warnModelDataClusterColumn = FALSE)
 options(latrend.warnNewDataClusterColumn = FALSE)
+options(latrend.warnTrajectoryLength = 0)
+
+DEFAULT_LATREND_TESTS = c('method', 'basic', 'fitted', 'predict', 'cluster-single', 'cluster-three', 'data-na', 'data-varlen')
 
 foreach::registerDoSEQ()
 
@@ -153,7 +156,7 @@ expect_valid_lcModel = function(object) {
   trajectories(object) %>%
     expect_is('data.frame', label='trajectories')
 
-  if (requireNamespace('ggplot2')) {
+  if (requireNamespace('ggplot2', quietly = TRUE)) {
     expect_true(is.ggplot(plot(object)))
   }
 
