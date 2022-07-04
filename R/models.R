@@ -167,21 +167,25 @@ setMethod('estimationTime', signature('list'), function(object, unit, ...) {
 }
 
 .externalMetricDist.lcModels = function(object, name) {
-  assert_that(length(name) > 0, msg = 'no external metric names provided')
+  assert_that(length(name) > 0L, msg = 'no external metric names provided')
   assert_that(
-    is.character(name),
-    length(name) == 1
+    is.string(name)
   )
 
-  pairs = combn(seq_along(object), m = 2, simplify = FALSE)
+  pairs = combn(seq_along(object), m = 2L, simplify = FALSE)
 
-  result = lapply(pairs, function(idx)
-    externalMetric(object[[idx[1]]], object[[idx[2]]], name = name) %>% unname())
+  result = lapply(
+    pairs,
+    function(idx) unname(externalMetric(object[[idx[1]]], object[[idx[2]]], name = name))
+  )
 
   m = matrix(NaN, nrow = length(object), ncol = length(object))
   m[do.call(rbind, pairs)] = unlist(result)
 
-  as.dist(t(m), diag = FALSE, upper = FALSE)
+  distMat = as.dist(t(m), diag = FALSE, upper = FALSE)
+  names(distMat) = names(object)
+
+  distMat
 }
 
 # . externalMetric ####
@@ -413,7 +417,7 @@ plotMetric = function(
   .loadOptionalPackage('ggplot2')
 
   models = as.lcModels(models)
-  assert_that(length(models) > 0, msg = 'need at least 1 lcModel to plot')
+  assert_that(length(models) > 0L, msg = 'need at least 1 lcModel to plot')
   assert_that(is.character(name), length(name) >= 1)
 
   if (!missing(subset)) {
@@ -429,12 +433,15 @@ plotMetric = function(
     as.data.table()
 
   assert_that(
-    nrow(dtModels) == nrow(dtMetrics),
-    is.null(group) || has_name(dtModels, group)
+    nrow(dtModels) == nrow(dtMetrics)
+  )
+  assert_that(
+    length(group) == 0L || has_name(dtModels, group),
+    msg = 'plotMetric() group argument contains names which are not columns of `as.data.frame(models)`'
   )
 
   dtModelMetrics = cbind(dtModels, dtMetrics)
-  if (length(group) == 0) {
+  if (length(group) == 0L) {
     dtModelMetrics[, .group := 'All']
   } else {
     dtModelMetrics[, .group := do.call(interaction, base::subset(dtModelMetrics, select = group))]
@@ -452,10 +459,13 @@ plotMetric = function(
     setnames('.group', 'Group')
   levels(dtgg$Metric) = name
 
-  p = ggplot2::ggplot(
-    data = dtgg,
-    mapping = ggplot2::aes_string(x = by, y = 'Value', group = 'Group')
-  )
+  if (length(group) == 0L) {
+    map = ggplot2::aes_string(x = by, y = 'Value')
+  } else {
+    map = ggplot2::aes_string(x = by, y = 'Value', group = 'Group', color = 'Group')
+  }
+
+  p = ggplot2::ggplot(data = dtgg, mapping = map)
 
   if (is.numeric(dtModelMetrics[[by]]) || is.logical(dtModelMetrics[[by]])) {
     p = p + ggplot2::geom_line()
@@ -464,12 +474,12 @@ plotMetric = function(
 
   if (by == 'nClusters') {
     p = p + ggplot2::scale_x_continuous(
-      breaks = seq(1, max(dtModelMetrics[[by]])),
+      breaks = seq(1L, max(dtModelMetrics[[by]])),
       minor_breaks = NULL
     )
   }
 
-  if (length(name) == 1) {
+  if (is.scalar(name)) {
     p = p + ggplot2::ylab(name)
   } else {
     p = p + ggplot2::ylab('Value') +

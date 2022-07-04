@@ -11,7 +11,7 @@ lcMethodLcmmGMM(
   classmb = ~1,
   time = getOption("latrend.time"),
   id = getOption("latrend.id"),
-  init = "default",
+  init = "lme",
   nClusters = 2,
   ...
 )
@@ -82,10 +82,10 @@ Other lcMethod implementations:
 \code{\link{lcMethod-class}},
 \code{\link{lcMethodAkmedoids}},
 \code{\link{lcMethodCrimCV}},
-\code{\link{lcMethodCustom}},
 \code{\link{lcMethodDtwclust}},
 \code{\link{lcMethodFeature}},
 \code{\link{lcMethodFunFEM}},
+\code{\link{lcMethodFunction}},
 \code{\link{lcMethodGCKM}},
 \code{\link{lcMethodKML}},
 \code{\link{lcMethodLMKM}},

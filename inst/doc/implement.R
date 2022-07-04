@@ -61,9 +61,7 @@ clusterProportions(model)
 ## ----message=TRUE-------------------------------------------------------------
 stratfun <- function(data) {
   int <- coef(lm(Y ~ Time, data))[1]
-  factor(int > 1.7, 
-         levels = c(FALSE, TRUE), 
-         labels = c("Low", "High"))
+  factor(int > 1.7, levels = c(FALSE, TRUE), labels = c("Low", "High"))
 }
 m2 <- lcMethodStratify(response = "Y", stratify = stratfun, center = mean)
 model2 <- latrend(m2, casedata)
@@ -86,19 +84,19 @@ repStep <- function(method, data, verbose) {
   coefdata <- dt[, lm(Y ~ Time, .SD) %>% coef() %>% as.list(), keyby = Traj]
   coefmat <- subset(coefdata, select = -1) %>% as.matrix()
   rownames(coefmat) <- coefdata$Traj
-  return(coefmat)
+  coefmat
 }
 
 ## -----------------------------------------------------------------------------
 clusStep <- function(method, data, repMat, envir, verbose) {
   km <- kmeans(repMat, centers = 3)
 
-  lcModelCustom(
+  lcModelPartition(
     response = method$response, 
-    method = method,
     data = data, 
     trajectoryAssignments = km$cluster,
-    clusterTrajectories = method$center,
+    center = method$center,
+    method = method,
     model = km
   )
 }
@@ -121,18 +119,18 @@ repStep.gen <- function(method, data, verbose) {
   # exclude the id column
   coefmat <- subset(coefdata, select = -1) %>% as.matrix()
   rownames(coefmat) <- coefdata[[method$id]]
-  return(coefmat)
+  coefmat
 }
 
 clusStep.gen <- function(method, data, repMat, envir, verbose) {
   km <- kmeans(repMat, centers = method$nClusters)
 
-  lcModelCustom(
+  lcModelPartition(
     response = method$response,
-    method = method,
     data = data, 
     trajectoryAssignments = km$cluster,
-    clusterTrajectories = method$center,
+    center = method$center,
+    method = method,
     model = km
   )
 }
@@ -178,13 +176,13 @@ setMethod("getShortName", "lcMethodSimpleGBTM", function(object, ...) "sgbtm")
 setMethod("prepareData", "lcMethodSimpleGBTM", function(method, data, verbose, ...) {
   envir <- new.env()
   envir$data <- as.data.frame(data)
-  envir$data[[method$id]] <- factor(data[[method$id]]) %>% as.integer()
-  return(envir)
+  envir$data[[method$id]] <- as.integer(factor(data[[method$id]]))
+  envir
 })
 
 ## -----------------------------------------------------------------------------
 setMethod("fit", "lcMethodSimpleGBTM", function(method, data, envir, verbose, ...) {
-  args <- as.list(method, args = lcmm::lcmm)
+  args <- as.list(method, args = lcmm::hlme)
   args$data <- envir$data
   args$fixed <- method$formula
   if (method$nClusters > 1) {
@@ -195,8 +193,11 @@ setMethod("fit", "lcMethodSimpleGBTM", function(method, data, envir, verbose, ..
   args$subject <- method$id
   args$ng <- method$nClusters
   args$returndata <- TRUE
-  
-  model <- do.call(lcmm::lcmm, args)
+  # initialization, with a work-around for lcmm's dynamic evaluation
+  .m1 <- do.call(lcmm::hlme, modifyList(args, list(ng = 1, mixture = NULL)))
+  args$B <- quote(random(dynGet('.m1', inherits = TRUE)))
+  # fit latent-class model
+  model <- do.call(lcmm::hlme, args)
   
   new(
     "lcModelSimpleGBTM", 

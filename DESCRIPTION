@@ -1,9 +1,12 @@
 Package: latrend
 Type: Package
-Version: 1.3.0
-Date: 2022-05-25
+Version: 1.4.1
+Date: 2022-07-04
 Title: A Framework for Clustering Longitudinal Data
-Description: A framework for clustering longitudinal datasets in a standardized way. Provides an interface to existing R packages for clustering longitudinal univariate trajectories, facilitating reproducible and transparent analyses. Additionally, standard tools are provided to support cluster analyses, including repeated estimation, model validation, and model assessment. The interface enables users to compare results between methods, and to implement and evaluate new methods with ease. 
+Description: A framework for clustering longitudinal datasets in a standardized way. 
+    The package provides an interface to existing R packages for clustering longitudinal univariate trajectories, facilitating reproducible and transparent analyses. 
+    Additionally, standard tools are provided to support cluster analyses, including repeated estimation, model validation, and model assessment. 
+    The interface enables users to compare results between methods, and to implement and evaluate new methods with ease.
 Maintainer: Niek Den Teuling <niek.den.teuling@philips.com>
 Authors@R: 
     c(person(given = "Niek",
@@ -19,8 +22,7 @@ Authors@R:
              family = "van den Heuvel",
              role = "ctb",
              email = "e.r.v.d.heuvel@tue.nl"),
-      person(given = "Copyright © 2022 Koninklijke Philips N.V.",
-             role = "cph"))
+      person(given = "Copyright © 2022 Koninklijke Philips N.V.", role = "cph"))
 URL: https://github.com/philips-software/latrend
 BugReports: https://github.com/philips-software/latrend/issues
 License: GPL (>= 2)
@@ -43,28 +45,27 @@ RdMacros: Rdpack
 VignetteBuilder: knitr
 Collate: 'assert.R' 'compute.R' 'data.R' 'formula.R' 'generics.R'
         'latrend.R' 'make.R' 'matrix.R' 'method.R' 'methodMatrix.R'
-        'methodAKMedoids.R' 'methodCrimCV.R' 'methodCustom.R'
-        'methodDtwclust.R' 'trajectories.R' 'model.R' 'modelCustom.R'
+        'methodAKMedoids.R' 'methodCrimCV.R' 'methodDtwclust.R'
+        'trajectories.R' 'model.R' 'modelApprox.R' 'modelPartition.R'
         'methodFeature.R' 'methodFlexmix.R' 'methodFlexmixGBTM.R'
-        'methodFunFEM.R' 'methodLMKM.R' 'methodGCKM.R' 'methodKML.R'
-        'methodLcmmGMM.R' 'methodLcmmGBTM.R' 'methodMclustLLPA.R'
-        'methodMixAK_GLMM.R' 'methodMixTVEM.R' 'methodMixtoolsGMM.R'
-        'methodMixtoolsNPRM.R' 'methodRandom.R' 'methodStratify.R'
-        'methods.R' 'metricsInternal.R' 'metricsExternal.R'
-        'model-evaluation.R' 'model-summary.R' 'model-transform.R'
-        'modelApprox.R' 'modelCrimCV.R' 'modelDtwclust.R'
-        'modelFeature.R' 'modelFlexmix.R' 'modelFunFEM.R' 'modelKML.R'
-        'modelPartition.R' 'modelLMKM.R' 'modelLcmmGMM.R'
-        'modelLcmmGBTM.R' 'modelMclustLLPA.R' 'modelMixAK_GLMM.R'
-        'modelMixAK_GLMMlist.R' 'modelMixTVEM.R' 'modelMixtoolsGMM.R'
-        'modelMixtoolsRM.R' 'modelStratify.R'
-        'modelWeightedPartition.R' 'models.R' 'random.R' 'test.R'
-        'timing.R' 'verbose.R' 'zzz.R'
+        'methodFunFEM.R' 'methodFunction.R' 'methodLMKM.R'
+        'methodGCKM.R' 'methodKML.R' 'methodLcmmGMM.R'
+        'methodLcmmGBTM.R' 'methodMclustLLPA.R' 'methodMixAK_GLMM.R'
+        'methodMixTVEM.R' 'methodMixtoolsGMM.R' 'methodMixtoolsNPRM.R'
+        'methodRandom.R' 'methodStratify.R' 'methods.R'
+        'metricsInternal.R' 'metricsExternal.R' 'model-evaluation.R'
+        'model-summary.R' 'model-transform.R' 'modelCrimCV.R'
+        'modelDtwclust.R' 'modelFlexmix.R' 'modelFunFEM.R' 'modelKML.R'
+        'modelLMKM.R' 'modelLcmmGMM.R' 'modelLcmmGBTM.R'
+        'modelMclustLLPA.R' 'modelMixAK_GLMM.R' 'modelMixAK_GLMMlist.R'
+        'modelMixTVEM.R' 'modelMixtoolsGMM.R' 'modelMixtoolsRM.R'
+        'modelStratify.R' 'modelWeightedPartition.R' 'models.R'
+        'random.R' 'test.R' 'timing.R' 'verbose.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2022-05-25 22:57:28 UTC; 310083353
+Packaged: 2022-07-04 09:02:52 UTC; 310083353
 Author: Niek Den Teuling [aut, cre] (<https://orcid.org/0000-0003-1026-5080>),
   Steffen Pauws [ctb],
   Edwin van den Heuvel [ctb],
   Copyright © 2022 Koninklijke Philips N.V. [cph]
 Repository: CRAN
-Date/Publication: 2022-05-26 14:40:05 UTC
+Date/Publication: 2022-07-04 11:50:02 UTC

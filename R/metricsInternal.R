@@ -31,6 +31,7 @@
 #' | `CLC` | Classification likelihood criterion | \insertCite{mclachlan2000finite}{latrend} |
 #' | `converged` | Whether the model converged during estimation | [converged()] |
 #' | `deviance` | The model [deviance](https://en.wikipedia.org/wiki/Deviance_(statistics)) | [stats::deviance()] |
+#' | `Dunn` | The [Dunn index](https://en.wikipedia.org/wiki/Dunn_index) | |
 #' | `entropy` | Entropy of the posterior probabilities | |
 #' | `estimationTime` | The time needed for fitting the model | [estimationTime()] |
 #' | `ED` | [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance) between the cluster trajectories and the assigned observed trajectories | |
@@ -41,6 +42,7 @@
 #' | `Mahalanobis` | [Mahalanobis distance](https://en.wikipedia.org/wiki/Mahalanobis_distance) between the cluster trajectories and the assigned observed trajectories | \insertCite{mahalanobis1936generalized}{latrend} |
 #' | `MSE` | [Mean squared error](https://en.wikipedia.org/wiki/Mean_squared_error) of the fitted trajectories (assigned to the most likely respective cluster) to the observed trajectories | |
 #' | `relativeEntropy`, `RE` | A measure of the precision of the trajectory classification. A value of 1 indicates perfect classification, whereas a value of 0 indicates a non-informative uniform classification. It is the normalized version of `entropy`, scaled between \[0, 1\]. | \insertCite{ramaswamy1993empirical}{latrend}, \insertCite{muthen2004latent}{latrend} |
+#' | `RMSE` | [Root mean squared error](https://en.wikipedia.org/wiki/Root-mean-square_deviation) of the fitted trajectories (assigned to the most likely respective cluster) to the observed trajectories | |
 #' | `RSS` | [Residual sum of squares](https://en.wikipedia.org/wiki/Residual_sum_of_squares) under most likely cluster allocation | |
 #' | `scaledEntropy` | See `relativeEntropy` | |
 #' | `sigma` | The residual standard deviation | [stats::sigma()] |
@@ -49,6 +51,7 @@
 #' | `SED.fit` | The cluster-weighted standardized Euclidean distance between the cluster trajectories and the assigned fitted trajectories | |
 #' | `WMAE` | `MAE` weighted by cluster-assignment probability | |
 #' | `WMSE` | `MSE` weighted by cluster-assignment probability | |
+#' | `WRMSE` | `RMSE` weighted by cluster-assignment probability | |
 #' | `WRSS` | `RSS` weighted by cluster-assignment probability | |
 #'
 #' @section Implementation:
@@ -320,6 +323,11 @@ intMetricsEnv$deviance = deviance
 )
 
 intMetricsEnv$Dunn = function(m) {
+  if (nClusters(m) == 1L) {
+    # not defined for K=1
+    return (NA_real_)
+  }
+
   part = as.integer(trajectoryAssignments(m))
   tsmat = tsmatrix(
     data = model.data(m),
@@ -380,12 +388,15 @@ intMetricsEnv$MSE = function(m) {
   mean(residuals(m) ^ 2)
 }
 
+intMetricsEnv$RMSE = function(m) {
+  sqrt(mean(residuals(m) ^ 2))
+}
 
 # also referred to as the scaled entropy
 intMetricsEnv$relativeEntropy = function(m) {
   N = nIds(m)
   K = nClusters(m)
-  E = intMetricsEnv$entropy(m)
+  E = metric(m, 'entropy')
   1 - E / (N * log(K))
 }
 
@@ -433,6 +444,10 @@ intMetricsEnv$WMSE = function(m) {
   wMat = postprob(m)[make.idRowIndices(m), ]
   resMat = residuals(m, clusters = NULL)
   mean(rowSums(wMat * resMat ^ 2))
+}
+
+intMetricsEnv$WRMSE = function(m) {
+  sqrt(metric(m, 'WMSE'))
 }
 
 intMetricsEnv$WRSS = function(m) {
