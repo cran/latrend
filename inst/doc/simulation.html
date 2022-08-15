@@ -339,22 +339,25 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#data-generation">Data generation</a></li>
-<li><a href="#data-settings">Data settings</a></li>
-<li><a href="#method-settings">Method settings</a>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#data-generation" id="toc-data-generation">Data
+generation</a></li>
+<li><a href="#data-settings" id="toc-data-settings">Data
+settings</a></li>
+<li><a href="#method-settings" id="toc-method-settings">Method
+settings</a>
 <ul>
-<li><a href="#specifying-the-gckm-method">Specifying the GCKM
-method</a></li>
+<li><a href="#specifying-the-gckm-method" id="toc-specifying-the-gckm-method">Specifying the GCKM method</a></li>
 </ul></li>
-<li><a href="#evaluating-the-settings">Evaluating the settings</a></li>
-<li><a href="#analyzing-the-results">Analyzing the results</a>
+<li><a href="#evaluating-the-settings" id="toc-evaluating-the-settings">Evaluating the settings</a></li>
+<li><a href="#analyzing-the-results" id="toc-analyzing-the-results">Analyzing the results</a>
 <ul>
-<li><a href="#recovery-of-the-number-of-clusters">Recovery of the number
-of clusters</a></li>
-<li><a href="#trajectory-assignment-agreement">Trajectory assignment
+<li><a href="#recovery-of-the-number-of-clusters" id="toc-recovery-of-the-number-of-clusters">Recovery of the number of
+clusters</a></li>
+<li><a href="#trajectory-assignment-agreement" id="toc-trajectory-assignment-agreement">Trajectory assignment
 agreement</a></li>
-<li><a href="#residual-error">Residual error</a></li>
+<li><a href="#residual-error" id="toc-residual-error">Residual
+error</a></li>
 </ul></li>
 </ul>
 </div>
@@ -480,18 +483,17 @@ KmL method</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>kmlMethodGrid <span class="ot">&lt;-</span> simTool<span class="sc">::</span><span class="fu">expand_tibble</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">proc =</span> <span class="st">&quot;latrend&quot;</span>,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;lcMethodKML&quot;</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">nClusters =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">nClusters =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>,</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1</span>,</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">response =</span> <span class="st">&quot;Y&quot;</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kmlMethodGrid)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 x 5</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 x 5</span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   proc    method      nClusters  seed response</span></span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;           &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   </span></span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 latrend lcMethodKML         1     1 Y       </span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 latrend lcMethodKML         2     1 Y       </span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 latrend lcMethodKML         3     1 Y</span></span></code></pre></div>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 latrend lcMethodKML         2     1 Y</span></span></code></pre></div>
 <div id="specifying-the-gckm-method" class="section level2">
 <h2>Specifying the GCKM method</h2>
 <p>Parametric models such as GCKM are more unwieldy to specify in a
@@ -504,8 +506,8 @@ function for <code>latrend()</code> that sets the correct
 <code>formula</code> argument depending on the keyword.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fitGCKM <span class="ot">&lt;-</span> <span class="cf">function</span>(type, ...) {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  form <span class="ot">&lt;-</span> <span class="cf">switch</span>(type,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">constant =</span> Y <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Time <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Traj),</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">linear =</span> Y <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Time <span class="sc">+</span> (Time <span class="sc">|</span> Traj)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">constant =</span> Y <span class="sc">~</span> Time <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> Traj),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">linear =</span> Y <span class="sc">~</span> Time <span class="sc">+</span> (Time <span class="sc">|</span> Traj)</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">latrend</span>(..., <span class="at">formula =</span> form)</span>
@@ -517,8 +519,8 @@ the <code>fitGCKM</code> function we have just defined.</p>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">proc =</span> <span class="st">&quot;fitGCKM&quot;</span>,</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;lcMethodGCKM&quot;</span>,</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;constant&quot;</span>, <span class="st">&quot;linear&quot;</span>),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">nClusters =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">nClusters =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>Finally, we combine our method-specific permutation grids into one
 large grid. By using the <code>bind_rows()</code> function, mismatches
@@ -530,10 +532,10 @@ in the columns between the grids are handled properly.</p>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;            &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   </span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 latrend lcMethodKML          1     1 Y        &lt;NA&gt;    </span></span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 latrend lcMethodKML          2     1 Y        &lt;NA&gt;    </span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 latrend lcMethodKML          3     1 Y        &lt;NA&gt;    </span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 fitGCKM lcMethodGCKM         1     1 &lt;NA&gt;     constant</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 fitGCKM lcMethodGCKM         1     1 &lt;NA&gt;     linear  </span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 fitGCKM lcMethodGCKM         2     1 &lt;NA&gt;     constant</span></span></code></pre></div>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 fitGCKM lcMethodGCKM         1     1 &lt;NA&gt;     constant</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 fitGCKM lcMethodGCKM         1     1 &lt;NA&gt;     linear  </span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 fitGCKM lcMethodGCKM         2     1 &lt;NA&gt;     constant</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 fitGCKM lcMethodGCKM         2     1 &lt;NA&gt;     linear</span></span></code></pre></div>
 </div>
 </div>
 <div id="evaluating-the-settings" class="section level1">
@@ -564,150 +566,33 @@ computations:</p>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_grid =</span> dataGrid, </span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">proc_grid =</span> methodGrid,</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">post_analyze =</span> analyzeModel</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-108"><a href="#cb11-108" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-109"><a href="#cb11-109" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-111"><a href="#cb11-111" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-112"><a href="#cb11-112" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-116"><a href="#cb11-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-117"><a href="#cb11-117" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span>
-<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in mclustcomp::mclustcomp(trajectoryAssignments(m1) %&gt;% as.integer, : *</span></span>
-<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; mclustcomp : &#39;x&#39; is a trivial clustering.</span></span></code></pre></div>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>The <code>result</code> table contains a <code>results</code> column
 containing the fitted models.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>result</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 120 x 15</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    fun     numTraj randomScales data.seed replications proc    method  nClusters</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;     &lt;dbl&gt;        &lt;dbl&gt;     &lt;int&gt;        &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;       &lt;int&gt;</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1 dataGen      50          0.1         1            1 latrend lcMeth~         1</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2 dataGen      50          0.1         1            1 latrend lcMeth~         2</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3 dataGen      50          0.1         1            1 latrend lcMeth~         3</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4 dataGen      50          0.1         1            1 fitGCKM lcMeth~         1</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5 dataGen      50          0.1         1            1 fitGCKM lcMeth~         1</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6 dataGen      50          0.1         1            1 fitGCKM lcMeth~         2</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7 dataGen      50          0.1         1            1 fitGCKM lcMeth~         2</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8 dataGen      50          0.1         1            1 fitGCKM lcMeth~         3</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9 dataGen      50          0.1         1            1 fitGCKM lcMeth~         3</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 dataGen      50          0.1         1            1 fitGCKM lcMeth~         1</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ... with 110 more rows, and 7 more variables: seed &lt;dbl&gt;, response &lt;chr&gt;,</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   type &lt;chr&gt;, BIC &lt;dbl&gt;, APPA &lt;dbl&gt;, WMAE &lt;dbl&gt;, ARI &lt;dbl&gt;</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of data generating functions: 8</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of analyzing procedures: 15</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of replications: 1</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Estimated replications per hour: 147</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Start of the simulation: 2022-07-04 11:01:52</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; End of the simulation: 2022-07-04 11:02:17</span></span></code></pre></div>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 48 x 15</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    fun     numTraj randomSc~1 data.~2 repli~3 proc  method nClus~4  seed respo~5</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;     &lt;dbl&gt;      &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;  </span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1 dataGen      50        0.1       1       1 latr~ lcMet~       1     1 Y      </span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2 dataGen      50        0.1       1       1 latr~ lcMet~       2     1 Y      </span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3 dataGen      50        0.1       1       1 fitG~ lcMet~       1     1 &lt;NA&gt;   </span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4 dataGen      50        0.1       1       1 fitG~ lcMet~       1     1 &lt;NA&gt;   </span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5 dataGen      50        0.1       1       1 fitG~ lcMet~       2     1 &lt;NA&gt;   </span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6 dataGen      50        0.1       1       1 fitG~ lcMet~       2     1 &lt;NA&gt;   </span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7 dataGen     250        0.1       1       1 latr~ lcMet~       1     1 Y      </span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8 dataGen     250        0.1       1       1 latr~ lcMet~       2     1 Y      </span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9 dataGen     250        0.1       1       1 fitG~ lcMet~       1     1 &lt;NA&gt;   </span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 dataGen     250        0.1       1       1 fitG~ lcMet~       1     1 &lt;NA&gt;   </span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ... with 38 more rows, 5 more variables: type &lt;chr&gt;, BIC &lt;dbl&gt;, APPA &lt;dbl&gt;,</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   WMAE &lt;dbl&gt;, ARI &lt;dbl&gt;, and abbreviated variable names 1: randomScales,</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   2: data.seed, 3: replications, 4: nClusters, 5: response</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # i Use `print(n = ...)` to see more rows, and `colnames()` to see all variable names</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of data generating functions: 8</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of analyzing procedures: 6</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of replications: 1</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Estimated replications per hour: 340</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Start of the simulation: 2022-08-12 18:02:07</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; End of the simulation: 2022-08-12 18:02:17</span></span></code></pre></div>
 </div>
 <div id="analyzing-the-results" class="section level1">
 <h1>Analyzing the results</h1>
@@ -729,22 +614,22 @@ criterion (BIC). For each data scenario, we identify the cluster
 solution that minimizes the BIC.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>resultsTable[, .(<span class="at">K =</span> nClusters[<span class="fu">which.min</span>(BIC)]), keyby <span class="ot">=</span> .(numTraj, randomScales, data.seed, method)]</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     numTraj randomScales data.seed       method K</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1:      50          0.1         1 lcMethodGCKM 3</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2:      50          0.1         1  lcMethodKML 3</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3:      50          0.1         2 lcMethodGCKM 3</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4:      50          0.1         2  lcMethodKML 3</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5:      50          0.5         1 lcMethodGCKM 3</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6:      50          0.5         1  lcMethodKML 3</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7:      50          0.5         2 lcMethodGCKM 3</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8:      50          0.5         2  lcMethodKML 3</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9:     250          0.1         1 lcMethodGCKM 3</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10:     250          0.1         1  lcMethodKML 3</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11:     250          0.1         2 lcMethodGCKM 3</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12:     250          0.1         2  lcMethodKML 3</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13:     250          0.5         1 lcMethodGCKM 3</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14:     250          0.5         1  lcMethodKML 3</span></span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15:     250          0.5         2 lcMethodGCKM 3</span></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16:     250          0.5         2  lcMethodKML 3</span></span></code></pre></div>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1:      50          0.1         1 lcMethodGCKM 2</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2:      50          0.1         1  lcMethodKML 2</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3:      50          0.1         2 lcMethodGCKM 2</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4:      50          0.1         2  lcMethodKML 2</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5:      50          0.5         1 lcMethodGCKM 2</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6:      50          0.5         1  lcMethodKML 2</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7:      50          0.5         2 lcMethodGCKM 2</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8:      50          0.5         2  lcMethodKML 2</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9:     250          0.1         1 lcMethodGCKM 2</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10:     250          0.1         1  lcMethodKML 2</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11:     250          0.1         2 lcMethodGCKM 2</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12:     250          0.1         2  lcMethodKML 2</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13:     250          0.5         1 lcMethodGCKM 2</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14:     250          0.5         1  lcMethodKML 2</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15:     250          0.5         2 lcMethodGCKM 2</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16:     250          0.5         2  lcMethodKML 2</span></span></code></pre></div>
 <p>Column <em>K</em> of the table shows the selected number of clusters
 for each scenario. This shows that estimating the number of clusters by
 minimizing the BIC results in a consistent overestimation of the number
@@ -765,37 +650,25 @@ agreement no better than by chance.</p>
 in which scenarios the methods were able to recover the reference
 cluster assignments.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>resultsTable[nClusters <span class="sc">&gt;</span> <span class="dv">1</span>, .(<span class="at">ARI =</span> <span class="fu">mean</span>(ARI)), keyby <span class="ot">=</span> .(nClusters, numTraj, randomScales, method)]</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     nClusters numTraj randomScales       method        ARI</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1:         2      50          0.1 lcMethodGCKM 1.00000000</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2:         2      50          0.1  lcMethodKML 1.00000000</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3:         2      50          0.5 lcMethodGCKM 0.47196922</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4:         2      50          0.5  lcMethodKML 0.13740619</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5:         2     250          0.1 lcMethodGCKM 0.98808217</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6:         2     250          0.1  lcMethodKML 1.00000000</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7:         2     250          0.5 lcMethodGCKM 0.45216886</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8:         2     250          0.5  lcMethodKML 0.13230255</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9:         3      50          0.1 lcMethodGCKM 0.77143848</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10:         3      50          0.1  lcMethodKML 0.64328345</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11:         3      50          0.5 lcMethodGCKM 0.39826188</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12:         3      50          0.5  lcMethodKML 0.04807953</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13:         3     250          0.1 lcMethodGCKM 0.63260781</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14:         3     250          0.1  lcMethodKML 0.66598327</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15:         3     250          0.5 lcMethodGCKM 0.31915680</span></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16:         3     250          0.5  lcMethodKML 0.10838125</span></span></code></pre></div>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    nClusters numTraj randomScales       method       ARI</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:         2      50          0.1 lcMethodGCKM 1.0000000</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2:         2      50          0.1  lcMethodKML 1.0000000</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:         2      50          0.5 lcMethodGCKM 0.4740203</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4:         2      50          0.5  lcMethodKML 0.1374062</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5:         2     250          0.1 lcMethodGCKM 0.9880822</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6:         2     250          0.1  lcMethodKML 1.0000000</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7:         2     250          0.5 lcMethodGCKM 0.4521689</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8:         2     250          0.5  lcMethodKML 0.1323025</span></span></code></pre></div>
 <p>The trajectory assignment recovery is affected the most by the
 magnitude of the random scale (i.e., the amount of overlap between the
 clusters). Moreover, it is apparent that KmL performs much worse under
 high random scale than GCKM.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>resultsTable[nClusters <span class="sc">&gt;</span> <span class="dv">1</span>, .(<span class="at">ARI =</span> <span class="fu">mean</span>(ARI)), keyby <span class="ot">=</span> .(randomScales, nClusters, method)]</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    randomScales nClusters       method        ARI</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:          0.1         2 lcMethodGCKM 0.99404109</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2:          0.1         2  lcMethodKML 1.00000000</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:          0.1         3 lcMethodGCKM 0.70202315</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4:          0.1         3  lcMethodKML 0.65463336</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5:          0.5         2 lcMethodGCKM 0.46206904</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6:          0.5         2  lcMethodKML 0.13485437</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7:          0.5         3 lcMethodGCKM 0.35870934</span></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8:          0.5         3  lcMethodKML 0.07823039</span></span></code></pre></div>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    randomScales nClusters       method       ARI</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:          0.1         2 lcMethodGCKM 0.9940411</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2:          0.1         2  lcMethodKML 1.0000000</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:          0.5         2 lcMethodGCKM 0.4630946</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4:          0.5         2  lcMethodKML 0.1348544</span></span></code></pre></div>
 </div>
 <div id="residual-error" class="section level2">
 <h2>Residual error</h2>
@@ -808,23 +681,19 @@ Another sign of the data comprising two clusters is that the MAE drops
 down significantly for the two-cluster solution, but hardly any
 improvement is gained for the three-cluster solution.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>resultsTable[randomScales <span class="sc">==</span> .<span class="dv">1</span>, .(<span class="at">WMAE =</span> <span class="fu">mean</span>(WMAE)), keyby <span class="ot">=</span> .(nClusters, method)]</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    nClusters       method       WMAE</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:         1 lcMethodGCKM 0.26270832</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2:         1  lcMethodKML 0.26270832</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:         2 lcMethodGCKM 0.11204813</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4:         2  lcMethodKML 0.11192675</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5:         3 lcMethodGCKM 0.10389798</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6:         3  lcMethodKML 0.09871263</span></span></code></pre></div>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    nClusters       method      WMAE</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:         1 lcMethodGCKM 0.2627083</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2:         1  lcMethodKML 0.2627083</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:         2 lcMethodGCKM 0.1120481</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4:         2  lcMethodKML 0.1119268</span></span></code></pre></div>
 <p>As one would expect, the residual error is strongly affected by the
 magnitude of the random scale.</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>resultsTable[, .(<span class="at">WMAE =</span> <span class="fu">mean</span>(WMAE)), keyby <span class="ot">=</span> .(randomScales, nClusters)]</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    randomScales nClusters      WMAE</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:          0.1         1 0.2627083</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2:          0.1         2 0.1120239</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:          0.1         3 0.1028609</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4:          0.5         1 0.4563443</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5:          0.5         2 0.3312032</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6:          0.5         3 0.2602839</span></span></code></pre></div>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2:          0.1         2 0.1120077</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:          0.5         1 0.4563443</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4:          0.5         2 0.3257807</span></span></code></pre></div>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">

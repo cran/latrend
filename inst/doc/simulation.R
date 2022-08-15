@@ -56,7 +56,7 @@ head(dataGrid)
 kmlMethodGrid <- simTool::expand_tibble(
   proc = "latrend",
   method = "lcMethodKML",
-  nClusters = 1:3,
+  nClusters = 1:2,
   seed = 1,
   response = "Y"
 )
@@ -66,8 +66,8 @@ head(kmlMethodGrid)
 ## -----------------------------------------------------------------------------
 fitGCKM <- function(type, ...) {
   form <- switch(type,
-    constant = Y ~ 1 + Time + (1 | Traj),
-    linear = Y ~ 1 + Time + (Time | Traj)
+    constant = Y ~ Time + (1 | Traj),
+    linear = Y ~ Time + (Time | Traj)
   )
   
   latrend(..., formula = form)
@@ -78,8 +78,8 @@ gckmMethodGrid <- simTool::expand_tibble(
   proc = "fitGCKM",
   method = "lcMethodGCKM",
   type = c("constant", "linear"),
-  nClusters = 1:3,
-  seed = 1:2
+  nClusters = 1:2,
+  seed = 1
 )
 
 ## -----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ analyzeModel <- function(model) {
   )
 }
 
-## -----------------------------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 result <- simTool::eval_tibbles(
   data_grid = dataGrid, 
   proc_grid = methodGrid,

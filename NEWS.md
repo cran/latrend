@@ -1,5 +1,16 @@
 **If you are viewing this file as part of a released version of the package, the latest news can be found [on GitHub](https://philips-software.github.io/latrend/news/).**
 
+# latrend v1.4.2
+
+## Bug fixes
+
+* Fixed minor bug in `evaluate.lcMethod()`
+
+## CRAN
+* Resolved lcmm test error
+* Shortened runtime of vignettes
+* Shortened runtime of tests
+
 # latrend v1.4.1
 
 ## Bug fixes
@@ -28,7 +39,7 @@
 -   Removed redundant `lcModelCustom` in favor of `lcModelPartition`
 -   Renamed `lcMethodCustom` to `lcMethodFunction` for clarity
 
-# latrend v.1.3.0
+# latrend v1.3.0
 
 ## New features
 

@@ -306,11 +306,12 @@ latrendRep = function(
 #' @examples
 #' data(latrendData)
 #' refMethod <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
-#' methods <- lcMethods(refMethod, nClusters = 1:3)
+#' methods <- lcMethods(refMethod, nClusters = 1:2)
 #' models <- latrendBatch(methods, data = latrendData)
 #'
 #' # different dataset per method
-#' models <- latrendBatch(lcMethods(refMethod, nClusters = 1:2),
+#' models <- latrendBatch(
+#'    methods,
 #'    data = .(
 #'      subset(latrendData, Time > .5),
 #'      subset(latrendData, Time < .5)
@@ -551,7 +552,11 @@ latrendBatch = function(
 #' @examples
 #' data(latrendData)
 #' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
-#' model <- latrendBoot(method, latrendData, samples = 10)
+#' bootModels <- latrendBoot(method, latrendData, samples = 10)
+#'
+#' bootMAE <- metric(bootModels, name = "MAE")
+#' mean(bootMAE)
+#' sd(bootMAE)
 #' @family longitudinal cluster fit functions
 #' @family validation methods
 latrendBoot = function(
@@ -641,9 +646,9 @@ latrendBoot = function(
 #' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
 #'
 #' if (require("caret")) {
-#'   model <- latrendCV(method, latrendData, folds = 5)
+#'   model <- latrendCV(method, latrendData, folds = 5, seed = 1)
 #'
-#'   model <- latrendCV(method, subset(latrendData, Time < .5), folds = 5, seed = 1)
+#'   model <- latrendCV(method, subset(latrendData, Time < .5), folds = 5)
 #' }
 #' @family longitudinal cluster fit functions
 #' @family validation methods
@@ -716,11 +721,13 @@ latrendCV = function(
 #' @family validation methods
 #' @examples
 #' data(latrendData)
+#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
 #'
 #' if (require("caret")) {
-#'   trainFolds <- createTrainDataFolds(latrendData, folds = 10, id = "Id")
+#'   trainFolds <- createTrainDataFolds(latrendData, folds = 5, id = "Id", seed = 1)
 #'
-#'   trainFolds <- createTrainDataFolds(latrendData, folds = 10, id = "Id", seed = 1)
+#'   foldModels <- latrendBatch(method, data = trainFolds)
+#'   testDataFolds <- createTestDataFolds(latrendData, trainFolds)
 #' }
 createTrainDataFolds = function(
   data,

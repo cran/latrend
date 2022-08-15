@@ -7,7 +7,7 @@ knitr::opts_chunk$set(
   fig.align = "center",
   fig.topcaption = TRUE,
   comment = "#>",
-  eval = all(vapply(c('ggplot2', 'kml', 'lcmm', 'mclustcomp'), requireNamespace, FUN.VALUE = TRUE, quietly = TRUE)) # needed to prevent errors for _R_CHECK_DEPENDS_ONLY_=true despite VignetteDepends declaration
+  eval = all(vapply(c('ggplot2', 'kml', 'lme4', 'mclustcomp'), requireNamespace, FUN.VALUE = TRUE, quietly = TRUE)) # needed to prevent errors for _R_CHECK_DEPENDS_ONLY_=true despite VignetteDepends declaration
 )
 
 ## ---- results='hide',message=FALSE,warning=FALSE------------------------------
@@ -36,7 +36,7 @@ kmlModel <- latrend(kmlMethod, data = latrendData)
 kmlModel
 
 ## -----------------------------------------------------------------------------
-kmlMethods <- lcMethods(kmlMethod, nClusters = 1:8)
+kmlMethods <- lcMethods(kmlMethod, nClusters = 1:7)
 
 as.data.frame(kmlMethods)
 
@@ -63,7 +63,7 @@ plot(kmlModel4)
 getInternalMetricNames()
 
 ## -----------------------------------------------------------------------------
-metric(kmlModel, c("APPA", "WRSS", "WMAE"))
+metric(kmlModel, c("APPA.mean", "WRSS", "WMAE"))
 
 ## ---- fig.width = 5, fig.cap = 'QQ-plot of the selected KML model.'-----------
 qqPlot(kmlModel4)
@@ -72,56 +72,21 @@ qqPlot(kmlModel4)
 qqPlot(kmlModel4, byCluster = TRUE, detrend = TRUE)
 
 ## -----------------------------------------------------------------------------
-library(splines)
-gbtmMethod <- lcMethodLcmmGBTM(fixed = Y ~ bs(Time), mixture = fixed)
+lmkmMethod <- lcMethodLMKM(formula = Y ~ Time)
 
-gbtmMethod
+lmkmMethod
 
-## -----------------------------------------------------------------------------
-gbtmMethods <- lcMethods(gbtmMethod, nClusters = 1:5)
+## ---- echo=TRUE, results='hide'-----------------------------------------------
+lmkmMethods <- lcMethods(lmkmMethod, nClusters = 1:5)
 
-gbtmModels <- latrendBatch(gbtmMethods, data = latrendData, verbose = FALSE)
+lmkmModels <- latrendBatch(lmkmMethods, data = latrendData, verbose = FALSE)
 
 ## ----warning=FALSE, fig.cap = 'Three cluster metrics for each of the GBTMs.'----
-plotMetric(gbtmModels, c("logLik", "BIC", "WMAE"))
+plotMetric(lmkmModels, c("logLik", "BIC", "WMAE"))
 
 ## -----------------------------------------------------------------------------
-bestGbtmModel <- subset(gbtmModels, nClusters == 3, drop=TRUE)
-plot(bestGbtmModel)
-
-## -----------------------------------------------------------------------------
-gmmMethod <- lcMethodLcmmGMM(fixed = Y ~ poly(Time, 2, raw = TRUE), mixture = fixed, idiag = TRUE)
-
-gmmMethod
-
-## -----------------------------------------------------------------------------
-gmmMethods <- lcMethods(gmmMethod, nClusters = 1:5)
-
-gmmModels <- latrendBatch(gmmMethods, latrendData, verbose = FALSE)
-
-## ----warning=FALSE, fig.cap = 'Three cluster metrics for each of the GMMs.'----
-plotMetric(gmmModels, c("logLik", "BIC", "WMAE"))
-
-## -----------------------------------------------------------------------------
-bestGmmModel <- subset(gmmModels, nClusters == 3, drop=TRUE)
-
-## ---- fig.cap = 'Cluster trajectories of the selected GMM, including the assigned trajectories.'----
-plot(bestGmmModel)
-
-## ---- fig.width = 5, fig.cap = 'Detrended QQ plot for the best GMM.'----------
-qqPlot(bestGmmModel, detrend = TRUE)
-
-## -----------------------------------------------------------------------------
-BIC(bestGbtmModel, bestGmmModel)
-
-## -----------------------------------------------------------------------------
-metric(list(bestGbtmModel, bestGmmModel), 'WMAE')
-
-## -----------------------------------------------------------------------------
-externalMetric(bestGbtmModel, bestGmmModel, 'WMMAE')
-
-## -----------------------------------------------------------------------------
-externalMetric(bestGbtmModel, bestGmmModel, 'adjustedRand')
+bestLmkmModel <- subset(lmkmModels, nClusters == 3, drop=TRUE)
+plot(bestLmkmModel)
 
 ## ---- fig.width = 5, fig.cap = 'Non-parametric estimates of the cluster trajectories based on the reference assignments.'----
 plotClusterTrajectories(latrendData, response = "Y", cluster = "Class")
@@ -138,5 +103,5 @@ plot(refModel)
 getExternalMetricNames()
 
 ## -----------------------------------------------------------------------------
-externalMetric(bestGmmModel, refModel, "adjustedRand")
+externalMetric(bestLmkmModel, refModel, "adjustedRand")
 
