@@ -1,7 +1,7 @@
 Package: latrend
 Type: Package
-Version: 1.4.2
-Date: 2022-08-11
+Version: 1.4.3
+Date: 2022-10-24
 Title: A Framework for Clustering Longitudinal Data
 Description: A framework for clustering longitudinal datasets in a standardized way. 
     The package provides an interface to existing R packages for clustering longitudinal univariate trajectories, facilitating reproducible and transparent analyses. 
@@ -22,7 +22,7 @@ Authors@R:
              family = "van den Heuvel",
              role = "ctb",
              email = "e.r.v.d.heuvel@tue.nl"),
-      person(given = "Copyright © 2022 Koninklijke Philips N.V.", role = "cph"))
+      person(given = "Koninklijke Philips N.V.", role = "cph"))
 URL: https://github.com/philips-software/latrend
 BugReports: https://github.com/philips-software/latrend/issues
 License: GPL (>= 2)
@@ -62,10 +62,10 @@ Collate: 'assert.R' 'compute.R' 'data.R' 'formula.R' 'generics.R'
         'modelStratify.R' 'modelWeightedPartition.R' 'models.R'
         'random.R' 'test.R' 'timing.R' 'verbose.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2022-08-12 16:02:43 UTC; 310083353
+Packaged: 2022-10-26 16:07:15 UTC; 310083353
 Author: Niek Den Teuling [aut, cre] (<https://orcid.org/0000-0003-1026-5080>),
   Steffen Pauws [ctb],
   Edwin van den Heuvel [ctb],
-  Copyright © 2022 Koninklijke Philips N.V. [cph]
+  Koninklijke Philips N.V. [cph]
 Repository: CRAN
-Date/Publication: 2022-08-15 11:40:05 UTC
+Date/Publication: 2022-10-26 16:32:36 UTC

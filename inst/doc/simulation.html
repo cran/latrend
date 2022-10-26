@@ -122,13 +122,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -457,7 +464,7 @@ done using the <code>expand.grid()</code> function, or using
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dataGrid)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 x 4</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 4</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   fun     numTraj randomScales data.seed</span></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt;        &lt;dbl&gt;     &lt;int&gt;</span></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 dataGen      50          0.1         1</span></span>
@@ -489,7 +496,7 @@ KmL method</p>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kmlMethodGrid)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 x 5</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 5</span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   proc    method      nClusters  seed response</span></span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;           &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;   </span></span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 latrend lcMethodKML         1     1 Y       </span></span>
@@ -527,7 +534,7 @@ large grid. By using the <code>bind_rows()</code> function, mismatches
 in the columns between the grids are handled properly.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>methodGrid <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(kmlMethodGrid, gckmMethodGrid)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(methodGrid)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 x 6</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 6</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   proc    method       nClusters  seed response type    </span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;            &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   </span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 latrend lcMethodKML          1     1 Y        &lt;NA&gt;    </span></span>
@@ -570,29 +577,28 @@ computations:</p>
 <p>The <code>result</code> table contains a <code>results</code> column
 containing the fitted models.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>result</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 48 x 15</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    fun     numTraj randomSc~1 data.~2 repli~3 proc  method nClus~4  seed respo~5</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 48 × 15</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    fun     numTraj randomSc…¹ data.…² repli…³ proc  method nClus…⁴  seed respo…⁵</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt;     &lt;dbl&gt;      &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;  </span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1 dataGen      50        0.1       1       1 latr~ lcMet~       1     1 Y      </span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2 dataGen      50        0.1       1       1 latr~ lcMet~       2     1 Y      </span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3 dataGen      50        0.1       1       1 fitG~ lcMet~       1     1 &lt;NA&gt;   </span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4 dataGen      50        0.1       1       1 fitG~ lcMet~       1     1 &lt;NA&gt;   </span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5 dataGen      50        0.1       1       1 fitG~ lcMet~       2     1 &lt;NA&gt;   </span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6 dataGen      50        0.1       1       1 fitG~ lcMet~       2     1 &lt;NA&gt;   </span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7 dataGen     250        0.1       1       1 latr~ lcMet~       1     1 Y      </span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8 dataGen     250        0.1       1       1 latr~ lcMet~       2     1 Y      </span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9 dataGen     250        0.1       1       1 fitG~ lcMet~       1     1 &lt;NA&gt;   </span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 dataGen     250        0.1       1       1 fitG~ lcMet~       1     1 &lt;NA&gt;   </span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ... with 38 more rows, 5 more variables: type &lt;chr&gt;, BIC &lt;dbl&gt;, APPA &lt;dbl&gt;,</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   WMAE &lt;dbl&gt;, ARI &lt;dbl&gt;, and abbreviated variable names 1: randomScales,</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   2: data.seed, 3: replications, 4: nClusters, 5: response</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # i Use `print(n = ...)` to see more rows, and `colnames()` to see all variable names</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of data generating functions: 8</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of analyzing procedures: 6</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of replications: 1</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Estimated replications per hour: 340</span></span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Start of the simulation: 2022-08-12 18:02:07</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; End of the simulation: 2022-08-12 18:02:17</span></span></code></pre></div>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1 dataGen      50        0.1       1       1 latr… lcMet…       1     1 Y      </span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2 dataGen      50        0.1       1       1 latr… lcMet…       2     1 Y      </span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3 dataGen      50        0.1       1       1 fitG… lcMet…       1     1 &lt;NA&gt;   </span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4 dataGen      50        0.1       1       1 fitG… lcMet…       1     1 &lt;NA&gt;   </span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5 dataGen      50        0.1       1       1 fitG… lcMet…       2     1 &lt;NA&gt;   </span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6 dataGen      50        0.1       1       1 fitG… lcMet…       2     1 &lt;NA&gt;   </span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7 dataGen     250        0.1       1       1 latr… lcMet…       1     1 Y      </span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8 dataGen     250        0.1       1       1 latr… lcMet…       2     1 Y      </span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9 dataGen     250        0.1       1       1 fitG… lcMet…       1     1 &lt;NA&gt;   </span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 dataGen     250        0.1       1       1 fitG… lcMet…       1     1 &lt;NA&gt;   </span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # … with 38 more rows, 5 more variables: type &lt;chr&gt;, BIC &lt;dbl&gt;, APPA &lt;dbl&gt;,</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   WMAE &lt;dbl&gt;, ARI &lt;dbl&gt;, and abbreviated variable names ¹​randomScales,</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #   ²​data.seed, ³​replications, ⁴​nClusters, ⁵​response</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of data generating functions: 8</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of analyzing procedures: 6</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Number of replications: 1</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Estimated replications per hour: 325</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Start of the simulation: 2022-10-26 18:06:33</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; End of the simulation: 2022-10-26 18:06:45</span></span></code></pre></div>
 </div>
 <div id="analyzing-the-results" class="section level1">
 <h1>Analyzing the results</h1>

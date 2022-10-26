@@ -184,17 +184,33 @@ NULL
   }
 }
 
+# temporary work-around for aes_string/aes replacement
+.as_lang = function(x) {
+  if (is.language(x)) {
+    x
+  } else if (is.character(x)) {
+    as.symbol(x)
+  } else {
+    stop('cannot cast to language')
+  }
+}
+
+
 globalVariables(
   c(
-    '.', '..id', '..time', '..response', '.Fill', '.name', '.group', '.method', '.ROW_INDEX', '.Mean', '.Block',
+    '.', '..id', '..time', '..response',
+    '.Component', '.Fill', '.name', '.group', '.method', '.ROW_INDEX', '.Mean', '.Block',
     'AllNA',
-    'i', 'iseed', 'Include', 'N', 'i.N', 'g', 'fun', 'method', 'plotTrajs', 'cl',
-    'Prob', 'Cluster', 'Class', 'Value', 'Id', 'Time',
-    'modelMethod', 'modelData', 'modelCall',
-    'weighted.mean',
-    'Mu', 'Mu.cluster', 'Mu.class', 'Mu.fixed', 'Mu.random',
-    'warning.Verbose',
-    'TVEMMixNormal',
-    '.Component'
+    'Cluster', 'Class', 'cl',
+    'i', 'i.N', 'iseed', 'Include', 'Id',
+    'g', 'Group',
+    'fun',
+    'method', 'modelMethod', 'modelData', 'modelCall', 'Mu', 'Mu.cluster', 'Mu.class', 'Mu.fixed', 'Mu.random',
+    'N',
+    'plotTrajs', 'Prob',
+    'Time', 'TVEMMixNormal',
+    'Value',
+    'warning.Verbose', 'weighted.mean',
+    'ymin', 'ymax'
   )
 )
