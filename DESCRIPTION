@@ -1,7 +1,7 @@
 Package: latrend
 Type: Package
-Version: 1.4.3
-Date: 2022-10-24
+Version: 1.5.0
+Date: 2022-11-08
 Title: A Framework for Clustering Longitudinal Data
 Description: A framework for clustering longitudinal datasets in a standardized way. 
     The package provides an interface to existing R packages for clustering longitudinal univariate trajectories, facilitating reproducible and transparent analyses. 
@@ -44,12 +44,13 @@ RoxygenNote: 7.2.1
 RdMacros: Rdpack
 VignetteBuilder: knitr
 Collate: 'assert.R' 'compute.R' 'data.R' 'formula.R' 'generics.R'
-        'latrend.R' 'make.R' 'matrix.R' 'method.R' 'methodMatrix.R'
-        'methodAKMedoids.R' 'methodCrimCV.R' 'methodDtwclust.R'
-        'trajectories.R' 'model.R' 'modelApprox.R' 'modelPartition.R'
-        'methodFeature.R' 'methodFlexmix.R' 'methodFlexmixGBTM.R'
-        'methodFunFEM.R' 'methodFunction.R' 'methodLMKM.R'
-        'methodGCKM.R' 'methodKML.R' 'methodLcmmGMM.R'
+        'latrend.R' 'make.R' 'matrix.R' 'method.R' 'meta-method.R'
+        'meta-fit.R' 'meta-fit-converged.R' 'meta-fit-rep.R'
+        'methodMatrix.R' 'methodAKMedoids.R' 'methodCrimCV.R'
+        'methodDtwclust.R' 'trajectories.R' 'model.R' 'modelApprox.R'
+        'modelPartition.R' 'methodFeature.R' 'methodFlexmix.R'
+        'methodFlexmixGBTM.R' 'methodFunFEM.R' 'methodFunction.R'
+        'methodLMKM.R' 'methodGCKM.R' 'methodKML.R' 'methodLcmmGMM.R'
         'methodLcmmGBTM.R' 'methodMclustLLPA.R' 'methodMixAK_GLMM.R'
         'methodMixTVEM.R' 'methodMixtoolsGMM.R' 'methodMixtoolsNPRM.R'
         'methodRandom.R' 'methodStratify.R' 'methods.R'
@@ -62,10 +63,10 @@ Collate: 'assert.R' 'compute.R' 'data.R' 'formula.R' 'generics.R'
         'modelStratify.R' 'modelWeightedPartition.R' 'models.R'
         'random.R' 'test.R' 'timing.R' 'verbose.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2022-10-26 16:07:15 UTC; 310083353
+Packaged: 2022-11-10 21:01:34 UTC; 310083353
 Author: Niek Den Teuling [aut, cre] (<https://orcid.org/0000-0003-1026-5080>),
   Steffen Pauws [ctb],
   Edwin van den Heuvel [ctb],
   Koninklijke Philips N.V. [cph]
 Repository: CRAN
-Date/Publication: 2022-10-26 16:32:36 UTC
+Date/Publication: 2022-11-10 21:30:02 UTC
