@@ -2,6 +2,7 @@
 
 #' @name metric
 #' @rdname metric
+#' @aliases internalMetric
 #' @title Compute internal model metric(s)
 #' @description Compute one or more internal metrics for the given `lcModel` object.
 #'
@@ -18,20 +19,19 @@
 #' Call [getInternalMetricNames()] to retrieve the names of the defined internal metrics.
 #'
 #' See the _Details_ section below for a list of supported metrics.
-#' @details
-#' List of currently supported metrics:
-#'
+#' @section Supported internal metrics:
 #' | **Metric name** | **Description** | **Function / Reference** |
 #' | --- | :-------- | :--- |
 #' | `AIC` | [Akaike information criterion](https://en.wikipedia.org/wiki/Akaike_information_criterion). A goodness-of-fit estimator that adjusts for model complexity (i.e., the number of parameters). Only available for models that support the computation of the model log-likelihood through [logLik]. | [stats::AIC()], \insertCite{akaike1974new}{latrend} |
 #' | `APPA.mean` | Mean of the average posterior probability of assignment (APPA) across clusters. A measure of the precision of the trajectory classifications. A score of 1 indicates perfect classification. | [APPA()], \insertCite{nagin2005group}{latrend} |
 #' | `APPA.min` | Lowest APPA among the clusters | [APPA()], \insertCite{nagin2005group}{latrend} |
+#' | `ASW` | Average [silhouette](https://en.wikipedia.org/wiki/Silhouette_(clustering)) width based on the Euclidean distance | \insertCite{rousseeuw1987silhouettes}{latrend} |
 #' | `BIC` | [Bayesian information criterion](https://en.wikipedia.org/wiki/Bayesian_information_criterion). A goodness-of-fit estimator that corrects for the degrees of freedom (i.e., the number of parameters) and sample size. Only available for models that support the computation of the model log-likelihood through [logLik]. | [stats::BIC()], \insertCite{schwarz1978estimating}{latrend} |
 #' | `CAIC` | Consistent Akaike information criterion | \insertCite{bozdogan1987model}{latrend} |
 #' | `CLC` | Classification likelihood criterion | \insertCite{mclachlan2000finite}{latrend} |
 #' | `converged` | Whether the model converged during estimation | [converged()] |
 #' | `deviance` | The model [deviance](https://en.wikipedia.org/wiki/Deviance_(statistics)) | [stats::deviance()] |
-#' | `Dunn` | The [Dunn index](https://en.wikipedia.org/wiki/Dunn_index) | |
+#' | `Dunn` | The [Dunn index](https://en.wikipedia.org/wiki/Dunn_index) | \insertCite{dunn1974well}{latrend} |
 #' | `entropy` | Entropy of the posterior probabilities | |
 #' | `estimationTime` | The time needed for fitting the model | [estimationTime()] |
 #' | `ED` | [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance) between the cluster trajectories and the assigned observed trajectories | |
@@ -258,6 +258,10 @@ intMetricsEnv$APPA.min = function(m) {
 }
 
 intMetricsEnv$ASW = function(m) {
+  if (nClusters(m) == 1L) {
+    return (NA_real_)
+  }
+
   part = as.integer(trajectoryAssignments(m))
   tsmat = tsmatrix(
     data = model.data(m),
@@ -267,13 +271,19 @@ intMetricsEnv$ASW = function(m) {
     fill = NA_real_
   )
 
-  clusterCrit::intCriteria(tsmat, part, crit = 'Silhouette')$silhouette
+  dis = stats::dist(tsmat, method = 'euclidean')
+  silStats = cluster::silhouette(part, dmatrix = as.matrix(dis))
+  silSum = summary(silStats)
+  asw = mean(silSum$clus.avg.widths)
+
+  asw
 }
 
 #' @importFrom stats BIC
 intMetricsEnv$BIC = BIC
 
 intMetricsEnv$CalinskiHarabasz = function(m) {
+  .loadOptionalPackage('clusterCrit')
   part = as.integer(trajectoryAssignments(m))
   tsmat = tsmatrix(
     data = model.data(m),
@@ -298,6 +308,7 @@ intMetricsEnv$converged = function(m) {
 }
 
 intMetricsEnv$DaviesBouldin = function(m) {
+  .loadOptionalPackage('clusterCrit')
   part = as.integer(trajectoryAssignments(m))
   tsmat = tsmatrix(
     data = model.data(m),
@@ -323,6 +334,8 @@ intMetricsEnv$deviance = deviance
 )
 
 intMetricsEnv$Dunn = function(m) {
+  .loadOptionalPackage('clValid')
+
   if (nClusters(m) == 1L) {
     # not defined for K=1
     return (NA_real_)
@@ -337,12 +350,19 @@ intMetricsEnv$Dunn = function(m) {
     fill = NA_real_
   )
 
-  clusterCrit::intCriteria(tsmat, part, crit = 'Dunn')$dunn
+  # outputs min/max infinity warning under presence of empty clusters
+  suppressWarnings({
+    di = clValid::dunn(clusters = part, Data = tsmat, method = 'euclidean')
+  })
+
+  di
 }
 
 intMetricsEnv$entropy = function(m) {
-  pp = postprob(m) %>% pmax(.Machine$double.xmin)
-  - sum(rowSums(pp * log(pp)))
+  pp = postprob(m) %>%
+    pmax(.Machine$double.xmin)
+
+  -1 * sum(rowSums(pp * log(pp)))
 }
 
 intMetricsEnv$estimationTime = estimationTime
@@ -353,7 +373,7 @@ intMetricsEnv$logLik = logLik
 intMetricsEnv$ICL.BIC = function(m) {
   ll = logLik(m)
   df = attr(ll, 'df')
-  - 2 * ll + log(nIds(m)) * df + 2 * intMetricsEnv$entropy(m)
+  -2 * ll + log(nIds(m)) * df + 2 * intMetricsEnv$entropy(m)
 }
 
 intMetricsEnv$MAE = function(m) {

@@ -2,6 +2,76 @@
 
 setOldClass('lcMethods')
 
+
+#' @name latrend-methods
+#' @title Supported methods for longitudinal clustering
+#' @description This page provides an overview of the currently supported methods for longitudinal clustering.
+#' For general recommendations on which method to apply to your dataset, [see here][latrend-approaches].
+#' @section Supported methods:
+#' | **Method** | **Description** | **Source** |
+#' | --- | :-------- | :--- |
+#' | [lcMethodAkmedoids] | Anchored *k*-medoids \insertCite{adepeju2020akmedoids}{latrend} | `akmedoids` |
+#' | [lcMethodCrimCV] | Group-based trajectory modeling of count data \insertCite{nielsen2018crimcv}{latrend} | `crimCV` |
+#' | [lcMethodDtwclust] | Methods for distance-based clustering, including dynamic time warping \insertCite{sardaespinosa2019time}{latrend} | `dtwclust` |
+#' | [lcMethodFeature] | Feature-based clustering | |
+#' | [lcMethodFlexmix] | Interface to the FlexMix framework \insertCite{gruen2008flexmix}{latrend} | `flexmix` |
+#' | [lcMethodFlexmixGBTM] | Group-based trajectory modeling | `flexmix` |
+#' | [lcMethodFunFEM] | Model-based clustering using funFEM \insertCite{bouveyron2015funfem}{latrend} | `funFEM` |
+#' | [lcMethodGCKM] | Growth-curve modeling and *k*-means | `lme4` |
+#' | [lcMethodKML] | Longitudinal *k*-means \insertCite{genolini2015kml}{latrend} | `kml` |
+#' | [lcMethodLcmmGBTM] | Group-based trajectory modeling \insertCite{proustlima2017estimation}{latrend} | `lcmm` |
+#' | [lcMethodLcmmGMM] | Growth mixture modeling \insertCite{proustlima2017estimation}{latrend} | `lcmm` |
+#' | [lcMethodLMKM] | Feature-based clustering using linear regression and *k*-means | |
+#' | [lcMethodMclustLLPA] | Longitudinal latent profile analysis \insertCite{scrucca2016mclust}{latrend} | `mclust` |
+#' | [lcMethodMixAK_GLMM] | Mixture of generalized linear mixed models | `mixAK` |
+#' | [lcMethodMixtoolsGMM] | Growth mixture modeling | `mixtools` |
+#' | [lcMethodMixtoolsNPRM] | Non-parametric repeated measures clustering \insertCite{benaglia2009mixtools}{latrend} | `mixtools` |
+#' | [lcMethodMixTVEM] | Mixture of time-varying effects models | |
+#' | [lcMethodRandom] | Random partitioning | |
+#' | [lcMethodStratify] | Stratification rule | |
+#'
+#' In addition, the functionality of any method can be extended via [meta methods][lcMetaMethods].
+#' This is used for extending the estimation procedure of a method, such as [repeated fitting][lcFitRep] and selecting the best result, or [fitting until convergence][lcFitConverged].
+#'
+#' It is strongly encouraged to [evaluate and compare][latrend-metrics] several candidate methods in order to identify the most suitable method.
+#' @references \insertAllCited{}
+#' @seealso [latrend-approaches] [latrend-estimation] [latrend-metrics]
+#' @examples
+#' data(latrendData)
+#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+#' model <- latrend(method, data = latrendData)
+NULL
+
+#' @name latrend-approaches
+#' @title High-level approaches to longitudinal clustering
+#' @description This page provides high-level guidelines on which methods are applicable to your dataset.
+#' Note that this is intended as a quick-start.
+#'
+#' Recommended overview and comparison papers:
+#' \itemize{
+#'   \item \insertCite{denteuling2021clustering}{latrend}: A tutorial and overview on methods for longitudinal clustering.
+#'   \item \insertCite{denteuling2021comparison;textual}{latrend} compared KmL, MixTVEM, GBTM, GMM, and GCKM.
+#'   \item \insertCite{twisk2012classifying;textual}{latrend} compared KmL, GCKM, LLCA, GBTM and GMM.
+#'   \item \insertCite{verboon2022clustering;textual}{latrend} compared the *kml*, *traj* and *lcmm* packages in R.
+#'   \item \insertCite{martin2015growth;textual}{latrend} compared KmL, LCA, and GMM.
+#' }
+#'
+#' @section Approaches:
+#' Disclaimer: The table below has been adapted from a pre-print of \insertCite{denteuling2021clustering}{latrend}.
+#'
+#' | **Approach** | **Strengths** | **Limitations** | **Methods** |
+#' | --- | :-------- | :--- | :--- |
+#' | **Cross-sectional clustering** | Suitable for large datasets — Many available algorithms — Non-parametric cluster trajectory representation | Requires time-aligned complete data — Sensitive to measurement noise | [lcMethodKML] [lcMethodMclustLLPA] [lcMethodMixtoolsNPRM] |
+#' | **Distance-based clustering** | Suitable for medium-sized datasets — Many distance metrics — Distance matrix only needs to be computed once | Scales poorly with number of trajectories — No robust cluster trajectory representation — Some distance metrics require aligned observations | [lcMethodDtwclust] |
+#' | **Feature-based clustering** | Suitable for large datasets — Configurable — Features only needs to be computed once — Compact trajectory representation | Generally requires intensive longitudinal data — Sensitive to outliers | [lcMethodFeature] [lcMethodAkmedoids] [lcMethodLMKM] [lcMethodGCKM] |
+#' | **Model-based clustering** | Parametric cluster trajectory — Incorporate (domain) assumptions — Low sample size requirements | Computationally intensive — Scales poorly with number of clusters — Convergence challenges | [lcMethodLcmmGBTM] [lcMethodLcmmGMM] [lcMethodCrimCV] [lcMethodFlexmix] [lcMethodFlexmixGBTM] [lcMethodFunFEM] [lcMethodMixAK_GLMM] [lcMethodMixtoolsGMM] [lcMethodMixTVEM] |
+#'
+#' It is strongly encouraged to [evaluate and compare][latrend-metrics] several candidate methods in order to identify the most suitable method.
+#' @references \insertAllCited{}
+#' @seealso [latrend-methods] [latrend-estimation] [latrend-metrics]
+NULL
+
+
 #' @export
 #' @title Convert a list of lcMethod objects to a data.frame
 #' @description Converts a list of `lcMethod` objects to a `data.frame`.

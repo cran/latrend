@@ -3,7 +3,7 @@
 \name{preFit}
 \alias{preFit}
 \alias{preFit,lcMethod-method}
-\title{lcMethod fit process: method preparation logic}
+\title{\code{lcMethod} estimation step: method preparation logic}
 \usage{
 \S4method{preFit}{lcMethod}(method, data, envir, verbose)
 }
@@ -20,7 +20,8 @@
 The updated \code{environment} that will be passed to \code{\link[=fit]{fit()}}.
 }
 \description{
-Note: this function should not be called directly, as it is part of the \code{lcMethod} fitting process. For fitting an \code{lcMethod} object to a dataset, see \code{\link[=latrend]{latrend()}}.
+Note: this function should not be called directly, as it is part of the \code{lcMethod} \link[=lcMethod-estimation]{estimation procedure}.
+For fitting an \code{lcMethod} object to a dataset, use the \code{\link[=latrend]{latrend()}} function or \link[=latrend-estimation]{one of the other standard estimation functions}.
 
 The \code{preFit()} function of the \code{lcMethod} object performs preparatory work that is needed for fitting the method but should not be counted towards the method estimation time.
 The work is added to the provided \code{environment}, allowing the \code{\link[=fit]{fit()}} function to make use of the prepared work.
@@ -36,10 +37,9 @@ setMethod("preFit", "lcMethodExample", function(method, data, envir, verbose) {
 }
 }
 
-\section{Fitting procedure}{
+\section{Estimation procedure}{
 
-Each \code{lcMethod} subclass defines a type of methods in terms of a series of steps for estimating the method.
-These steps, as part of the fitting procedure, are executed by \code{\link[=latrend]{latrend()}} in the following order:
+The steps for estimating a \code{lcMethod} object are defined and executed as follows:
 \enumerate{
 \item \code{\link[=compose]{compose()}}: Evaluate and finalize the method argument values.
 \item \code{\link[=validate]{validate()}}: Check the validity of the method argument values in relation to the dataset.

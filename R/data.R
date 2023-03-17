@@ -1,3 +1,22 @@
+#' @name latrend-data
+#' @title Longitudinal dataset representation
+#' @description The [latrend estimation functions][latrend-estimation] expect univariate longitudinal data that can be represented in a `data.frame` with one row per trajectory observation:
+#' * Trajectory identifier: `numeric`, `character`, or `factor`
+#' * Observation time: `numeric`
+#' * Observation value: `numeric`
+#'
+#' In principle, any type of longitudinal data structure is supported, given that it can be transformed to the required `data.frame` format using the generic [trajectories] function.
+#' Support can be added by implementing the [trajectories] function for the respective signature.
+#' This means that users can implement their own data adapters as needed.
+#'
+#' @section Included longitudinal datasets:
+#' The following datasets are included with the package:
+#' * [latrendData]
+#' * [PAP.adh]
+#' * [PAP.adh1y]
+NULL
+
+
 #' @title Artificial longitudinal dataset comprising three classes
 #' @description
 #' An artificial longitudinal dataset comprising 200 trajectories belonging to one of 3 classes.
@@ -10,8 +29,14 @@
 #'   \item{Y}{`numeric`: The observed value at the respective time `Time` for trajectory `Id`.}
 #'   \item{Class}{`factor`: The reference class.}
 #' }
+#'
+#' ```{r}
+#' data(latrendData)
+#' head(latrendData)
+#' ```
+#'
 #' @source This dataset was generated using [generateLongData].
-#' @seealso [generateLongData]
+#' @seealso [latrend-data] [generateLongData]
 #' @examples
 #' data(latrendData)
 #'
@@ -25,10 +50,44 @@
 
 
 #' @name PAP.adh
-#' @title Biweekly Mean Therapy Adherence of OSA Patients over 1 Year
+#' @title Weekly Mean PAP Therapy Usage of OSA Patients in the First 3 Months
 #' @description
-#' A simulated longitudinal dataset comprising 500 patients with obstructive sleep apnea (OSA) during their
-#' first year on CPAP therapy.
+#' A simulated longitudinal dataset comprising 301 patients with obstructive sleep apnea (OSA) during their first 91 days (13 weeks) of PAP therapy.
+#' The longitudinal patterns were inspired by the adherence patterns reported by Yi et al. (2022), interpolated to weekly hours of usage.
+#' @format A `data.frame` comprising longitudinal data of 500 patients, each having 26 observations over a period of 1 year.
+#' Each row represents a patient observation interval (two weeks), with columns:
+#' \describe{
+#'   \item{Patient}{`integer`: The patient identifier, where each level represents a simulated patient.}
+#'   \item{Week}{`integer`: The week number, starting from 1.}
+#'   \item{UsageHours}{`numeric`: The mean hours of usage in the respective week.
+#'   Greater than or equal to zero, and typically around 4-6 hours.}
+#'   \item{Group}{`factor`: The reference group (i.e., adherence pattern) from which this patient was generated.}
+#' }
+#'
+#' \insertRef{yi2022identifying}{latrend}
+#' @seealso [latrend-data] [PAP.adh1y]
+#' @examples
+#' data(PAP.adh)
+#'
+#' if (require("ggplot2")) {
+#'   plotTrajectories(PAP.adh, id = "Patient", time = "Week", response = "UsageHours")
+#'
+#'   # plot according to cluster ground truth
+#'   plotTrajectories(
+#'     PAP.adh,
+#'     id = "Patient",
+#'     time = "Week",
+#'     response = "UsageHours",
+#'     cluster = "Group"
+#'   )
+#' }
+"PAP.adh"
+
+
+#' @name PAP.adh1y
+#' @title Biweekly Mean PAP Therapy Adherence of OSA Patients over 1 Year
+#' @description
+#' A simulated longitudinal dataset comprising 500 patients with obstructive sleep apnea (OSA) during their first year on CPAP therapy.
 #' The dataset contains the patient usage hours, averaged over 2-week periods.
 #'
 #' The daily usage data underlying the downsampled dataset was simulated based on 7 different adherence patterns.
@@ -50,32 +109,23 @@
 #' with some adjustments made in order to improve cluster separation for demonstration purposes.
 #'
 #' \insertRef{aloia2008time}{latrend}
-#'
+#' @seealso [latrend-data]
 #' @examples
-#' data(PAP.adh)
+#' data(PAP.adh1y)
 #'
 #' if (require("ggplot2")) {
-#'   plotTrajectories(PAP.adh, id = "Patient", time = "Biweek", response = "UsageHours")
+#'   plotTrajectories(PAP.adh1y, id = "Patient", time = "Biweek", response = "UsageHours")
 #'
 #'   # plot according to cluster ground truth
 #'   plotTrajectories(
-#'     PAP.adh,
+#'     PAP.adh1y,
 #'     id = "Patient",
 #'     time = "Biweek",
 #'     response = "UsageHours",
 #'     cluster = "Group"
 #'   )
 #' }
-"PAP.adh"
-
-#' @rdname PAP.adh
-#' @description The `PAP.adh1y` dataset is a subset of `PAP.adh`, comprising only patients who used therapy for at least 1 year.
-#' The subset does not contain the Non-users and Early drop-out groups.
 "PAP.adh1y"
-
-#' @title Biweekly Mean Treatment Adherence of OSA Patients over 1 Year
-#' @description Deprecated, renamed to [PAP.adh].
-"OSA.adherence"
 
 #' @export
 #' @title Generate longitudinal test data
@@ -94,6 +144,7 @@
 #' @param rnoise Random sampler for generating noise at location 0 with the respective scale.
 #' @param shuffle Whether to randomly reorder the strata in which they appear in the data.frame.
 #' @param seed Optional seed to set for the PRNG. The set PRNG state persists after the function completes.
+#' @seealso [latrend-data]
 #' @examples
 #' longdata <- generateLongData(
 #'   sizes = c(40, 70), id = "Id",

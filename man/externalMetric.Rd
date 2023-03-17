@@ -73,8 +73,8 @@ See \code{\link[mclustcomp:mclustcomp]{mclustcomp::mclustcomp()}} for a grouped 
 Call \code{\link[=getInternalMetricNames]{getInternalMetricNames()}} to retrieve the names of the defined internal metrics.
 Call \code{\link[=getExternalMetricNames]{getExternalMetricNames()}} to retrieve the names of the defined internal metrics.
 }
-\details{
-List of currently supported external metrics:\tabular{lll}{
+\section{Supported external metrics}{
+\tabular{lll}{
    \strong{Metric name} \tab \strong{Description} \tab \strong{Function / Reference} \cr
    \code{adjustedRand} \tab \href{https://en.wikipedia.org/wiki/Rand_index}{Adjusted Rand index}. Based on the Rand index, but adjusted for agreements occurring by chance. A score of 1 indicates a perfect agreement, whereas a score of 0 indicates an agreement no better than chance. \tab \code{\link[mclustcomp:mclustcomp]{mclustcomp::mclustcomp()}}, \insertCite{hubert1985comparing}{latrend} \cr
    \code{CohensKappa} \tab \href{https://en.wikipedia.org/wiki/Cohen\%27s_kappa}{Cohen's kappa}. A partitioning agreement metric correcting for random chance. A score of 1 indicates a perfect agreement, whereas a score of 0 indicates an agreement no better than chance. \tab \code{\link[psych:kappa]{psych::cohen.kappa()}}, \insertCite{cohen1960coefficient}{latrend} \cr
@@ -114,6 +114,7 @@ List of currently supported external metrics:\tabular{lll}{
    \code{WMMAE} \tab Weighted minimum mean of absolute errors between cluster trajectories \tab  \cr
 }
 }
+
 \section{Implementation}{
 
 See the documentation of the \code{\link[=defineExternalMetric]{defineExternalMetric()}} function for details on how to define your own external metrics.
@@ -143,5 +144,42 @@ Other metric functions:
 \code{\link{getInternalMetricDefinition}()},
 \code{\link{getInternalMetricNames}()},
 \code{\link{metric}()}
+
+Other lcModel functions: 
+\code{\link{clusterNames}()},
+\code{\link{clusterProportions}()},
+\code{\link{clusterSizes}()},
+\code{\link{clusterTrajectories}()},
+\code{\link{coef.lcModel}()},
+\code{\link{converged}()},
+\code{\link{deviance.lcModel}()},
+\code{\link{df.residual.lcModel}()},
+\code{\link{estimationTime}()},
+\code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
+\code{\link{getCall.lcModel}()},
+\code{\link{getLcMethod}()},
+\code{\link{ids}()},
+\code{\link{lcModel-class}},
+\code{\link{metric}()},
+\code{\link{model.frame.lcModel}()},
+\code{\link{nClusters}()},
+\code{\link{nIds}()},
+\code{\link{nobs.lcModel}()},
+\code{\link{plot-lcModel-method}},
+\code{\link{plotClusterTrajectories}()},
+\code{\link{plotFittedTrajectories}()},
+\code{\link{postprob}()},
+\code{\link{predict.lcModel}()},
+\code{\link{predictAssignments}()},
+\code{\link{predictForCluster}()},
+\code{\link{predictPostprob}()},
+\code{\link{qqPlot}()},
+\code{\link{residuals.lcModel}()},
+\code{\link{sigma.lcModel}()},
+\code{\link{strip}()},
+\code{\link{time.lcModel}()},
+\code{\link{trajectoryAssignments}()}
 }
+\concept{lcModel functions}
 \concept{metric functions}

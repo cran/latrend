@@ -4,6 +4,7 @@
 \docType{class}
 \name{lcFitMethods}
 \alias{lcFitMethods}
+\alias{lcMetaMethods}
 \alias{lcFitConverged-class}
 \alias{lcFitConverged}
 \alias{lcFitRep-class}
@@ -33,6 +34,9 @@ lcFitRepMax(method, rep = 10, metric)
 }
 \description{
 A collection of special methods that adapt the fitting procedure of the underlying longitudinal cluster method.
+
+NOTE: the underlying implementation is experimental and may change in the future.
+
 Supported fit methods:
 \itemize{
 \item \code{lcFitConverged}: Fit a method until a converged result is obtained.
@@ -40,6 +44,9 @@ Supported fit methods:
 \item \code{lcFitRepMin}: Repeatedly fit a method and return the best result that minimizes the given internal metric.
 \item \code{lcFitRepMax}: Repeatedly fit a method and return the best result that maximizes the given internal metric.
 }
+}
+\details{
+Meta methods are immutable and cannot be updated after instantiation. Calling \code{\link[=update]{update()}} on a meta method is only used to update arguments of the underlying \link{lcMethod} object.
 }
 \examples{
 

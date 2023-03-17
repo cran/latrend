@@ -2,12 +2,15 @@
 % Please edit documentation in R/model.R
 \name{nClusters}
 \alias{nClusters}
+\alias{nClusters,lcModel-method}
 \title{Number of clusters}
 \usage{
-nClusters(object)
+\S4method{nClusters}{lcModel}(object, ...)
 }
 \arguments{
 \item{object}{The \code{lcModel} object.}
+
+\item{...}{Not used.}
 }
 \value{
 An \code{integer} with the number of clusters identified by the \code{lcModel}.
@@ -23,4 +26,41 @@ nClusters(model) # 3
 }
 \seealso{
 \link{nIds} \link{nobs}
+
+Other lcModel functions: 
+\code{\link{clusterNames}()},
+\code{\link{clusterProportions}()},
+\code{\link{clusterSizes}()},
+\code{\link{clusterTrajectories}()},
+\code{\link{coef.lcModel}()},
+\code{\link{converged}()},
+\code{\link{deviance.lcModel}()},
+\code{\link{df.residual.lcModel}()},
+\code{\link{estimationTime}()},
+\code{\link{externalMetric,lcModel,lcModel-method}},
+\code{\link{fitted.lcModel}()},
+\code{\link{fittedTrajectories}()},
+\code{\link{getCall.lcModel}()},
+\code{\link{getLcMethod}()},
+\code{\link{ids}()},
+\code{\link{lcModel-class}},
+\code{\link{metric}()},
+\code{\link{model.frame.lcModel}()},
+\code{\link{nIds}()},
+\code{\link{nobs.lcModel}()},
+\code{\link{plot-lcModel-method}},
+\code{\link{plotClusterTrajectories}()},
+\code{\link{plotFittedTrajectories}()},
+\code{\link{postprob}()},
+\code{\link{predict.lcModel}()},
+\code{\link{predictAssignments}()},
+\code{\link{predictForCluster}()},
+\code{\link{predictPostprob}()},
+\code{\link{qqPlot}()},
+\code{\link{residuals.lcModel}()},
+\code{\link{sigma.lcModel}()},
+\code{\link{strip}()},
+\code{\link{time.lcModel}()},
+\code{\link{trajectoryAssignments}()}
 }
+\concept{lcModel functions}

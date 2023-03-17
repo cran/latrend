@@ -3,7 +3,7 @@
 \name{compose}
 \alias{compose}
 \alias{compose,lcMethod-method}
-\title{lcMethod fit process: compose an lcMethod object}
+\title{\code{lcMethod} estimation step: compose an lcMethod object}
 \usage{
 \S4method{compose}{lcMethod}(method, envir = NULL)
 }
@@ -16,7 +16,8 @@
 The evaluated and finalized \code{lcMethod} object.
 }
 \description{
-Note: this function should not be called directly, as it is part of the \code{lcMethod} fitting process. For fitting an \code{lcMethod} object to a dataset, see \code{\link[=latrend]{latrend()}}.
+Note: this function should not be called directly, as it is part of the \code{lcMethod} \link[=lcMethod-estimation]{estimation procedure}.
+For fitting an \code{lcMethod} object to a dataset, use the \code{\link[=latrend]{latrend()}} function or \link[=latrend-estimation]{one of the other standard estimation functions}.
 
 The \code{compose()} function of the \code{lcMethod} object evaluates and finalizes the \code{lcMethod} arguments.
 
@@ -36,10 +37,9 @@ setMethod("compose", "lcMethodExample", function(method, envir = NULL) {
 }
 }
 
-\section{Fitting procedure}{
+\section{Estimation procedure}{
 
-Each \code{lcMethod} subclass defines a type of methods in terms of a series of steps for estimating the method.
-These steps, as part of the fitting procedure, are executed by \code{\link[=latrend]{latrend()}} in the following order:
+The steps for estimating a \code{lcMethod} object are defined and executed as follows:
 \enumerate{
 \item \code{\link[=compose]{compose()}}: Evaluate and finalize the method argument values.
 \item \code{\link[=validate]{validate()}}: Check the validity of the method argument values in relation to the dataset.

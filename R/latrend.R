@@ -1,26 +1,45 @@
+#' @name latrend-estimation
+#' @title Overview of **`lcMethod`** estimation functions
+#' @description This page presents an overview of the different functions that are available for estimating one or more [longitudinal cluster methods][lcMethod].
+#' All functions are prefixed by *"latrend"*.
+#' @section *latrend* estimation functions:
+#' * **[latrend()]**: estimate a [method][lcMethod] on a [longitudinal dataset][latrend-data], returning the resulting [model][lcModel].
+#' * **[latrendBatch()]**: estimate multiple [methods][lcMethod] on multiple [longitudinal datasets][latrend-data], returning a [list of models][lcModels-class].
+#' * **[latrendRep()]**: repeatedly estimate a [method][lcMethod] on a [longitudinal dataset][latrend-data], returning a [list of models][lcModels-class].
+#' * **[latrendBoot()]**: repeatedly estimate a [method][lcMethod] on bootstrapped [longitudinal dataset][latrend-data], returning a [list of models][lcModels-class].
+#' * **[latrendCV()]**: repeatedly estimate a [method][lcMethod] using cross-validation on a [longitudinal dataset][latrend-data], returning a [list of models][lcModels-class].
+#' @section Parallel estimation:
+#' The functions involving repeated estimation support parallel computation. [See here.][latrend-parallel]
+#' @seealso [latrend-package] [lcMethod-estimation]
+NULL
+
+
 #' @export
-#' @title Cluster longitudinal data
-#' @description Fit a longitudinal cluster method to the given training data, according to the specification provided by the `lcMethod` object.
+#' @title Cluster longitudinal data using the specified method
+#' @description [An overview of the latrend package and its capabilities can be found here][latrend-package].
 #'
-#' This function runs all steps as part of the [method fitting procedure][lcMethod-class].
-#' @param method An `lcMethod` object specifying the longitudinal cluster method to apply, or the name (as `character`) of an `lcMethod` subclass. See [lcMethod-class][lcMethod-class] for details.
-#' @param data The `data.frame` to which to apply the method. Inputs supported by [trajectories()] can also be used.
+#' The `latrend()` function fits a specified longitudinal cluster [method][lcMethod] to the given data comprising the trajectories.
+#'
+#' This function runs all steps of the standardized [method estimation procedure][lcMethod-estimation], as implemented by the given `lcMethod` object.
+#' The result of this procedure is the estimated [lcModel].
+#' @param method An [lcMethod] object specifying the longitudinal cluster method to apply, or the name (as `character`) of the `lcMethod` subclass to instantiate.
+#' @param data The data of the trajectories to which to estimate the method for.
+#' Any inputs supported by [trajectories()] can be used, including `data.frame` and `matrix`.
 #' @param ... Any other arguments to update the `lcMethod` definition with.
-#' @param envir The `environment` in which to evaluate the method arguments (by [compose()]). This environment is also used to evaluate the `data` argument if it is of type `call`.
+#' @param envir The `environment` in which to evaluate the method arguments via [compose()].
+#' If the `data` argument is of type `call` then this environment is also used to evaluate the `data` argument.
 #' @param verbose The level of verbosity. Either an object of class `Verbose` (see [R.utils::Verbose] for details),
 #' a `logical` indicating whether to show basic computation information,
 #' a `numeric` indicating the verbosity level (see [Verbose]),
 #' or one of `c('info', 'fine', 'finest')`.
-#' @details If a seed value is specified in the `lcMethod` object or arguments to `latrend`, this seed is set using `set.seed` prior to the cluster preparation step.
-#' @return A `lcModel` object representing the fitted model.
+#' @details If a seed value is specified in the `lcMethod` object or arguments to `latrend`, this seed is set using `set.seed` prior to the [preFit] step.
+#' @return A [lcModel] object representing the fitted solution.
 #' @examples
 #' data(latrendData)
-#' model <- latrend(lcMethodLMKM(Y ~ Time, id = "Id", time = "Time"), data = latrendData)
+#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+#' model <- latrend(method, data = latrendData)
 #'
 #' model <- latrend("lcMethodLMKM", formula = Y ~ Time, id = "Id", time = "Time", data = latrendData)
-#'
-#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
-#' model <- latrend(method, data = latrendData, nClusters = 3)
 #'
 #' model <- latrend(method, data = latrendData, nClusters = 3, seed = 1)
 #' @family longitudinal cluster fit functions
@@ -112,7 +131,11 @@ latrend = function(
     set.seed(method$seed)
   }
 
-  suppressFun = ifelse(as.logical(verbose), force, function(...) capture.output(suppressMessages(...)))
+  suppressFun = ifelse(
+    as.logical(verbose),
+    force,
+    function(...) capture.output(suppressMessages(...))
+  )
 
   suppressFun({
     # preFit
@@ -210,7 +233,7 @@ latrendRep = function(
   exit(verbose, level = verboseLevels$finest)
 
   # seed
-  if (hasName(cmethod, 'seed')) {
+  if (hasName(cmethod, 'seed') && length(cmethod$seed) > 0L) {
     warning('The supplied lcMethod object defines a seed, which would result in repeated identical results. This seed will be ignored.
       Use the .seed argument of latrendRep() to generate different seeds for the repetitions in a reproducible way.')
   }
@@ -298,7 +321,8 @@ latrendRep = function(
 #' Doing this results in a more readable `call` associated with each fitted `lcModel` object.
 #' @param cartesian Whether to fit the provided methods on each of the datasets. If `cartesian=FALSE`, only a single dataset may be provided or a list of data matching the length of `methods`.
 #' @param parallel Whether to enable parallel evaluation. See \link{latrend-parallel}. Method evaluation and dataset transformation is done on the calling thread.
-#' @param seed Sets the seed for generating the respective seed for each of the method fits. Seeds are only set for methods without a seed argument.
+#' @param seed Sets the seed for generating a seed number for the methods.
+#' Seeds are only set for methods without a seed argument or `NULL` seed.
 #' @param errorHandling Whether to `"stop"` on an error, or to `"remove'` evaluations that raised an error.
 #' @param envir The `environment` in which to evaluate the `lcMethod` arguments.
 #' @return A `lcModels` object.
@@ -436,19 +460,30 @@ latrendBatch = function(
   Map(validate, allMethods, allModelData)
   exit(verbose, level = verboseLevels$finest)
 
-  # seeds
-  cat(verbose, sprintf('Generating method seeds for seed = %s.', as.character(seed)))
-  localRNG(seed = seed, {
-    allSeeds = sample.int(.Machine$integer.max, size = nModels, replace = FALSE)
-  })
-
-  # update methods that don't have a seed argument
-  seedMask = !vapply(allMethods, hasName, 'seed', FUN.VALUE = TRUE)
-  allMethods[seedMask] = Map(
-    function(method, seed) update(method, seed = seed, .eval = TRUE),
-    allMethods[seedMask],
-    allSeeds[seedMask]
+  # resolve method seeds
+  # a method's seed is considered set when a non-empty value is set.
+  seedMask = !vapply(
+    allMethods,
+    function(m) hasName(m, 'seed') && length(m$seed) > 0L,
+    FUN.VALUE = TRUE
   )
+
+  if (any(seedMask)) {
+    cat(verbose, sprintf('Generating seeds for %d methods that do not have a pre-set seed argument.', sum(seedMask)))
+    localRNG(seed = seed, {
+      allSeeds = sample.int(.Machine$integer.max, size = nModels, replace = FALSE)
+    })
+
+    # update methods that don't have a seed argument
+    allMethods[seedMask] = Map(
+      function(method, seed) update(method, seed = seed, .eval = TRUE),
+      allMethods[seedMask],
+      allSeeds[seedMask]
+    )
+  } else if (length(seed) > 0L) {
+    # all methods already have a seed
+    warning('latrendBatch() seed argument was set but all methods already have a pre-defined seed. No methods to seed.')
+  }
 
   # generate calls
   allCalls = vector('list', length(allMethods))
@@ -459,7 +494,7 @@ latrendBatch = function(
         'latrend',
         method = allMethods[[i]],
         data = quote(allDataOpts[[i]]),
-        seed = allSeeds[[i]],
+        # seed does not need to be set because its part of the method
         envir = quote(envir),
         verbose = quote(verbose)
       )
@@ -508,7 +543,7 @@ latrendBatch = function(
       verbose = verbose
     )
 
-    return(model)
+    model
   }
 
   .exitTimed(fitTiming)
@@ -526,17 +561,17 @@ latrendBatch = function(
       because %d method estimations produced an error',
       nError
     ))
-    return(models)
+    return (models)
   } else if (length(models) < nModels ) {
     # fewer models were obtained than expected
     nError = nModels - length(models)
     cat(verbose, sprintf('Done, but errors occurred in %d out of %d methods', nError, nModels))
     ruler(verbose)
-    return(as.lcModels(models))
+    return (as.lcModels(models))
   } else {
     # no errors
     ruler(verbose)
-    return(as.lcModels(models))
+    return (as.lcModels(models))
   }
 }
 
