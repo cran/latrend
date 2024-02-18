@@ -2,17 +2,16 @@
 % Please edit documentation in R/model.R
 \name{qqPlot}
 \alias{qqPlot}
-\alias{qqPlot,lcModel-method}
 \title{Quantile-quantile plot}
 \usage{
-\S4method{qqPlot}{lcModel}(object, byCluster = FALSE, ...)
+qqPlot(model, byCluster = FALSE, ...)
 }
 \arguments{
-\item{object}{The \code{lcModel} object.}
+\item{model}{\code{lcModel}}
 
 \item{byCluster}{Whether to plot the Q-Q line per cluster}
 
-\item{...}{Additional arguments passed to \code{\link[qqplotr:stat_qq_band]{qqplotr::geom_qq_band()}}, \code{\link[qqplotr:stat_qq_line]{qqplotr::stat_qq_line()}}, and \code{\link[qqplotr:stat_qq_point]{qqplotr::stat_qq_point()}}.}
+\item{...}{Additional arguments passed to \link{residuals.lcModel}, \code{\link[qqplotr:stat_qq_band]{qqplotr::geom_qq_band()}}, \code{\link[qqplotr:stat_qq_line]{qqplotr::stat_qq_line()}}, and \code{\link[qqplotr:stat_qq_point]{qqplotr::stat_qq_point()}}.}
 }
 \value{
 A \code{ggplot} object.
@@ -42,7 +41,7 @@ Other lcModel functions:
 \code{\link{deviance.lcModel}()},
 \code{\link{df.residual.lcModel}()},
 \code{\link{estimationTime}()},
-\code{\link{externalMetric,lcModel,lcModel-method}},
+\code{\link{externalMetric}()},
 \code{\link{fitted.lcModel}()},
 \code{\link{fittedTrajectories}()},
 \code{\link{getCall.lcModel}()},

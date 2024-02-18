@@ -5,6 +5,7 @@
 \alias{interface-kml}
 \alias{getArgumentDefaults,lcMethodKML-method}
 \alias{getArgumentExclusions,lcMethodKML-method}
+\alias{getCitation,lcMethodKML-method}
 \alias{getName,lcMethodKML-method}
 \alias{getShortName,lcMethodKML-method}
 \alias{preFit,lcMethodKML-method}
@@ -20,6 +21,8 @@
 \S4method{getArgumentDefaults}{lcMethodKML}(object)
 
 \S4method{getArgumentExclusions}{lcMethodKML}(object)
+
+\S4method{getCitation}{lcMethodKML}(object, ...)
 
 \S4method{getName}{lcMethodKML}(object)
 
@@ -40,7 +43,9 @@
 \S4method{predictPostprob}{lcModelKML}(object, newdata = NULL, ...)
 }
 \arguments{
-\item{object}{The \code{lcModel} object.}
+\item{object}{The model.}
+
+\item{...}{Not used.}
 
 \item{method}{An object inheriting from \code{lcMethod} with all its arguments having been evaluated and finalized.}
 
@@ -50,11 +55,9 @@
 
 \item{verbose}{A \link[R.utils:Verbose]{R.utils::Verbose} object indicating the level of verbosity.}
 
-\item{...}{Additional arguments.}
+\item{at}{A \verb{numeric vector} of the times at which to compute the cluster trajectories.}
 
-\item{at}{An optional vector of the times at which to compute the cluster trajectory predictions.}
-
-\item{newdata}{Optional data frame for which to compute the posterior probability. If omitted, the model training data is used.}
+\item{newdata}{Optional \code{data.frame} for which to compute the posterior probability. If omitted, the model training data is used.}
 }
 \description{
 kml interface

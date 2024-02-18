@@ -5,6 +5,7 @@
 \alias{interface-mixAK}
 \alias{getArgumentDefaults,lcMethodMixAK_GLMM-method}
 \alias{getArgumentExclusions,lcMethodMixAK_GLMM-method}
+\alias{getCitation,lcMethodMixAK_GLMM-method}
 \alias{getName,lcMethodMixAK_GLMM-method}
 \alias{getShortName,lcMethodMixAK_GLMM-method}
 \alias{responseVariable,lcMethodMixAK_GLMM-method}
@@ -21,6 +22,8 @@
 \S4method{getArgumentDefaults}{lcMethodMixAK_GLMM}(object)
 
 \S4method{getArgumentExclusions}{lcMethodMixAK_GLMM}(object)
+
+\S4method{getCitation}{lcMethodMixAK_GLMM}(object, ...)
 
 \S4method{getName}{lcMethodMixAK_GLMM}(object)
 
@@ -47,7 +50,9 @@
 \S4method{predictForCluster}{lcModelMixAK_GLMMlist}(object, newdata, cluster, what = "mu", ...)
 }
 \arguments{
-\item{object}{The \code{lcMethod} or \code{lcModel} object.}
+\item{object}{The object.}
+
+\item{...}{Not used.}
 
 \item{method}{An object inheriting from \code{lcMethod} with all its arguments having been evaluated and finalized.}
 
@@ -57,10 +62,7 @@
 
 \item{verbose}{A \link[R.utils:Verbose]{R.utils::Verbose} object indicating the level of verbosity.}
 
-\item{...}{Additional arguments.}
-
-\item{newdata}{Optional \code{data.frame} for which to compute the model predictions. If omitted, the model training data is used.
-Cluster trajectory predictions are made when ids are not specified.}
+\item{newdata}{A \code{data.frame} of trajectory data for which to compute trajectory assignments.}
 
 \item{cluster}{The cluster name (as \code{character}) to predict for.}
 

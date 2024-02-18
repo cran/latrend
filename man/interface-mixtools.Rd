@@ -5,12 +5,14 @@
 \alias{interface-mixtools}
 \alias{getArgumentDefaults,lcMethodMixtoolsGMM-method}
 \alias{getArgumentExclusions,lcMethodMixtoolsGMM-method}
+\alias{getCitation,lcMethodMixtoolsGMM-method}
 \alias{getName,lcMethodMixtoolsGMM-method}
 \alias{getShortName,lcMethodMixtoolsGMM-method}
 \alias{preFit,lcMethodMixtoolsGMM-method}
 \alias{fit,lcMethodMixtoolsGMM-method}
 \alias{getArgumentDefaults,lcMethodMixtoolsNPRM-method}
 \alias{getArgumentExclusions,lcMethodMixtoolsNPRM-method}
+\alias{getCitation,lcMethodMixtoolsNPRM-method}
 \alias{getName,lcMethodMixtoolsNPRM-method}
 \alias{getShortName,lcMethodMixtoolsNPRM-method}
 \alias{fit,lcMethodMixtoolsNPRM-method}
@@ -29,6 +31,8 @@
 
 \S4method{getArgumentExclusions}{lcMethodMixtoolsGMM}(object)
 
+\S4method{getCitation}{lcMethodMixtoolsGMM}(object, ...)
+
 \S4method{getName}{lcMethodMixtoolsGMM}(object)
 
 \S4method{getShortName}{lcMethodMixtoolsGMM}(object)
@@ -40,6 +44,8 @@
 \S4method{getArgumentDefaults}{lcMethodMixtoolsNPRM}(object)
 
 \S4method{getArgumentExclusions}{lcMethodMixtoolsNPRM}(object)
+
+\S4method{getCitation}{lcMethodMixtoolsNPRM}(object, ...)
 
 \S4method{getName}{lcMethodMixtoolsNPRM}(object)
 
@@ -73,7 +79,9 @@
 \S4method{converged}{lcModelMixtoolsRM}(object, ...)
 }
 \arguments{
-\item{object}{The \code{lcMethod} or \code{lcModel} object.}
+\item{object}{The object.}
+
+\item{...}{Not used.}
 
 \item{method}{An object inheriting from \code{lcMethod} with all its arguments having been evaluated and finalized.}
 
@@ -83,16 +91,13 @@
 
 \item{verbose}{A \link[R.utils:Verbose]{R.utils::Verbose} object indicating the level of verbosity.}
 
-\item{...}{Additional arguments.}
-
-\item{newdata}{Optional \code{data.frame} for which to compute the model predictions. If omitted, the model training data is used.
-Cluster trajectory predictions are made when ids are not specified.}
+\item{newdata}{A \code{data.frame} of trajectory data for which to compute trajectory assignments.}
 
 \item{cluster}{The cluster name (as \code{character}) to predict for.}
 
 \item{what}{The distributional parameter to predict. By default, the mean response 'mu' is predicted. The cluster membership predictions can be obtained by specifying \code{what = 'mb'}.}
 
-\item{at}{An optional vector of the times at which to compute the cluster trajectory predictions.}
+\item{at}{A \verb{numeric vector} of the times at which to compute the cluster trajectories.}
 
 \item{se}{Whether to compute the standard error of the prediction.}
 

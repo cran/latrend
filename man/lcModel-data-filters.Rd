@@ -16,7 +16,7 @@ testFold(data, fold, id, folds, seed)
 \arguments{
 \item{data}{The \code{data.frame} representing the model dataset.}
 
-\item{id}{The identifier variable name.}
+\item{id}{The identifier variable name, see \link{idVariable}.}
 
 \item{seed}{Optional seed for ensuring reproducibility.}
 
@@ -32,22 +32,22 @@ The data filters are applied by \link{latrend} prior to model estimation. These 
 }
 \seealso{
 Other validation methods: 
-\code{\link{createTestDataFolds}()},
 \code{\link{createTestDataFold}()},
+\code{\link{createTestDataFolds}()},
 \code{\link{createTrainDataFolds}()},
 \code{\link{latrendBoot}()},
 \code{\link{latrendCV}()}
 
 Other validation methods: 
-\code{\link{createTestDataFolds}()},
 \code{\link{createTestDataFold}()},
+\code{\link{createTestDataFolds}()},
 \code{\link{createTrainDataFolds}()},
 \code{\link{latrendBoot}()},
 \code{\link{latrendCV}()}
 
 Other validation methods: 
-\code{\link{createTestDataFolds}()},
 \code{\link{createTestDataFold}()},
+\code{\link{createTestDataFolds}()},
 \code{\link{createTrainDataFolds}()},
 \code{\link{latrendBoot}()},
 \code{\link{latrendCV}()}

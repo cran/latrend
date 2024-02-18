@@ -4,6 +4,7 @@
 \alias{interface-akmedoids}
 \alias{getArgumentDefaults,lcMethodAkmedoids-method}
 \alias{getArgumentExclusions,lcMethodAkmedoids-method}
+\alias{getCitation,lcMethodAkmedoids-method}
 \alias{getName,lcMethodAkmedoids-method}
 \alias{getShortName,lcMethodAkmedoids-method}
 \alias{fit,lcMethodAkmedoids-method}
@@ -13,6 +14,8 @@
 
 \S4method{getArgumentExclusions}{lcMethodAkmedoids}(object)
 
+\S4method{getCitation}{lcMethodAkmedoids}(object, ...)
+
 \S4method{getName}{lcMethodAkmedoids}(object)
 
 \S4method{getShortName}{lcMethodAkmedoids}(object)
@@ -20,6 +23,8 @@
 \S4method{fit}{lcMethodAkmedoids}(method, data, envir, verbose, ...)
 }
 \arguments{
+\item{...}{Not used.}
+
 \item{method}{An object inheriting from \code{lcMethod} with all its arguments having been evaluated and finalized.}
 
 \item{data}{A \code{data.frame} representing the transformed training data.}
@@ -32,6 +37,6 @@
 akmedoids interface
 }
 \seealso{
-\link{lcMethodAkmedoids} \link[akmedoids]{akclustr}
+\link{lcMethodAkmedoids} \code{akmedoids::akclustr}
 }
 \keyword{internal}

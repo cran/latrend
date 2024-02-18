@@ -133,7 +133,8 @@ as.data.frame.lcModels = function(
     dt = subset(dt, select = newColumns)
   }
 
-  dt[, `.method` := vapply(x, getShortName, FUN.VALUE = '')]
+  shortNames = vapply(x, getShortName, FUN.VALUE = '')
+  dt[, `.method` := shortNames]
   if (!has_name(dt, '.name')) {
     dt[, `.name` := character()]
   }
@@ -153,7 +154,6 @@ as.data.frame.lcModels = function(
 # . estimationTime ####
 #' @export
 #' @rdname estimationTime
-#' @param object The list of `lcModel` objects.
 setMethod('estimationTime', 'lcModels', function(object, unit, ...) {
   sum(vapply(object, estimationTime, unit = unit, ..., FUN.VALUE = 0), na.rm = TRUE)
 })
@@ -220,7 +220,7 @@ setMethod('estimationTime', 'list', function(object, unit, ...) {
 # . externalMetric ####
 #' @export
 #' @importFrom stats as.dist
-#' @rdname externalMetric
+#' @name externalMetric
 #' @aliases externalMetric,lcModels,missing-method
 #' @return For `externalMetric(lcModels)`: A distance matrix of class [dist] representing
 #' the pairwise comparisons.
@@ -231,14 +231,15 @@ setMethod('externalMetric', c('lcModels', 'missing'),
 
 #' @export
 #' @importFrom stats as.dist
-#' @rdname externalMetric
+#' @name externalMetric
 #' @aliases externalMetric,lcModels,character-method
 #' @return For `externalMetric(lcModels, name)`: A distance matrix of class [dist] representing
 #' the pairwise comparisons.
 setMethod('externalMetric', c('lcModels', 'character'),
   function(object, object2 = 'adjustedRand') {
     .externalMetricDist.lcModels(object, name = object2)
-})
+  }
+)
 
 
 #' @export
@@ -259,7 +260,8 @@ setMethod('externalMetric', c('list', 'lcModel'),
   function(object, object2, name, drop = TRUE) {
     models = as.lcModels(object)
     .externalMetric.lcModels(models, object2, name, drop = drop)
-})
+  }
+)
 
 
 .metric.lcModels = function(object, name, drop = TRUE) {
@@ -300,10 +302,12 @@ setMethod('metric', 'list', function(object, name, drop = TRUE) {
   .metric.lcModels(as.lcModels(object), name, drop = drop)
 })
 
+
 #' @export
 #' @rdname metric
 #' @return For `metric(lcModels)`: A `data.frame` with a metric per column.
 setMethod('metric', 'lcModels', .metric.lcModels)
+
 
 #' @export
 #' @title Select the lcModel with the lowest metric value
@@ -340,6 +344,7 @@ min.lcModels = function(x, name, ...) {
     x[[bestIdx]]
   }
 }
+
 
 #' @export
 #' @title Select the lcModel with the highest metric value
@@ -524,6 +529,7 @@ plotMetric = function(
   p
 }
 
+
 #' @export
 #' @title Subsetting a lcModels list based on method arguments
 #' @inheritSection lcModels-class Functionality
@@ -567,6 +573,7 @@ subset.lcModels = function(x, subset, drop = FALSE, ...) {
     x[dfsub$.ROW_INDEX]
   }
 }
+
 
 #' @export
 #' @title Print lcModels list concisely

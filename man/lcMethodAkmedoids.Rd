@@ -27,7 +27,7 @@ lcMethodAkmedoids(
 
 \item{crit}{Criterion to apply for internal model selection. Not applicable.}
 
-\item{...}{Arguments passed to \link[akmedoids:akclustr]{akmedoids::akclustr}.
+\item{...}{Arguments passed to \code{akmedoids::akclustr}.
 The following external arguments are ignored: traj, id_field, k}
 }
 \description{
@@ -35,7 +35,7 @@ Specify AKMedoids method
 }
 \examples{
 data(latrendData)
-if (require("akmedoids")) {
+if (rlang::is_installed("akmedoids")) {
   method <- lcMethodAkmedoids(response = "Y", time = "Time", id = "Id", nClusters = 3)
   model <- latrend(method, data = latrendData)
 }

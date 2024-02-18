@@ -40,15 +40,20 @@ setMethod('trajectories', 'call', function(object, ..., envir) {
 #' @param cluster The cluster assignment column
 #' @param center A function for aggregating multiple points at the same point in time
 #' @param trajectories Whether to additionally plot the original trajectories (`TRUE`),
-#' or to show the expected interval (standard deviation, standard error, range, or percentile range) of the observations at the respective moment in time.
+#' or to show the expected interval (standard deviation, standard error, range, or percentile range)
+#' of the observations at the respective moment in time.
 #'
-#' Note that visualizing the expected intervals is currently only supported for time-aligned trajectories, as the interval is computed at each unique moment in time.
+#' Note that visualizing the expected intervals is currently only supported for time-aligned trajectories,
+#' as the interval is computed at each unique moment in time.
 #' By default (`FALSE`), no information on the underlying trajectories is shown.
 #' @param facet Whether to facet by cluster. This is done by default when `trajectories` is enabled.
 #' @param id Id column. Only needed when `trajectories = TRUE`.
-setMethod('plotClusterTrajectories', 'data.frame', function(object,
+setMethod('plotClusterTrajectories', 'data.frame', function(
+  object,
   response,
   cluster = 'Cluster',
+  clusterOrder = character(),
+  clusterLabeler = make.clusterPropLabels,
   time = getOption('latrend.time'),
   center = meanNA,
   trajectories = c(FALSE, 'sd', 'se', '80pct', '90pct', '95pct', 'range'),
@@ -66,8 +71,15 @@ setMethod('plotClusterTrajectories', 'data.frame', function(object,
     .[, .(Value = center(get(response))), keyby = c(cluster, time)] %>%
     setnames('Value', response)
 
+  clusterNames = as.character(unique(clusTrajData[[cluster]]))
+  clusterSizes = clusTrajData[, uniqueN(id), by = c(cluster)]$V1
+  clusterLabels = clusterLabeler(clusterNames, clusterSizes)
+
+
   .plotClusterTrajs(
     clusTrajData,
+    clusterOrder = clusterOrder,
+    clusterLabels = clusterLabels,
     response = response,
     time = time,
     cluster = cluster,
@@ -82,6 +94,8 @@ setMethod('plotClusterTrajectories', 'data.frame', function(object,
 
 .plotClusterTrajs = function(
   data,
+  clusterOrder,
+  clusterLabels,
   response,
   time,
   cluster = 'Cluster',
@@ -102,6 +116,17 @@ setMethod('plotClusterTrajectories', 'data.frame', function(object,
     length(trajectories) == 1,
     is.flag(facet)
   )
+
+  clusterNames = as.character(unique(data[[cluster]]))
+  clusterOrderNames = make.orderedClusterNames(clusterNames, clusterOrder, subset = TRUE)
+  clusterIndices = match(clusterOrderNames, clusterNames)
+
+  data = data.table(data)[get(cluster) %in% clusterOrderNames]
+  data[, c(cluster) := factor(
+    get(cluster),
+    levels = clusterNames[clusterIndices],
+    labels = clusterLabels[clusterIndices]
+  )]
 
   if (isTRUE(as.logical(trajectories))) {
     # show trajectories
@@ -209,7 +234,8 @@ setMethod('plotClusterTrajectories', 'data.frame', function(object,
 #' @aliases plotTrajectories,data.frame-method
 #' @inheritParams trajectories
 #' @param response Response variable `character` name or a `call`.
-#' @param cluster Cluster variable name. If unspecified, trajectories are not grouped. Alternatively, cluster is a vector indicating cluster membership per id.
+#' @param cluster Cluster variable name. If unspecified, trajectories are not grouped.
+#' Alternatively, cluster is a vector indicating cluster membership per id.
 #' @param facet Whether to facet by cluster.
 #' @seealso [trajectories] [plotFittedTrajectories] [plotClusterTrajectories]
 #' @examples
@@ -269,7 +295,8 @@ setMethod('plotTrajectories', 'data.frame',
     response = names(dfNum)[which.max(counts)]
     message(
       sprintf(
-        'Automatically selected "%s" as the response variable. To override this, specify the "response" argument.',
+        'Automatically selected "%s" as the response variable.
+        To override this, specify the "response" argument.',
         response
       )
     )

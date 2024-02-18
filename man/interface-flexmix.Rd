@@ -5,6 +5,7 @@
 \alias{interface-flexmix}
 \alias{getArgumentDefaults,lcMethodFlexmix-method}
 \alias{getArgumentExclusions,lcMethodFlexmix-method}
+\alias{getCitation,lcMethodFlexmix-method}
 \alias{getName,lcMethodFlexmix-method}
 \alias{getShortName,lcMethodFlexmix-method}
 \alias{preFit,lcMethodFlexmix-method}
@@ -25,6 +26,8 @@
 \S4method{getArgumentDefaults}{lcMethodFlexmix}(object)
 
 \S4method{getArgumentExclusions}{lcMethodFlexmix}(object)
+
+\S4method{getCitation}{lcMethodFlexmix}(object, ...)
 
 \S4method{getName}{lcMethodFlexmix}(object)
 
@@ -59,6 +62,8 @@
 \arguments{
 \item{object}{The \code{lcModel} object.}
 
+\item{...}{Not used.}
+
 \item{method}{An object inheriting from \code{lcMethod} with all its arguments having been evaluated and finalized.}
 
 \item{data}{A \code{data.frame} representing the transformed training data.}
@@ -67,12 +72,9 @@
 
 \item{verbose}{A \link[R.utils:Verbose]{R.utils::Verbose} object indicating the level of verbosity.}
 
-\item{...}{Additional arguments.}
-
 \item{clusters}{Optional cluster assignments per id. If unspecified, a \code{matrix} is returned containing the cluster-specific predictions per column.}
 
-\item{newdata}{Optional \code{data.frame} for which to compute the model predictions. If omitted, the model training data is used.
-Cluster trajectory predictions are made when ids are not specified.}
+\item{newdata}{A \code{data.frame} of trajectory data for which to compute trajectory assignments.}
 
 \item{cluster}{The cluster name (as \code{character}) to predict for.}
 

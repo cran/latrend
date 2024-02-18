@@ -13,7 +13,7 @@
 \item{x}{The \code{lcMethod} object.}
 }
 \value{
-The number of arguments, as \code{integer}.
+The number of arguments, as \verb{scalar integer}.
 
 A \verb{character vector} of argument names.
 }
@@ -28,8 +28,8 @@ length(method)
 \seealso{
 Other lcMethod functions: 
 \code{\link{[[,lcMethod-method}},
-\code{\link{as.data.frame.lcMethods}()},
 \code{\link{as.data.frame.lcMethod}()},
+\code{\link{as.data.frame.lcMethods}()},
 \code{\link{as.lcMethods}()},
 \code{\link{as.list.lcMethod}()},
 \code{\link{evaluate.lcMethod}()},
