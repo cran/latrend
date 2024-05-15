@@ -499,7 +499,7 @@ setGeneric('metric', function(
 #' @title Plot the fitted trajectories
 #' @description Plot the fitted trajectories as represented by the given model
 #' @inheritParams fittedTrajectories
-#' @inheritDotParams fittedTrajectories
+#' @param ... Additional arguments passed to [fittedTrajectories].
 #' @seealso [fittedTrajectories]
 setGeneric('plotFittedTrajectories',
   function(object, ...) standardGeneric('plotFittedTrajectories')
@@ -512,6 +512,7 @@ setGeneric('plotFittedTrajectories',
 #' @title Plot cluster trajectories
 #' @description Plot the cluster trajectories associated with the given model.
 #' @inheritParams clusterTrajectories
+#' @param ... Additional arguments passed to [clusterTrajectories].
 #' @seealso [clusterTrajectories]
 setGeneric('plotClusterTrajectories',
   function(object, ...) standardGeneric('plotClusterTrajectories')
@@ -523,6 +524,7 @@ setGeneric('plotClusterTrajectories',
 #' @name plotTrajectories
 #' @title Plot the data trajectories
 #' @description Plots the output of [trajectories] for the given object.
+#' @param ... Additional arguments passed to [trajectories].
 #' @seealso [trajectories]
 setGeneric('plotTrajectories', function(object, ...) standardGeneric('plotTrajectories'))
 
@@ -717,6 +719,7 @@ setGeneric('predictForCluster', function(object, newdata = NULL, cluster, ...) {
 #' @title Posterior probability for new data
 #' @description Returns the observation-specific posterior probabilities for the given data.
 #' @param newdata Optional `data.frame` for which to compute the posterior probability. If omitted, the model training data is used.
+#' @param ... Additional arguments passed to [postprob].
 #' @inheritParams predictForCluster
 #' @return A N-by-K `matrix` indicating the posterior probability per trajectory per measurement on each row, for each cluster (the columns).
 #' Here, `N = nrow(newdata)` and `K = nClusters(object)`.
@@ -842,16 +845,19 @@ setGeneric('timeVariable', function(object, ...) {
 # trajectories ####
 #' @export
 #' @name trajectories
-#' @title Extract the trajectories
+#' @title Get the trajectories
 #' @description Transform or extract the trajectories from the given object to a standardized format.
 #'
+#' Trajectories are ordered by Id and observation time.
+#' @details
 #' The standardized data format is for method estimation by [latrend], and for plotting functions.
 #' @param object The data or model or extract the trajectories from.
 #' @param id The identifier variable name, see [idVariable].
 #' @param time The time variable name, see [timeVariable].
 #' @param response The response variable name, see [responseVariable].
-#' @param ... Not used.
-#' @return A `data.frame` with columns matching the `id`, `time`, and `response` name arguments.
+#' @param cluster The cluster column name, if available.
+#' @param ... Additional arguments.
+#' @return A `data.frame` with columns matching the `id`, `time`, `response` and `cluster` name arguments.
 #' @details The generic function removes unused factor levels in the Id column, and any trajectories which are only comprised of NAs in the response.
 #' @seealso [plotTrajectories] [latrend]
 setGeneric('trajectories', function(
@@ -859,6 +865,7 @@ setGeneric('trajectories', function(
     id = idVariable(object),
     time = timeVariable(object),
     response = responseVariable(object),
+    cluster = 'Cluster',
     ...
 ) {
   data <- standardGeneric('trajectories')
@@ -890,14 +897,22 @@ setGeneric('trajectories', function(
     keepIds = as.data.table(data)[, .(AllNA = all(is.na(get(..response)))), by = c(id)] %>%
       .[AllNA == FALSE, get(..id)]
 
-    data = as.data.table(data)[get(id) %in% keepIds]
+    data = as.data.table(data)[get(..id) %in% keepIds]
 
     if (is.factor(data)) {
       data[[id]] = droplevels(data[[id]], exclude = NULL)
     }
   }
 
-  as.data.frame(data)
+  if (length(cluster) > 0 && has_name(data, cluster)) {
+    assert_that(
+      noNA(data[[cluster]])
+    )
+  }
+
+  # ensure ordered by id and time
+  sortedData = as.data.table(data, key = c(id, time))
+  as.data.frame(sortedData)
 })
 
 

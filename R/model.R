@@ -1160,7 +1160,6 @@ setMethod('predictForCluster', 'lcModel',
 #' @rdname predictPostprob
 #' @aliases predictPostprob,lcModel-method
 #' @description For `lcModel`: The default implementation returns a uniform probability matrix.
-#' @inheritDotParams postprob
 #' @section Implementation:
 #' Classes extending `lcModel` should override this method to enable posterior probability predictions for new data.
 #' \preformatted{
@@ -1235,7 +1234,8 @@ setMethod('predictAssignments', 'lcModel', function(
 #' @name plot-lcModel-method
 #' @aliases plot,lcModel,ANY-method plot,lcModel-method
 #' @title Plot a lcModel
-#' @description Plot a `lcModel` object. By default, this plots the cluster trajectories of the model, along with the training data.
+#' @description Plot a `lcModel` object.
+#' By default, this plots the cluster trajectories of the model, along with the trajectories used for estimation.
 #' @param x The `lcModel` object.
 #' @param y Not used.
 #' @inheritDotParams plotClusterTrajectories
@@ -1266,7 +1266,6 @@ setMethod('plot', c('lcModel', 'ANY'), function(x, y, ...) {
 #' @rdname plotFittedTrajectories
 #' @aliases plotFittedTrajectories,lcModel-method
 #' @param ... Arguments passed to [fittedTrajectories()] and [plotTrajectories].
-#' @inheritDotParams plotTrajectories
 #' @return A `ggplot` object.
 #' @seealso [plotClusterTrajectories] [plotTrajectories] [plot]
 #' @examples
@@ -1300,9 +1299,6 @@ setMethod('plotFittedTrajectories', 'lcModel', function(object, ...) {
 #' @param clusterOrder Specify which clusters to plot and the order.
 #' Can be the cluster names or index.
 #' By default, all clusters are shown.
-#' @param trajAssignments The cluster assignments for the fitted trajectories. Only used when `trajectories = TRUE` and `facet = TRUE`. See [trajectoryAssignments].
-#' @inheritDotParams clusterTrajectories
-#' @param ... Arguments passed to [clusterTrajectories()], or [ggplot2::geom_line()] for plotting the cluster trajectory lines.
 #' @return A `ggplot` object.
 #' @seealso [plotTrajectories] [plot]
 #' @examples
@@ -1350,26 +1346,16 @@ setMethod('plotClusterTrajectories', 'lcModel',
     clusterLabeler = make.clusterPropLabels,
     trajectories = FALSE,
     facet = !isFALSE(as.logical(trajectories[1])),
-    trajAssignments = trajectoryAssignments(object),
     ...
 ) {
   clusterLabels = clusterLabeler(clusterNames(object), clusterSizes(object))
   assert_that(length(clusterLabels) == nClusters(object))
 
-  clusdata = clusterTrajectories(object, at = at, what = what, ...) %>% as.data.table()
-
-  rawdata = model.data(object) %>% as.data.table()
-  if (nrow(rawdata) > 0 && !is.null(trajAssignments)) {
-    assert_that(
-      length(trajAssignments) == nIds(object),
-      all(trajAssignments %in% clusterNames(object))
-    )
-    trajAssignments = factor(trajAssignments, levels = clusterNames(object), labels = clusterLabels)
-    rawdata[, Cluster := trajAssignments[make.idRowIndices(object)]]
-  }
+  clusData = clusterTrajectories(object, at = at, what = what, ...)
+  trajData = trajectories(object)
 
   .plotClusterTrajs(
-    clusdata,
+    clusData,
     clusterOrder = clusterOrder,
     clusterLabels = clusterLabels,
     response = responseVariable(object, what = what),
@@ -1377,7 +1363,7 @@ setMethod('plotClusterTrajectories', 'lcModel',
     id = idVariable(object),
     trajectories = trajectories[1],
     facet = facet,
-    rawdata = rawdata,
+    trajData = trajData,
     ...
   )
 })
@@ -1387,7 +1373,6 @@ setMethod('plotClusterTrajectories', 'lcModel',
 #' @export
 #' @rdname plotTrajectories
 #' @aliases plotTrajectories,lcModel-method
-#' @inheritDotParams trajectories
 #' @examples
 #' data(latrendData)
 #' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
@@ -1398,12 +1383,13 @@ setMethod('plotClusterTrajectories', 'lcModel',
 #' }
 #' @seealso [trajectories]
 setMethod('plotTrajectories', 'lcModel', function(object, ...) {
-  data = trajectories(object, ...)
+  data = trajectories(object, cluster = 'Cluster', ...)
   plotTrajectories(
     data,
     id = idVariable(object),
     time = timeVariable(object),
     response = responseVariable(object),
+    cluster = 'Cluster',
     ...
   )
 })
@@ -1687,8 +1673,17 @@ time.lcModel = function(x, ...) {
 
 # . trajectories ####
 #' @rdname trajectories
+#' @description
+#' For estimated models; get the trajectories used for estimation, along with the cluster membership.
+#' This data can be used for plotting or post-hoc analysis.
 #' @aliases trajectories,lcModel-method
-setMethod('trajectories', 'lcModel', function(object, ...) {
+#' @param ... Arguments passed to [trajectoryAssignments] for generating the Cluster column.
+#' @examples
+#' data(latrendData)
+#' method <- lcMethodLMKM(Y ~ Time, id = "Id", time = "Time")
+#' model <- latrend(method, latrendData)
+#' trajectories(model)
+setMethod('trajectories', 'lcModel', function(object, cluster, ...) {
   data = model.data(object)
 
   assert_that(!is.null(data), msg = 'no associated training data for this model')
@@ -1696,10 +1691,18 @@ setMethod('trajectories', 'lcModel', function(object, ...) {
   id = idVariable(object)
   time = timeVariable(object)
   res = responseVariable(object)
+  columns = c(id, time, res) # needed because of strange dynamic evaluation by data.table
+  trajData = subset(data, select = columns)
 
-  trajdata = subset(data, select = c(id, time, res))
+  clusData = data.table(
+    Id = ids(object),
+    Cluster = trajectoryAssignments(object, ...)
+  )
+  setnames(clusData, c('Id', 'Cluster'), c(id, cluster))
 
-  trajectories(trajdata, id = id, time = time, response = res, ...)
+  outData = merge(trajData, clusData, all.x = TRUE)
+
+  trajectories(outData, id = id, time = time, response = res, ...)
 })
 
 

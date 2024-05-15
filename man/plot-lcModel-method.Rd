@@ -6,7 +6,7 @@
 \alias{plot,lcModel-method}
 \title{Plot a lcModel}
 \usage{
-\S4method{plot}{lcModel}(x, y, ...)
+\S4method{plot}{lcModel,ANY}(x, y, ...)
 }
 \arguments{
 \item{x}{The \code{lcModel} object.}
@@ -23,7 +23,8 @@
 A \code{ggplot} object.
 }
 \description{
-Plot a \code{lcModel} object. By default, this plots the cluster trajectories of the model, along with the training data.
+Plot a \code{lcModel} object.
+By default, this plots the cluster trajectories of the model, along with the trajectories used for estimation.
 }
 \examples{
 data(latrendData)

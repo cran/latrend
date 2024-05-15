@@ -165,7 +165,7 @@ NULL
 #'   plotTrajectories(longdata, response = "Value", id = "Id", time = "Time")
 #' }
 generateLongData = function(
-  sizes = c(40, 60),
+    sizes = c(40, 60),
   fixed = Value ~ 1,
   cluster = ~ 1 + Time,
   random = ~ 1,
@@ -250,8 +250,8 @@ generateLongData = function(
   if (ncol(Xr) > 0) {
     if (!is.matrix(randomScales)) {
       randomScales = matrix(randomScales,
-                            nrow = length(randomScales),
-                            ncol = nClus)
+        nrow = length(randomScales),
+        ncol = nClus)
     }
     assert_that(
       is.matrix(randomScales),
